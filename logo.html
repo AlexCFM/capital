@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSE — логотип и брендинг</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --ink:#141210;
+    --red:#FF2E2E;
+    --red-deep:#A8131A;
+    --night:#15100E;
+    --line:rgba(20,18,16,0.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--paper);color:var(--ink);font-family:'Manrope',sans-serif;padding:64px 32px 120px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  h1{font-family:'Unbounded',sans-serif;font-size:20px;text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;}
+  .lead{color:rgba(20,18,16,.6);font-size:15px;margin-bottom:56px;max-width:520px;}
+  section{margin-bottom:72px;}
+  .label{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--red);font-weight:700;margin-bottom:18px;
+  }
+
+  /* ===== Mark (SVG symbol reused everywhere) ===== */
+  svg.mark-def{position:absolute;width:0;height:0;overflow:hidden;}
+
+  /* ===== Modular brand strip ===== */
+  .strip{
+    display:flex;
+    height:150px;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 1px 0 var(--line);
+  }
+  .tile{
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+    flex-shrink:0;
+    height:100%;
+  }
+  .tile-pattern{
+    width:150px;
+    background:var(--red);
+  }
+  .tile-pattern svg{width:100%;height:100%;}
+  .tile-mark{
+    width:150px;
+    background:var(--paper);
+  }
+  .tile-mark svg{width:76px;height:76px;}
+  .tile-word{
+    width:230px;
+    background:var(--red);
+  }
+  .tile-word span{
+    font-family:'Unbounded',sans-serif;font-weight:900;color:#fff;font-size:34px;letter-spacing:0;text-transform:uppercase;
+  }
+  .tile-tag{
+    width:170px;
+    background:var(--paper);
+    flex-direction:column;
+    align-items:flex-start;
+    padding-left:26px;
+  }
+  .tile-tag b{
+    font-family:'Unbounded',sans-serif;font-weight:800;color:var(--red);font-size:20px;text-transform:uppercase;line-height:1.2;
+  }
+  .tile-freq{
+    width:150px;
+    background:var(--red);
+  }
+  .tile-freq span{
+    font-family:'JetBrains Mono',monospace;font-weight:700;color:#fff;font-size:26px;
+  }
+  .tile-chevron{
+    flex:1;
+    min-width:180px;
+  }
+  .tile-chevron svg{width:100%;height:100%;display:block;}
+
+  /* ===== Lockups ===== */
+  .lockup-row{display:flex;gap:56px;flex-wrap:wrap;align-items:flex-end;}
+  .lockup-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:36px 40px;
+    display:flex;flex-direction:column;align-items:flex-start;gap:22px;
+  }
+  .lockup-card.on-night{background:var(--night);border-color:transparent;}
+  .lockup-card.on-red{background:var(--red);border-color:transparent;}
+  .lockup-caption{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(20,18,16,.45);letter-spacing:.06em;
+  }
+  .on-night .lockup-caption, .on-red .lockup-caption{color:rgba(255,255,255,.55);}
+
+  .lockup-h{display:flex;align-items:center;gap:14px;}
+  .lockup-h svg{width:40px;height:40px;flex-shrink:0;}
+  .lockup-h .word{font-family:'Unbounded',sans-serif;font-weight:900;font-size:26px;color:var(--ink);text-transform:uppercase;display:flex;align-items:baseline;gap:8px;}
+  .lockup-h .word small{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11px;color:var(--red);}
+  .on-night .lockup-h .word{color:#fff;}
+  .on-red .lockup-h .word{color:#fff;}
+  .on-red .lockup-h .word small{color:rgba(255,255,255,.8);}
+
+  .lockup-stack{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;}
+  .lockup-stack svg{width:52px;height:52px;}
+  .lockup-stack .word{font-family:'Unbounded',sans-serif;font-weight:900;font-size:22px;color:var(--ink);text-transform:uppercase;}
+  .on-night .lockup-stack .word{color:#fff;}
+
+  /* mark-only grid */
+  .mark-grid{display:flex;gap:24px;flex-wrap:wrap;}
+  .mark-swatch{
+    width:120px;height:120px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .mark-swatch svg{width:56px;height:56px;}
+  .sw-paper{background:var(--paper);border:1px solid var(--line);}
+  .sw-night{background:var(--night);}
+  .sw-red{background:var(--red);}
+
+  .favicon-row{display:flex;gap:16px;align-items:center;}
+  .fav{border-radius:8px;background:var(--night);display:flex;align-items:center;justify-content:center;}
+  .fav svg{width:60%;height:60%;}
+  .fav.f32{width:32px;height:32px;border-radius:6px;}
+  .fav.f48{width:48px;height:48px;border-radius:8px;}
+  .fav.f64{width:64px;height:64px;border-radius:10px;}
+
+  @media (max-width:900px){
+    .strip{height:auto;flex-wrap:wrap;}
+    .tile{height:110px;}
+    .tile-pattern,.tile-mark,.tile-freq{width:110px;}
+    .tile-word{width:180px;}
+    .tile-word span{font-size:26px;}
+    .tile-tag{width:150px;padding-left:18px;}
+    .tile-chevron{width:100%;height:60px;}
+  }
+</style>
+</head>
+<body>
+<svg class="mark-def" aria-hidden="true">
+  <defs>
+    <symbol id="pulse-mark" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="42" fill="var(--red)"/>
+      <path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50"
+            fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="pulse-mark-mono" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="5.5"/>
+      <path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50"
+            fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <pattern id="pulse-tile-pattern" width="46" height="46" patternUnits="userSpaceOnUse">
+      <rect width="46" height="46" fill="var(--red)"/>
+      <path d="M0,23 L10,23 L13,23 L16,12 L20,34 L23,18 L25,23 L46,23"
+            fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="wrap">
+  <h1>PULSE 101.2 — фирменный знак</h1>
+  <p class="lead">Модульная система по мотивам референса (лента цветных блоков) — но собственный знак: круг + кардиограмма вместо мишени со стрелкой. Пульс радиосигнала = пульс музыки = сердечный пульс — три значения в одной линии.</p>
+
+  <section>
+    <div class="label">01 · Модульная лента</div>
+    <div class="strip">
+      <div class="tile tile-pattern"><svg><rect width="100%" height="100%" fill="url(#pulse-tile-pattern)"/></svg></div>
+      <div class="tile tile-mark"><svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg></div>
+      <div class="tile tile-word"><span>Pulse</span></div>
+      <div class="tile tile-freq"><span>101,2</span></div>
+      <div class="tile tile-chevron">
+        <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+          <rect width="300" height="150" fill="#fff"/>
+          <polygon points="0,0 90,0 150,75 90,150 0,150 60,75" fill="var(--red)"/>
+          <polygon points="110,0 170,0 230,75 170,150 110,150 170,75" fill="var(--red)"/>
+          <polygon points="220,0 280,0 300,75 280,150 220,150 280,75" fill="var(--red)" opacity="0.55"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">02 · Основные лок-апы</div>
+    <div class="lockup-row">
+      <div class="lockup-card">
+        <div class="lockup-h">
+          <svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg>
+          <div class="word">Pulse <small>101.2 FM</small></div>
+        </div>
+        <div class="lockup-caption">horizontal · на светлом</div>
+      </div>
+      <div class="lockup-card on-night">
+        <div class="lockup-h">
+          <svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg>
+          <div class="word">Pulse <small>101.2 FM</small></div>
+        </div>
+        <div class="lockup-caption">horizontal · на тёмном</div>
+      </div>
+      <div class="lockup-card on-red">
+        <div class="lockup-h">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#fff"/><path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50" fill="none" stroke="var(--red)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="word">Pulse <small>101.2 FM</small></div>
+        </div>
+        <div class="lockup-caption">horizontal · на красном</div>
+      </div>
+      <div class="lockup-card">
+        <div class="lockup-stack">
+          <svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg>
+          <div class="word">Pulse</div>
+        </div>
+        <div class="lockup-caption">stacked</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">03 · Знак отдельно</div>
+    <div class="mark-grid">
+      <div class="mark-swatch sw-paper"><svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg></div>
+      <div class="mark-swatch sw-night"><svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg></div>
+      <div class="mark-swatch sw-red"><svg viewBox="0 0 100 100" style="color:#fff"><use href="#pulse-mark-mono"/></svg></div>
+      <div class="mark-swatch sw-paper" style="color:var(--ink)"><svg viewBox="0 0 100 100"><use href="#pulse-mark-mono"/></svg></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">04 · Favicon / app-иконка</div>
+    <div class="favicon-row">
+      <div class="fav f32"><svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg></div>
+      <div class="fav f48"><svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg></div>
+      <div class="fav f64"><svg viewBox="0 0 100 100"><use href="#pulse-mark"/></svg></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
