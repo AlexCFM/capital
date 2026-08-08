@@ -402,6 +402,31 @@
   .np-play:hover{transform:scale(1.06);background:var(--red-deep);}
   .np-play svg{width:24px;height:24px;fill:#fff;margin-left:3px;}
 
+  /* ---------- NEW MUSIC ---------- */
+  .tracks-list{display:flex;flex-direction:column;}
+  .track-row{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:22px;
+    align-items:center;
+    padding:22px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .track-row:first-child{padding-top:0;}
+  .track-row:last-child{border-bottom:none;}
+  .track-play{
+    width:44px;height:44px;border-radius:50%;
+    border:2px solid var(--ink);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;cursor:pointer;background:transparent;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .track-play svg{width:14px;height:14px;fill:var(--ink);margin-left:2px;transition:fill .2s ease;}
+  .track-play:hover{background:var(--red);border-color:var(--red);}
+  .track-play:hover svg{fill:#fff;}
+  .track-title{font-weight:800;font-size:18px;font-family:'Big Shoulders Display',sans-serif;}
+  .track-artist{color:var(--ink-soft);font-weight:500;font-size:14.5px;margin-top:4px;}
+
   /* ---------- SCHEDULE ---------- */
   .schedule-list{display:flex;flex-direction:column;}
   .slot{
@@ -652,6 +677,65 @@
       <button class="np-play" aria-label="Слушать эфир">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </button>
+    </div>
+  </div>
+</section>
+
+<section id="new-music">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>Новая музыка</h2>
+      <p>Треки, которые резиденты добавили в ротацию на этой неделе.</p>
+    </div>
+    <div class="tracks-list">
+      <div class="track-row">
+        <button class="track-play" aria-label="Слушать превью"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div>
+          <div class="track-title">Fisher — Losing It</div>
+          <div class="track-artist">Добавила Настя Реброва</div>
+        </div>
+        <div class="slot-genre">Tech House</div>
+      </div>
+      <div class="track-row">
+        <button class="track-play" aria-label="Слушать превью"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div>
+          <div class="track-title">Charlotte de Witte — Sgadi Li Mueddin</div>
+          <div class="track-artist">Добавила Люба Снег</div>
+        </div>
+        <div class="slot-genre">Techno</div>
+      </div>
+      <div class="track-row">
+        <button class="track-play" aria-label="Слушать превью"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div>
+          <div class="track-title">Jamie xx — Idontknow</div>
+          <div class="track-artist">Добавил Ким Осокин</div>
+        </div>
+        <div class="slot-genre">Deep House</div>
+      </div>
+      <div class="track-row">
+        <button class="track-play" aria-label="Слушать превью"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div>
+          <div class="track-title">Bicep — Apricots</div>
+          <div class="track-artist">Добавил Артём Ковалёв</div>
+        </div>
+        <div class="slot-genre">Techno / Bass</div>
+      </div>
+      <div class="track-row">
+        <button class="track-play" aria-label="Слушать превью"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div>
+          <div class="track-title">Four Tet — Baby</div>
+          <div class="track-artist">Добавила Мари Лунц</div>
+        </div>
+        <div class="slot-genre">Ambient / Downtempo</div>
+      </div>
+      <div class="track-row">
+        <button class="track-play" aria-label="Слушать превью"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        <div>
+          <div class="track-title">Overmono — Good Lies</div>
+          <div class="track-artist">Добавил DJ Fedorov</div>
+        </div>
+        <div class="slot-genre">Disco / Nu-Disco</div>
+      </div>
     </div>
   </div>
 </section>
