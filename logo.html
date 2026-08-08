@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAPITAL — логотип и брендинг</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23FF2E2E'/%3E%3Cpath d='M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50' fill='none' stroke='white' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -140,6 +141,43 @@
     .tile-tag{width:150px;padding-left:18px;}
     .tile-chevron{width:100%;height:60px;}
   }
+
+  /* ===== Back link ===== */
+  .back-link{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;
+    color:var(--ink);text-decoration:none;margin-bottom:28px;
+    opacity:.7;
+  }
+  .back-link:hover{opacity:1;color:var(--red);}
+
+  /* ===== Misuse examples ===== */
+  .misuse-grid{display:flex;gap:32px;flex-wrap:wrap;}
+  .misuse-card{width:230px;}
+  .misuse-frame{
+    height:150px;border-radius:14px;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);
+  }
+  .misuse-badge{
+    position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;
+    background:var(--red);display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 2px var(--paper);
+  }
+  .misuse-badge svg{width:14px;height:14px;}
+  .misuse-caption{
+    font-size:13px;color:rgba(20,18,16,.62);margin-top:12px;line-height:1.4;
+  }
+  .misuse-caption b{color:var(--ink);font-weight:700;}
+
+  .mf-stretch{background:var(--paper);}
+  .mf-stretch svg{width:150px;height:150px;transform:scaleX(1.7);}
+  .mf-color{background:var(--paper);}
+  .mf-color svg{width:70px;height:70px;}
+  .mf-noise{background:linear-gradient(135deg,#ffd23f,#3fb8ff 45%,#ff3fb8);}
+  .mf-noise svg{width:70px;height:70px;filter:drop-shadow(0 0 1px rgba(0,0,0,.2));}
+  .mf-fx svg{width:70px;height:70px;filter:drop-shadow(4px 6px 0 rgba(0,0,0,.35)) drop-shadow(0 0 14px rgba(255,46,46,.6));}
+  .mf-fx{background:var(--paper);}
 </style>
 </head>
 <body>
@@ -164,6 +202,7 @@
 </svg>
 
 <div class="wrap">
+  <a class="back-link" href="index.html">&larr; на сайт CAPITAL</a>
   <h1>CAPITAL — фирменный знак</h1>
   <p class="lead">Модульная система по мотивам референса (лента цветных блоков) — но собственный знак: круг + кардиограмма вместо мишени со стрелкой. Живой сигнал эфира и живой ритм музыки — одна линия.</p>
 
@@ -234,6 +273,40 @@
       <div class="fav f32"><svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg></div>
       <div class="fav f48"><svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg></div>
       <div class="fav f64"><svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">05 · Как не надо</div>
+    <div class="misuse-grid">
+      <div class="misuse-card">
+        <div class="misuse-frame mf-stretch">
+          <div class="misuse-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"/><line x1="5" y1="19" x2="19" y2="5" stroke="#fff" stroke-width="2"/></svg></div>
+          <svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg>
+        </div>
+        <p class="misuse-caption"><b>Не растягивать.</b> Знак существует только в пропорции 1:1 — круг остаётся кругом.</p>
+      </div>
+      <div class="misuse-card">
+        <div class="misuse-frame mf-color">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#2E6BFF"/><path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="misuse-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"/><line x1="5" y1="19" x2="19" y2="5" stroke="#fff" stroke-width="2"/></svg></div>
+        </div>
+        <p class="misuse-caption"><b>Не менять цвет знака.</b> Красный — единственный цвет заливки. Для тёмных/цветных фонов — только моно-вариант.</p>
+      </div>
+      <div class="misuse-card">
+        <div class="misuse-frame mf-noise">
+          <svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg>
+          <div class="misuse-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"/><line x1="5" y1="19" x2="19" y2="5" stroke="#fff" stroke-width="2"/></svg></div>
+        </div>
+        <p class="misuse-caption"><b>Не размещать на пёстром фоне.</b> Знаку нужен ровный фон — paper, night или red — иначе теряется контраст.</p>
+      </div>
+      <div class="misuse-card">
+        <div class="misuse-frame mf-fx">
+          <svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg>
+          <div class="misuse-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"/><line x1="5" y1="19" x2="19" y2="5" stroke="#fff" stroke-width="2"/></svg></div>
+        </div>
+        <p class="misuse-caption"><b>Без теней и свечения.</b> Знак плоский. Никаких drop-shadow, градиентов или обводок поверх.</p>
+      </div>
     </div>
   </section>
 </div>
