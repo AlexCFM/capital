@@ -103,7 +103,7 @@
 
   .lockup-h{display:flex;align-items:center;gap:14px;}
   .lockup-h svg{width:40px;height:40px;flex-shrink:0;}
-  .lockup-h .word{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:var(--ink);text-transform:uppercase;display:flex;align-items:baseline;gap:8px;}
+  .lockup-h .word{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:26px;color:var(--red);letter-spacing:0.01em;text-transform:uppercase;display:flex;align-items:baseline;gap:8px;}
   .lockup-h .word small{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:11px;color:var(--red);}
   .on-night .lockup-h .word{color:#fff;}
   .on-red .lockup-h .word{color:#fff;}
@@ -111,7 +111,7 @@
 
   .lockup-stack{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;}
   .lockup-stack svg{width:52px;height:52px;}
-  .lockup-stack .word{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--ink);text-transform:uppercase;}
+  .lockup-stack .word{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:22px;color:var(--red);letter-spacing:0.01em;text-transform:uppercase;}
   .on-night .lockup-stack .word{color:#fff;}
 
   /* mark-only grid */
@@ -188,18 +188,18 @@
   <defs>
     <symbol id="capital-mark" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="42" fill="var(--red)"/>
-      <path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50"
-            fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="41" cy="50" r="14" fill="none" stroke="#fff" stroke-width="7"/>
+      <line x1="49" y1="42" x2="73" y2="21" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
     </symbol>
     <symbol id="capital-mark-mono" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="5.5"/>
-      <path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50"
-            fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="41" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="5.5"/>
+      <line x1="49" y1="42" x2="73" y2="21" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"/>
     </symbol>
-    <pattern id="capital-tile-pattern" width="46" height="46" patternUnits="userSpaceOnUse">
-      <rect width="46" height="46" fill="var(--red)"/>
-      <path d="M0,23 L10,23 L13,23 L16,12 L20,34 L23,18 L25,23 L46,23"
-            fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <pattern id="capital-tile-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="var(--red)"/>
+      <circle cx="15" cy="20" r="6" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="2"/>
+      <line x1="19" y1="16" x2="30" y2="8" stroke="#fff" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round"/>
     </pattern>
   </defs>
 </svg>
@@ -207,7 +207,7 @@
 <div class="wrap">
   <a class="back-link" href="index.html">&larr; на сайт CAPITAL</a>
   <h1>CAPITAL — фирменный знак</h1>
-  <p class="lead">Модульная система по мотивам референса (лента цветных блоков) — но собственный знак: круг + кардиограмма вместо мишени со стрелкой. Живой сигнал эфира и живой ритм музыки — одна линия.</p>
+  <p class="lead">Фирменный знак станции: диск и указатель, как игла тонарма на пластинке или стрелка настройки на волну. Красный вордмарк — основной вариант написания названия.</p>
 
   <section>
     <div class="label">01 · Модульная лента</div>
@@ -245,7 +245,7 @@
       </div>
       <div class="lockup-card on-red">
         <div class="lockup-h">
-          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#fff"/><path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50" fill="none" stroke="var(--red)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#fff"/><circle cx="41" cy="50" r="14" fill="none" stroke="var(--red)" stroke-width="7"/><line x1="49" y1="42" x2="73" y2="21" stroke="var(--red)" stroke-width="7" stroke-linecap="round"/></svg>
           <div class="word">Capital</div>
         </div>
         <div class="lockup-caption">horizontal · на красном</div>
@@ -291,7 +291,7 @@
       </div>
       <div class="misuse-card">
         <div class="misuse-frame mf-color">
-          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#2E6BFF"/><path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="#2E6BFF"/><circle cx="41" cy="50" r="14" fill="none" stroke="#fff" stroke-width="7"/><line x1="49" y1="42" x2="73" y2="21" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>
           <div class="misuse-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#fff" stroke-width="2"/><line x1="5" y1="19" x2="19" y2="5" stroke="#fff" stroke-width="2"/></svg></div>
         </div>
         <p class="misuse-caption"><b>Не менять цвет знака.</b> Красный — единственный цвет заливки. Для тёмных/цветных фонов — только моно-вариант.</p>

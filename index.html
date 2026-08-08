@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAPITAL — электронная музыка в эфире</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23FF2E2E'/%3E%3Cpath d='M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50' fill='none' stroke='white' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='42' fill='%23FF2E2E'/%3E%3Ccircle cx='41' cy='50' r='14' fill='none' stroke='white' stroke-width='7'/%3E%3Cline x1='49' y1='42' x2='73' y2='21' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -111,9 +111,11 @@
     align-items:center;
     gap:10px;
     font-family:'Big Shoulders Display',sans-serif;
-    font-weight:800;
+    font-weight:900;
     font-size:22px;
+    letter-spacing:0.01em;
     text-transform:uppercase;
+    color:var(--red);
   }
   .logo-mark{width:30px;height:30px;flex-shrink:0;}
   .logo .freq{align-self:center;}
@@ -574,8 +576,8 @@
   <defs>
     <symbol id="capital-mark" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="42" fill="var(--red)"/>
-      <path d="M14,50 L33,50 L39,50 L44,32 L50,68 L56,42 L60,50 L86,50"
-            fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="41" cy="50" r="14" fill="none" stroke="#fff" stroke-width="7"/>
+      <line x1="49" y1="42" x2="73" y2="21" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
     </symbol>
   </defs>
 </svg>
