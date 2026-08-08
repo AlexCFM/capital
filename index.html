@@ -432,79 +432,6 @@
     text-align:center;
   }
 
-  /* ---------- RESIDENTS ---------- */
-  .residents{background:var(--paper-dim);}
-  .res-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:1.5px;
-    background:var(--ink);
-    border:1.5px solid var(--ink);
-    clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
-    overflow:hidden;
-  }
-  .res-card{
-    background:var(--paper-dim);
-    padding:28px 26px 24px;
-    display:flex;flex-direction:column;gap:14px;
-    position:relative;
-  }
-  .res-pass-row{
-    display:flex;align-items:center;justify-content:space-between;
-    padding-bottom:14px;
-    border-bottom:1px dashed var(--line);
-  }
-  .res-pass-label{
-    font-family:'JetBrains Mono',monospace;
-    font-size:10.5px;font-weight:700;letter-spacing:.12em;
-    color:var(--ink-soft);
-  }
-  .res-avatar{
-    width:46px;height:46px;
-    clip-path:polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:14px;color:#fff;
-    background:linear-gradient(135deg,var(--red),var(--red-deep));
-    flex-shrink:0;
-  }
-  .res-barcode{
-    flex:1;margin-left:14px;height:22px;
-    background:repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 4px, var(--ink) 4px 5px, transparent 5px 9px);
-    opacity:.55;
-  }
-  .res-name{font-family:'Big Shoulders Display',sans-serif;font-weight:700;font-size:17px;text-transform:none;}
-  .res-genre{
-    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:600;letter-spacing:.04em;
-  }
-  .res-bio{color:var(--ink-soft);font-size:14.5px;font-weight:500;line-height:1.55;}
-
-  /* ---------- PODCASTS ---------- */
-  .pod-list{display:flex;flex-direction:column;}
-  .pod-row{
-    display:grid;
-    grid-template-columns:auto 1fr auto auto;
-    gap:22px;
-    align-items:center;
-    padding:20px 24px 20px 22px;
-    border-left:2px solid transparent;
-    transition:background .2s ease, border-color .2s ease;
-  }
-  .pod-row:hover{background:var(--paper-dim);border-left-color:var(--red);}
-  .pod-play{
-    width:44px;height:44px;border-radius:50%;
-    border:2px solid var(--ink);
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;cursor:pointer;background:transparent;
-    transition:background .2s ease, border-color .2s ease;
-  }
-  .pod-play svg{width:14px;height:14px;fill:var(--ink);margin-left:2px;}
-  .pod-row:hover .pod-play{background:var(--red);border-color:var(--red);}
-  .pod-row:hover .pod-play svg{fill:#fff;}
-  .pod-title{font-weight:800;font-size:16.5px;font-family:'Big Shoulders Display',sans-serif;text-transform:none;}
-  .pod-host{color:var(--ink-soft);font-size:14px;font-weight:500;margin-top:3px;}
-  .pod-date,.pod-dur{
-    font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-soft);
-  }
 
   /* ---------- SUBSCRIBE ---------- */
   .subscribe{
@@ -604,7 +531,6 @@
     .np-badge{justify-content:center;}
     .slot{grid-template-columns:1fr;gap:6px;}
     .slot-genre{justify-self:start;margin-top:8px;}
-    .res-grid{grid-template-columns:1fr;}
     .foot-top{grid-template-columns:1fr 1fr;}
     .subscribe{margin:0 20px;padding:52px 28px;}
     .player-inner{grid-template-columns:auto 1fr auto;padding:0 20px;}
@@ -633,10 +559,11 @@
   <div class="wrap nav">
     <div class="logo"><svg class="logo-mark" viewBox="0 0 100 100"><use href="#capital-mark"/></svg>CAPITAL</div>
     <nav class="nav-links">
-      <a href="#now-playing">Эфир</a>
-      <a href="#schedule">Программа</a>
-      <a href="#residents">Резиденты</a>
-      <a href="#podcasts">Архив</a>
+      <a href="#">О станции</a>
+      <a href="#">Новости</a>
+      <a href="#">Прямой эфир</a>
+      <a href="#">Программы</a>
+      <a href="#">Контакты</a>
     </nav>
     <div class="nav-cta">
       <a href="#player" class="btn btn-primary">Слушать</a>
@@ -794,124 +721,6 @@
   </div>
 </section>
 
-<section class="residents" id="residents">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Резиденты</h2>
-      <p>Диджеи, которые ведут эфир — не боты и не автоплейлисты.</p>
-    </div>
-    <div class="res-grid">
-      <div class="res-card">
-        <div class="res-pass-row">
-          <div class="res-avatar">НР</div>
-          <div class="res-barcode"></div>
-        </div>
-        <div class="res-pass-label">ARTIST · ALL ACCESS</div>
-        <div class="res-name">Настя Реброва</div>
-        <div class="res-genre">MELODIC HOUSE &amp; TECHNO</div>
-        <div class="res-bio">Собирает треки, которые звучат как рассвет после ночи в клубе.</div>
-      </div>
-      <div class="res-card">
-        <div class="res-pass-row">
-          <div class="res-avatar">КО</div>
-          <div class="res-barcode"></div>
-        </div>
-        <div class="res-pass-label">ARTIST · ALL ACCESS</div>
-        <div class="res-name">Ким Осокин</div>
-        <div class="res-genre">DEEP HOUSE</div>
-        <div class="res-bio">10 лет за пультом, три резиденции в Берлине.</div>
-      </div>
-      <div class="res-card">
-        <div class="res-pass-row">
-          <div class="res-avatar">DF</div>
-          <div class="res-barcode"></div>
-        </div>
-        <div class="res-pass-label">ARTIST · ALL ACCESS</div>
-        <div class="res-name">DJ Fedorov</div>
-        <div class="res-genre">DISCO / NU-DISCO</div>
-        <div class="res-bio">Диджеинг с виниловых пластинок — из принципа.</div>
-      </div>
-      <div class="res-card">
-        <div class="res-pass-row">
-          <div class="res-avatar">ЛС</div>
-          <div class="res-barcode"></div>
-        </div>
-        <div class="res-pass-label">ARTIST · ALL ACCESS</div>
-        <div class="res-name">Люба Снег</div>
-        <div class="res-genre">TECHNO</div>
-        <div class="res-bio">Плотный, тяжёлый звук для тех, кто не расходится в два ночи.</div>
-      </div>
-      <div class="res-card">
-        <div class="res-pass-row">
-          <div class="res-avatar">АК</div>
-          <div class="res-barcode"></div>
-        </div>
-        <div class="res-pass-label">ARTIST · ALL ACCESS</div>
-        <div class="res-name">Артём Ковалёв</div>
-        <div class="res-genre">TECHNO / BASS</div>
-        <div class="res-bio">Резидент подземных вечеринок, теперь и в эфире.</div>
-      </div>
-      <div class="res-card">
-        <div class="res-pass-row">
-          <div class="res-avatar">МЛ</div>
-          <div class="res-barcode"></div>
-        </div>
-        <div class="res-pass-label">ARTIST · ALL ACCESS</div>
-        <div class="res-name">Мари Лунц</div>
-        <div class="res-genre">AMBIENT / DOWNTEMPO</div>
-        <div class="res-bio">Закрывает ночь так, чтобы утро наступило мягко.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="podcasts">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Архив эфиров</h2>
-      <p>Пропустили сет — переслушайте. Каждая смена сохраняется в записи.</p>
-    </div>
-    <div class="pod-list">
-      <div class="pod-row">
-        <button class="pod-play" aria-label="Слушать запись"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-        <div>
-          <div class="pod-title">Underground Session #142</div>
-          <div class="pod-host">Артём Ковалёв</div>
-        </div>
-        <div class="pod-dur">58 мин</div>
-        <div class="pod-date">04.08.2026</div>
-      </div>
-      <div class="pod-row">
-        <button class="pod-play" aria-label="Слушать запись"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-        <div>
-          <div class="pod-title">Клубная Волна: Live от 01.08</div>
-          <div class="pod-host">Люба Снег</div>
-        </div>
-        <div class="pod-dur">1 ч 12 мин</div>
-        <div class="pod-date">01.08.2026</div>
-      </div>
-      <div class="pod-row">
-        <button class="pod-play" aria-label="Слушать запись"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-        <div>
-          <div class="pod-title">Дневной Ритм: гость — Nazira</div>
-          <div class="pod-host">Ким Осокин</div>
-        </div>
-        <div class="pod-dur">47 мин</div>
-        <div class="pod-date">29.07.2026</div>
-      </div>
-      <div class="pod-row">
-        <button class="pod-play" aria-label="Слушать запись"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-        <div>
-          <div class="pod-title">Городской Бит: Disco Special</div>
-          <div class="pod-host">DJ Fedorov</div>
-        </div>
-        <div class="pod-dur">1 ч 03 мин</div>
-        <div class="pod-date">27.07.2026</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <section>
   <div class="subscribe">
     <h2>Слушай CAPITAL везде</h2>
@@ -932,10 +741,11 @@
       </div>
       <div class="foot-col">
         <h4>Навигация</h4>
-        <a href="#now-playing">Эфир</a>
-        <a href="#schedule">Программа</a>
-        <a href="#residents">Резиденты</a>
-        <a href="#podcasts">Архив</a>
+        <a href="#">О станции</a>
+        <a href="#">Новости</a>
+        <a href="#">Прямой эфир</a>
+        <a href="#">Программы</a>
+        <a href="#">Контакты</a>
         <a href="logo.html">Медиакит</a>
       </div>
       <div class="foot-col">
