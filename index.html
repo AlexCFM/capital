@@ -98,8 +98,41 @@
   header{
     position:relative;
     z-index:20;
-    padding:26px 0 0;
   }
+
+  /* ---------- BRAND BAR (header as modular strip) ---------- */
+  .brand-bar{
+    display:flex;
+    align-items:stretch;
+    height:92px;
+    border-bottom:1px solid var(--line);
+  }
+  .bb-pattern{width:52px;flex-shrink:0;}
+  .bb-pattern svg{width:100%;height:100%;display:block;}
+  .bb-mark{
+    width:92px;flex-shrink:0;
+    background:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .bb-mark svg{width:46px;height:46px;}
+  .bb-word{
+    flex-shrink:0;
+    background:var(--red);color:#fff;
+    display:flex;align-items:center;
+    padding:0 26px;
+    font-family:'Orbitron',sans-serif;font-weight:900;font-size:25px;
+    letter-spacing:-0.01em;text-transform:uppercase;white-space:nowrap;
+  }
+  .bb-nav{
+    flex:1;min-width:0;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:24px;
+    padding:0 32px;
+    background:var(--paper);
+  }
+  .bb-chevron{width:150px;flex-shrink:0;}
+  .bb-chevron svg{width:100%;height:100%;display:block;}
+
   .nav{
     display:flex;
     align-items:center;
@@ -579,6 +612,12 @@
   @media (max-width:860px){
     .wrap{padding:0 20px;}
     .nav-links{display:none;}
+    .brand-bar{height:62px;}
+    .bb-pattern,.bb-chevron{display:none;}
+    .bb-mark{width:62px;}
+    .bb-mark svg{width:32px;height:32px;}
+    .bb-word{font-size:18px;padding:0 16px;}
+    .bb-nav{padding:0 16px;}
     .dial-ruler{overflow-x:auto;scrollbar-width:none;}
     .dial-ruler::-webkit-scrollbar{display:none;}
     .dial-seg{flex:0 0 150px;padding:12px 14px;}
@@ -615,21 +654,38 @@
       <circle cx="41" cy="50" r="14" fill="none" stroke="#fff" stroke-width="7"/>
       <line x1="49" y1="42" x2="73" y2="21" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
     </symbol>
+    <pattern id="capital-tile-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="var(--red)"/>
+      <circle cx="15" cy="20" r="6" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="2"/>
+      <line x1="19" y1="16" x2="30" y2="8" stroke="#fff" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round"/>
+    </pattern>
   </defs>
 </svg>
 
 <header>
-  <div class="wrap nav">
-    <div class="logo"><svg class="logo-mark" viewBox="0 0 100 100"><use href="#capital-mark"/></svg>CAPITAL</div>
-    <nav class="nav-links">
-      <a href="#">О станции</a>
-      <a href="#">Новости</a>
-      <a href="#">Прямой эфир</a>
-      <a href="#">Программы</a>
-      <a href="#">Контакты</a>
-    </nav>
-    <div class="nav-cta">
-      <a href="#player" class="btn btn-primary">Слушать</a>
+  <div class="brand-bar">
+    <div class="bb-pattern"><svg><rect width="100%" height="100%" fill="url(#capital-tile-pattern)"/></svg></div>
+    <div class="bb-mark"><svg viewBox="0 0 100 100"><use href="#capital-mark"/></svg></div>
+    <div class="bb-word">Capital</div>
+    <div class="bb-nav">
+      <nav class="nav-links">
+        <a href="#">О станции</a>
+        <a href="#">Новости</a>
+        <a href="#">Прямой эфир</a>
+        <a href="#">Программы</a>
+        <a href="#">Контакты</a>
+      </nav>
+      <div class="nav-cta">
+        <a href="#player" class="btn btn-primary">Слушать</a>
+      </div>
+    </div>
+    <div class="bb-chevron">
+      <svg viewBox="0 0 300 150" preserveAspectRatio="none">
+        <rect width="300" height="150" fill="#fff"/>
+        <polygon points="0,0 90,0 150,75 90,150 0,150 60,75" fill="var(--red)"/>
+        <polygon points="110,0 170,0 230,75 170,150 110,150 170,75" fill="var(--red)"/>
+        <polygon points="220,0 280,0 300,75 280,150 220,150 280,75" fill="var(--red)" opacity="0.55"/>
+      </svg>
     </div>
   </div>
 </header>
