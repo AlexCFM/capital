@@ -1128,11 +1128,7 @@
 
 <script>
 (function(){
-  // Live stream playback + now-playing metadata polling.
-  var STREAM_URL = 'https://icecast-vgtrk.cdnvideo.ru/capitalfmmp3';
-  var METADATA_URL = 'http://93.115.18.34:8080/metadata.txt';
-  var METADATA_POLL_MS = 15000;
-
+  // Live stream playback.
   var audio = document.getElementById('live-audio');
   var playButtons = document.querySelectorAll('.hero-play, .player-play, .np-play');
 
@@ -1162,6 +1158,23 @@
     audio.addEventListener('ended', function(){ setLoadingState(false); setPlayingState(false); });
     audio.addEventListener('error', function(){ setLoadingState(false); setPlayingState(false); });
   }
+})();
+
+(function(){
+  // Now-playing track metadata.
+  //
+  // TODO: point this at the metadata endpoint once it's served over HTTPS
+  // with an `Access-Control-Allow-Origin` header — without both, the
+  // browser blocks the request (mixed content + CORS) and this stays a
+  // no-op, showing the schedule's example track name instead. Two options
+  // tried and confirmed blocked without server changes:
+  //   1. fetch('http://93.115.18.34:8080/metadata.txt') — needs HTTPS + CORS.
+  //   2. Reading the stream's in-band ICY StreamTitle tags via a second
+  //      fetch() with an `Icy-MetaData: 1` header — needs that header
+  //      whitelisted in the stream server's Access-Control-Allow-Headers.
+  var METADATA_URL = null; // e.g. 'https://your-domain/metadata.txt'
+  var POLL_MS = 15000;
+  if (!METADATA_URL) return;
 
   function updateTrackDisplays(text){
     text = (text || '').trim();
@@ -1176,9 +1189,6 @@
   }
 
   function pollMetadata(){
-    // Note: this endpoint is plain HTTP — browsers block it as mixed content
-    // on an HTTPS-hosted page, so this silently no-ops there until the
-    // metadata source is served over HTTPS (or proxied same-origin).
     fetch(METADATA_URL, { cache: 'no-store' })
       .then(function(r){ return r.text(); })
       .then(updateTrackDisplays)
@@ -1186,7 +1196,7 @@
   }
 
   pollMetadata();
-  setInterval(pollMetadata, METADATA_POLL_MS);
+  setInterval(pollMetadata, POLL_MS);
 })();
 </script>
 
