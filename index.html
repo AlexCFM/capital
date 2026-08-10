@@ -299,12 +299,12 @@
     color:var(--ink);
   }
 
-  /* hero visual: full-bleed live festival photography */
+  /* hero visual: promo banner carousel, framed with a right-hand gutter */
   .hero-visual{
     position:relative;
     overflow:hidden;
     background:var(--night);
-    width:100%;
+    margin-right:clamp(24px,4vw,56px);
     aspect-ratio:16/9;
     max-height:calc(100vh - 320px);
   }
@@ -602,7 +602,7 @@
   /* ---------- RESPONSIVE ---------- */
   @media (max-width:1280px) and (min-width:861px){
     .hero-grid{grid-template-columns:1fr;}
-    .hero-visual{order:-1;aspect-ratio:16/9;max-height:none;}
+    .hero-visual{order:-1;margin:0 clamp(24px,4vw,64px);aspect-ratio:16/9;max-height:none;}
     .hero-copy{max-width:none;}
   }
   @media (max-width:860px){
@@ -618,7 +618,7 @@
     .dial-ruler::-webkit-scrollbar{display:none;}
     .dial-seg{flex:0 0 150px;padding:12px 14px;}
     .hero-grid{grid-template-columns:1fr;}
-    .hero-visual{order:-1;width:100%;aspect-ratio:16/9;max-height:none;}
+    .hero-visual{order:-1;margin:0 20px;aspect-ratio:16/9;max-height:none;}
     .hero-copy{max-width:none;padding:40px 20px 44px;}
     .hero-play{width:88px;height:88px;}
     .hero h1{font-size:clamp(38px,11vw,56px);}
