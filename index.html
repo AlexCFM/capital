@@ -491,34 +491,51 @@
   .track-artist{color:var(--ink-soft);font-weight:500;font-size:14.5px;margin-top:4px;}
 
   /* ---------- SCHEDULE ---------- */
+  /* ---------- DAY TABS (CSS-only switcher) ---------- */
+  .day-tab-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
+  .day-tab-bar{
+    display:flex;gap:10px;flex-wrap:wrap;
+    justify-content:center;
+    margin-bottom:44px;
+  }
+  .day-tab-label{
+    display:inline-block;cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:10px 20px;
+    border:1px solid var(--ink);color:var(--ink);
+    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    transition:background .15s ease, color .15s ease;
+  }
+  .day-tab-label:hover{border-color:var(--red);color:var(--red);}
+  .day-panel.schedule-list{display:none;}
+  #day-wd:checked ~ .day-tab-bar label[for="day-wd"],
+  #day-fri:checked ~ .day-tab-bar label[for="day-fri"],
+  #day-sat:checked ~ .day-tab-bar label[for="day-sat"],
+  #day-sun:checked ~ .day-tab-bar label[for="day-sun"]{
+    background:var(--ink);color:var(--paper);border-color:var(--ink);
+  }
+  #day-wd:checked ~ #panel-wd,
+  #day-fri:checked ~ #panel-fri,
+  #day-sat:checked ~ #panel-sat,
+  #day-sun:checked ~ #panel-sun{display:flex;}
+
   .schedule-list{display:flex;flex-direction:column;}
   .slot{
     display:grid;
-    grid-template-columns:150px 170px 1fr 200px;
+    grid-template-columns:180px 1fr;
     gap:24px;
     align-items:center;
-    padding:24px 0;
+    padding:20px 0;
     border-bottom:1px solid var(--line);
   }
   .slot:first-child{padding-top:0;}
+  .slot:last-child{border-bottom:none;}
   .slot-time{
     font-family:'JetBrains Mono',monospace;
-    font-weight:600;font-size:15px;color:var(--ink);
-  }
-  .slot-daypart{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--red-deep);font-weight:600;
+    font-weight:600;font-size:15px;color:var(--red-deep);
   }
   .slot-show{font-weight:800;font-size:19px;font-family:'Orbitron',sans-serif;text-transform:none;}
-  .slot-host{color:var(--ink-soft);font-weight:500;font-size:14.5px;margin-top:4px;}
-  .slot-genre{
-    justify-self:end;
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;font-weight:500;color:var(--ink-soft);
-    border:1px solid var(--ink);padding:7px 14px;
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
-    text-align:center;
-  }
 
 
   /* ---------- SUBSCRIBE ---------- */
@@ -627,8 +644,9 @@
     .np-card{grid-template-columns:1fr;text-align:center;}
     .np-cover{max-width:180px;margin:0 auto;}
     .np-badge{justify-content:center;}
-    .slot{grid-template-columns:1fr;gap:6px;}
-    .slot-genre{justify-self:start;margin-top:8px;}
+    .slot{grid-template-columns:1fr;gap:4px;}
+    .day-tab-bar{gap:8px;}
+    .day-tab-label{padding:9px 14px;font-size:12px;}
     .foot-top{grid-template-columns:1fr 1fr;}
     .subscribe{margin:0 20px;padding:52px 28px;}
     .player-inner{grid-template-columns:auto 1fr auto;padding:0 20px;}
@@ -696,13 +714,12 @@
 
 <div class="dial">
   <div class="dial-ruler">
-    <div class="dial-now-mark" style="left:11.11%"></div>
-    <div class="dial-seg is-now"><b>06:00–10:00</b><i>Утренний Драйв</i></div>
-    <div class="dial-seg"><b>10:00–14:00</b><i>Дневной Ритм</i></div>
-    <div class="dial-seg"><b>14:00–18:00</b><i>Городской Бит</i></div>
-    <div class="dial-seg"><b>18:00–22:00</b><i>Клубная Волна</i></div>
-    <div class="dial-seg"><b>22:00–02:00</b><i>Underground Session</i></div>
-    <div class="dial-seg"><b>02:00–06:00</b><i>После полуночи</i></div>
+    <div class="dial-now-mark" style="left:36.11%"></div>
+    <div class="dial-seg" style="flex-grow:7"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
+    <div class="dial-seg is-now" style="flex-grow:4"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
+    <div class="dial-seg" style="flex-grow:5"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
+    <div class="dial-seg" style="flex-grow:4"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
+    <div class="dial-seg" style="flex-grow:4"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
   </div>
 </div>
 
@@ -783,7 +800,7 @@
       <div>
         <span class="np-badge"><span class="live-dot"></span> В эфире</span>
         <div class="np-track">Overmono — So U Kno</div>
-        <div class="np-meta">Утренний Драйв · Настя Реброва · Melodic House</div>
+        <div class="np-meta">Фитнес Утро · Melodic House</div>
         <div class="np-gear-caption">Играет вживую с CDJ в студии — не файл по расписанию.</div>
       </div>
       <button class="np-play" aria-label="Слушать эфир">
@@ -857,63 +874,111 @@
   <div class="wrap">
     <div class="sec-head">
       <span class="eyebrow">Расписание</span>
-      <div class="rule-title"><h2>Программа</h2></div>
-      <p>Шесть смен в сутки — от утреннего драйва до эмбиента на закрытие ночи.</p>
+      <div class="rule-title"><h2>Line-Up</h2></div>
+      <p>Своя сетка на будни, пятницу и выходные — с ночного драйва до CAPITAL Nights.</p>
     </div>
-    <div class="schedule-list">
+
+    <input type="radio" name="day" id="day-wd" class="day-tab-input" checked>
+    <input type="radio" name="day" id="day-fri" class="day-tab-input">
+    <input type="radio" name="day" id="day-sat" class="day-tab-input">
+    <input type="radio" name="day" id="day-sun" class="day-tab-input">
+
+    <div class="day-tab-bar">
+      <label for="day-wd" class="day-tab-label">Пн–Чт</label>
+      <label for="day-fri" class="day-tab-label">Пт</label>
+      <label for="day-sat" class="day-tab-label">Сб</label>
+      <label for="day-sun" class="day-tab-label">Вс</label>
+    </div>
+
+    <div class="day-panel schedule-list" id="panel-wd">
       <div class="slot">
-        <div class="slot-time">06:00–10:00</div>
-        <div class="slot-daypart">Утро</div>
-        <div>
-          <div class="slot-show">Утренний Драйв</div>
-          <div class="slot-host">Настя Реброва</div>
-        </div>
-        <div class="slot-genre">Melodic House</div>
+        <div class="slot-time">00:00–07:00</div>
+        <div class="slot-show">Ночной Драйв</div>
       </div>
       <div class="slot">
-        <div class="slot-time">10:00–14:00</div>
-        <div class="slot-daypart">День</div>
-        <div>
-          <div class="slot-show">Дневной Ритм</div>
-          <div class="slot-host">Ким Осокин</div>
-        </div>
-        <div class="slot-genre">Deep House</div>
+        <div class="slot-time">07:00–11:00</div>
+        <div class="slot-show">Фитнес Утро</div>
       </div>
       <div class="slot">
-        <div class="slot-time">14:00–18:00</div>
-        <div class="slot-daypart">День</div>
-        <div>
-          <div class="slot-show">Городской Бит</div>
-          <div class="slot-host">DJ Fedorov</div>
-        </div>
-        <div class="slot-genre">Disco / Nu-Disco</div>
+        <div class="slot-time">11:00–16:00</div>
+        <div class="slot-show">Рабочий Драйв</div>
       </div>
       <div class="slot">
-        <div class="slot-time">18:00–22:00</div>
-        <div class="slot-daypart">Вечер</div>
-        <div>
-          <div class="slot-show">Клубная Волна</div>
-          <div class="slot-host">Люба Снег</div>
-        </div>
-        <div class="slot-genre">Techno</div>
+        <div class="slot-time">16:00–20:00</div>
+        <div class="slot-show">Прайм Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">20:00–00:00</div>
+        <div class="slot-show">Вечерний Драйв</div>
+      </div>
+    </div>
+
+    <div class="day-panel schedule-list" id="panel-fri">
+      <div class="slot">
+        <div class="slot-time">00:00–07:00</div>
+        <div class="slot-show">Ночной Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">07:00–11:00</div>
+        <div class="slot-show">Фитнес Утро</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">11:00–16:00</div>
+        <div class="slot-show">Рабочий Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">16:00–19:00</div>
+        <div class="slot-show">Пятница Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">19:00–20:00</div>
+        <div class="slot-show">Warm Dance Chart Top 20</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">20:00–00:00</div>
+        <div class="slot-show">CAPITAL Найтс</div>
+      </div>
+    </div>
+
+    <div class="day-panel schedule-list" id="panel-sat">
+      <div class="slot">
+        <div class="slot-time">00:00–07:00</div>
+        <div class="slot-show">Ночной Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">07:00–11:00</div>
+        <div class="slot-show">Фитнес Утро / Lazy Утро</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">11:00–21:00</div>
+        <div class="slot-show">Выходной Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">21:00–22:00</div>
+        <div class="slot-show">Warm Dance Chart Top 20</div>
       </div>
       <div class="slot">
         <div class="slot-time">22:00–02:00</div>
-        <div class="slot-daypart">Ночь</div>
-        <div>
-          <div class="slot-show">Underground Session</div>
-          <div class="slot-host">Артём Ковалёв</div>
-        </div>
-        <div class="slot-genre">Techno / Bass</div>
+        <div class="slot-show">CAPITAL Найтс</div>
+      </div>
+    </div>
+
+    <div class="day-panel schedule-list" id="panel-sun">
+      <div class="slot">
+        <div class="slot-time">02:00–07:00</div>
+        <div class="slot-show">Ночной Драйв</div>
       </div>
       <div class="slot">
-        <div class="slot-time">02:00–06:00</div>
-        <div class="slot-daypart">Ночь</div>
-        <div>
-          <div class="slot-show">После полуночи</div>
-          <div class="slot-host">Мари Лунц</div>
-        </div>
-        <div class="slot-genre">Ambient / Downtempo</div>
+        <div class="slot-time">07:00–11:00</div>
+        <div class="slot-show">Фитнес Утро / Lazy Утро</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">11:00–18:00</div>
+        <div class="slot-show">Выходной Драйв</div>
+      </div>
+      <div class="slot">
+        <div class="slot-time">18:00–00:00</div>
+        <div class="slot-show">Вечерний Драйв</div>
       </div>
     </div>
   </div>
@@ -972,7 +1037,7 @@
     </button>
     <div class="player-track">
       <div class="t">Overmono — So U Kno</div>
-      <div class="a">Утренний Драйв · Настя Реброва</div>
+      <div class="a">Фитнес Утро</div>
     </div>
     <div class="player-freq">
       <span class="live-dot"></span> В ЭФИРЕ
