@@ -1161,18 +1161,10 @@
 })();
 
 (function(){
-  // Now-playing track metadata.
-  //
-  // TODO: point this at the metadata endpoint once it's served over HTTPS
-  // with an `Access-Control-Allow-Origin` header — without both, the
-  // browser blocks the request (mixed content + CORS) and this stays a
-  // no-op, showing the schedule's example track name instead. Two options
-  // tried and confirmed blocked without server changes:
-  //   1. fetch('http://93.115.18.34:8080/metadata.txt') — needs HTTPS + CORS.
-  //   2. Reading the stream's in-band ICY StreamTitle tags via a second
-  //      fetch() with an `Icy-MetaData: 1` header — needs that header
-  //      whitelisted in the stream server's Access-Control-Allow-Headers.
-  var METADATA_URL = null; // e.g. 'https://your-domain/metadata.txt'
+  // Now-playing track metadata, relayed through a small Cloudflare Worker
+  // that reads the stream's in-band ICY StreamTitle tag server-side (the
+  // browser can't do this directly — see capital-metadata-worker.js for why).
+  var METADATA_URL = 'https://capital-metadata.samoylenko-aleksanderil.workers.dev/';
   var POLL_MS = 15000;
   if (!METADATA_URL) return;
 
