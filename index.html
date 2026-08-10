@@ -233,11 +233,11 @@
     display:grid;
     grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);
     align-items:stretch;
-    min-height:660px;
+    min-height:clamp(420px, calc(100vh - 360px), 560px);
   }
   .hero-copy{
-    padding:56px clamp(24px,4vw,64px) 56px clamp(24px,5vw,64px);
-    display:flex;flex-direction:column;justify-content:center;
+    padding:40px clamp(24px,4vw,64px) 40px clamp(24px,5vw,64px);
+    display:flex;flex-direction:column;justify-content:flex-start;
     max-width:600px;
   }
   .hero-kicker{
