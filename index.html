@@ -538,6 +538,13 @@
     font-weight:600;font-size:15px;color:var(--red-deep);
   }
   .slot-show{font-weight:800;font-size:19px;font-family:'Orbitron',sans-serif;text-transform:none;}
+  .slot.is-now{background:var(--paper-dim);}
+  .slot.is-now .slot-time{color:var(--red);}
+  .slot.is-now .slot-show::after{
+    content:"• В ЭФИРЕ";
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;
+    color:var(--red);margin-left:12px;vertical-align:middle;
+  }
 
 
   /* ---------- SUBSCRIBE ---------- */
@@ -790,7 +797,7 @@
       <div>
         <span class="np-badge"><span class="live-dot"></span> В эфире</span>
         <div class="np-track">Overmono — So U Kno</div>
-        <div class="np-meta">Фитнес Утро · Melodic House</div>
+        <div class="np-meta"><span class="np-show-name">Фитнес Утро</span> · Melodic House</div>
         <div class="np-gear-caption">Играет вживую с CDJ в студии — не файл по расписанию.</div>
       </div>
       <button class="np-play" aria-label="Слушать эфир">
@@ -1034,6 +1041,101 @@
     </div>
   </div>
 </div>
+
+<script>
+(function(){
+  // CAPITAL вещает по московскому времени (GMT+3) независимо от часового пояса посетителя.
+  var PANEL_SCHEDULE = {
+    wd:  [[0,7,'Ночной Драйв'],[7,11,'Фитнес Утро'],[11,16,'Рабочий Драйв'],[16,20,'Прайм Драйв'],[20,24,'Вечерний Драйв']],
+    fri: [[0,7,'Ночной Драйв'],[7,11,'Фитнес Утро'],[11,16,'Рабочий Драйв'],[16,19,'Пятница Драйв'],[19,20,'Warm Dance Chart Top 20'],[20,24,'CAPITAL Найтс']],
+    sat: [[0,7,'Ночной Драйв'],[7,11,'Фитнес Утро / Lazy Утро'],[11,21,'Выходной Драйв'],[21,22,'Warm Dance Chart Top 20'],[22,24,'CAPITAL Найтс']],
+    sun: [[2,7,'Ночной Драйв'],[7,11,'Фитнес Утро / Lazy Утро'],[11,18,'Выходной Драйв'],[18,24,'Вечерний Драйв']]
+  };
+  var DIAL_SCHEDULE = {
+    wd: PANEL_SCHEDULE.wd, fri: PANEL_SCHEDULE.fri, sat: PANEL_SCHEDULE.sat,
+    sun: [[0,2,'CAPITAL Найтс']].concat(PANEL_SCHEDULE.sun)
+  };
+
+  function moscowNow(){
+    var fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone:'Europe/Moscow', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:false
+    });
+    var parts = {};
+    fmt.formatToParts(new Date()).forEach(function(p){ parts[p.type] = p.value; });
+    var map = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    var hour = parseInt(parts.hour, 10);
+    if (hour === 24) hour = 0;
+    return { weekday: map[parts.weekday], hour: hour, minute: parseInt(parts.minute, 10) };
+  }
+
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function fmtHour(h){ return pad(h === 24 ? 0 : h) + ':00'; }
+  function findActiveIndex(slots, h){
+    for (var i = 0; i < slots.length; i++){
+      if (h >= slots[i][0] && h < slots[i][1]) return i;
+    }
+    return slots.length - 1;
+  }
+
+  try {
+    var now = moscowNow();
+    var decHour = now.hour + now.minute / 60;
+    var weekdayToKey = {1:'wd',2:'wd',3:'wd',4:'wd',5:'fri',6:'sat',0:'sun'};
+    var rawKey = weekdayToKey[now.weekday];
+
+    var tabKey = rawKey, tabActiveIdx;
+    if (rawKey === 'sun' && decHour < 2) {
+      tabKey = 'sat';
+      tabActiveIdx = PANEL_SCHEDULE.sat.length - 1;
+    } else {
+      tabActiveIdx = findActiveIndex(PANEL_SCHEDULE[tabKey], decHour);
+    }
+
+    var dialSlots = DIAL_SCHEDULE[rawKey];
+    var dialActiveIdx = findActiveIndex(dialSlots, decHour);
+
+    // Rebuild the broadcast dial for today's real schedule
+    var ruler = document.querySelector('.dial-ruler');
+    if (ruler) {
+      var markerPct = (decHour / 24 * 100).toFixed(2) + '%';
+      var html = '<div class="dial-now-mark" style="left:' + markerPct + '"></div>';
+      dialSlots.forEach(function(seg, i){
+        var grow = seg[1] - seg[0];
+        var cls = 'dial-seg' + (i === dialActiveIdx ? ' is-now' : '');
+        html += '<div class="' + cls + '" style="flex-grow:' + grow + '"><b>' + fmtHour(seg[0]) + '–' + fmtHour(seg[1]) + '</b><i>' + seg[2] + '</i></div>';
+      });
+      ruler.innerHTML = html;
+    }
+
+    // Pre-select today's tab
+    var tabInput = document.getElementById('day-' + tabKey);
+    if (tabInput) tabInput.checked = true;
+
+    // Highlight the live row in that tab's schedule list
+    var activeShowName = null;
+    var panel = document.getElementById('panel-' + tabKey);
+    if (panel) {
+      var rows = panel.querySelectorAll('.slot');
+      rows.forEach(function(row, i){
+        if (i === tabActiveIdx) {
+          row.classList.add('is-now');
+          var showEl = row.querySelector('.slot-show');
+          if (showEl) activeShowName = showEl.textContent;
+        }
+      });
+    }
+    if (!activeShowName) activeShowName = dialSlots[dialActiveIdx][2];
+
+    // Sync "Сейчас в эфире" and the fixed player bar
+    var npShow = document.querySelector('.np-show-name');
+    if (npShow) npShow.textContent = activeShowName;
+    var playerA = document.querySelector('.player-track .a');
+    if (playerA) playerA.textContent = activeShowName;
+  } catch (e) {
+    // Time API unavailable — the static markup already shows a sensible example.
+  }
+})();
+</script>
 
 </body>
 </html>
