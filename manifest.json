@@ -1,0 +1,14 @@
+{
+  "name": "CAPITAL — прямой эфир",
+  "short_name": "CAPITAL",
+  "description": "Электронная музыка без остановки — прямой эфир CAPITAL 24/7",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAFAF7",
+  "theme_color": "#FF2E2E",
+  "icons": [
+    { "src": "apple-touch-icon.jpg", "sizes": "500x500", "type": "image/jpeg", "purpose": "any" }
+  ]
+}
