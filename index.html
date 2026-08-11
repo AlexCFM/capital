@@ -645,7 +645,27 @@
   }
   .player-cover.is-visible{display:block;}
   .player-track{min-width:0;}
-  .player-track .t{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .player-track .t{
+    font-weight:700;font-size:14.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    position:relative;
+  }
+  .player-track .t-text{display:inline-block;}
+  .player-track .t.is-marquee{text-overflow:clip;}
+  .player-track .t.is-marquee .t-text{
+    display:inline-flex;
+    animation:player-marquee var(--marquee-duration,12s) linear infinite;
+    animation-delay:1.2s;
+  }
+  .player-track .t.is-marquee .t-text span:last-child{padding-left:48px;}
+  @keyframes player-marquee{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .player-track .t.is-marquee .t-text{animation:none;}
+    .player-track .t.is-marquee{text-overflow:ellipsis;}
+  }
   .player-track .a{font-size:12.5px;color:rgba(255,255,255,.55);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .player-freq{
     display:flex;align-items:center;gap:10px;
@@ -1040,7 +1060,7 @@
     </button>
     <img class="player-cover" alt="" aria-hidden="true">
     <div class="player-track">
-      <div class="t">Overmono — So U Kno</div>
+      <div class="t"><span class="t-text"><span>Overmono — So U Kno</span></span></div>
       <div class="a">Фитнес Утро</div>
     </div>
     <div class="player-freq">
@@ -1246,6 +1266,32 @@
     if (el) el.textContent = msg || '';
   }
 
+  // Long track titles (multi-artist collabs + remix tags routinely run
+  // 60-90+ chars) don't fit the player bar's single line — scroll them
+  // instead of just ellipsis-clipping, but only when they actually overflow.
+  function setPlayerTrackText(text){
+    var wrap = document.querySelector('.player-track .t');
+    if (!wrap) return;
+    var inner = wrap.querySelector('.t-text');
+    wrap.classList.remove('is-marquee');
+    inner.innerHTML = '';
+    var span1 = document.createElement('span');
+    span1.textContent = text;
+    inner.appendChild(span1);
+
+    var overflowPx = span1.offsetWidth - wrap.clientWidth;
+    if (overflowPx > 4){
+      var span2 = document.createElement('span');
+      span2.textContent = text;
+      span2.setAttribute('aria-hidden', 'true');
+      inner.appendChild(span2);
+      var gap = 48;
+      var duration = Math.max(8, Math.min(40, (span1.offsetWidth + gap) / 45));
+      wrap.style.setProperty('--marquee-duration', duration + 's');
+      wrap.classList.add('is-marquee');
+    }
+  }
+
   function setMediaSessionMeta(text){
     if (!('mediaSession' in navigator)) return;
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -1262,8 +1308,7 @@
 
     var npTrack = document.querySelector('.np-track');
     if (npTrack) npTrack.textContent = text;
-    var playerT = document.querySelector('.player-track .t');
-    if (playerT) playerT.textContent = text;
+    setPlayerTrackText(text);
 
     setDebug('');
     setMediaSessionMeta(text);
