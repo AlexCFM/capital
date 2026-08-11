@@ -1109,23 +1109,52 @@
     playButtons.forEach(function(btn){ btn.classList.toggle('is-loading', isLoading); });
   }
 
+  function doPlay(){
+    if (!audio) return;
+    setLoadingState(true);
+    audio.play().catch(function(){ setLoadingState(false); });
+  }
+  function doPause(){
+    if (!audio) return;
+    audio.pause();
+  }
   function togglePlay(){
     if (!audio) return;
-    if (audio.paused){
-      setLoadingState(true);
-      audio.play().catch(function(){ setLoadingState(false); });
-    } else {
-      audio.pause();
-    }
+    if (audio.paused) doPlay(); else doPause();
   }
 
   playButtons.forEach(function(btn){ btn.addEventListener('click', togglePlay); });
 
+  // Media Session API: registers the stream with the OS as real media
+  // playback, so it keeps running (and shows play/pause controls) when the
+  // phone's screen locks, instead of getting silently paused/suspended as
+  // a background browser tab.
+  if ('mediaSession' in navigator){
+    var artworkImg = document.querySelector('.player-play img');
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: 'CAPITAL — прямой эфир',
+      artist: 'Электронная музыка 24/7',
+      artwork: artworkImg ? [{ src: artworkImg.src, sizes: '500x500', type: 'image/jpeg' }] : []
+    });
+    navigator.mediaSession.setActionHandler('play', doPlay);
+    navigator.mediaSession.setActionHandler('pause', doPause);
+    navigator.mediaSession.setActionHandler('stop', doPause);
+  }
+
   if (audio){
-    audio.addEventListener('playing', function(){ setLoadingState(false); setPlayingState(true); });
+    audio.addEventListener('playing', function(){
+      setLoadingState(false); setPlayingState(true);
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+    });
     audio.addEventListener('waiting', function(){ setLoadingState(true); });
-    audio.addEventListener('pause', function(){ setLoadingState(false); setPlayingState(false); });
-    audio.addEventListener('ended', function(){ setLoadingState(false); setPlayingState(false); });
+    audio.addEventListener('pause', function(){
+      setLoadingState(false); setPlayingState(false);
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    });
+    audio.addEventListener('ended', function(){
+      setLoadingState(false); setPlayingState(false);
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+    });
     audio.addEventListener('error', function(){ setLoadingState(false); setPlayingState(false); });
   }
 })();
@@ -1148,6 +1177,14 @@
     document.querySelectorAll('.ticker-live-track').forEach(function(el){
       el.textContent = text;
     });
+    if ('mediaSession' in navigator){
+      var artworkImg = document.querySelector('.player-play img');
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: text,
+        artist: 'CAPITAL — прямой эфир',
+        artwork: artworkImg ? [{ src: artworkImg.src, sizes: '500x500', type: 'image/jpeg' }] : []
+      });
+    }
   }
 
   function pollMetadata(){
