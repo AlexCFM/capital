@@ -1154,7 +1154,21 @@
   var stationMarkImg = document.querySelector('.player-play img');
   var stationArtworkSrc = stationMarkImg ? stationMarkImg.src : null;
   var npCoverImg = document.querySelector('#np-cover-img');
-  var npCoverFallbackSrc = npCoverImg ? npCoverImg.src : null;
+
+  // Holds whatever artwork is currently valid to show — starts as the
+  // station mark, gets replaced once a track's real art is found. Reused
+  // (not reset) on every track change so a slow lookup never flashes the
+  // DJ-gear photo back in; the old track's art just stays up a bit longer.
+  var currentArtwork = stationArtworkSrc ? [{ src: stationArtworkSrc, sizes: '500x500', type: 'image/jpeg' }] : [];
+
+  function setMediaSessionMeta(text){
+    if (!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: text,
+      artist: 'CAPITAL — прямой эфир',
+      artwork: currentArtwork
+    });
+  }
 
   function updateTrackDisplays(text){
     text = (text || '').trim();
@@ -1166,19 +1180,7 @@
     var playerT = document.querySelector('.player-track .t');
     if (playerT) playerT.textContent = text;
 
-    // Reset to the fallback art until (if) real cover art for this track
-    // comes back from iTunes — avoids showing the previous track's art.
-    var cover = document.querySelector('.player-cover');
-    if (cover) cover.classList.remove('is-visible');
-    if (npCoverImg && npCoverFallbackSrc) npCoverImg.src = npCoverFallbackSrc;
-    if ('mediaSession' in navigator){
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: text,
-        artist: 'CAPITAL — прямой эфир',
-        artwork: stationArtworkSrc ? [{ src: stationArtworkSrc, sizes: '500x500', type: 'image/jpeg' }] : []
-      });
-    }
-
+    setMediaSessionMeta(text);
     fetchArtwork(text);
   }
 
@@ -1202,16 +1204,11 @@
       cover.classList.add('is-visible');
     }
     if (npCoverImg) npCoverImg.src = art600;
-    if ('mediaSession' in navigator){
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: text,
-        artist: 'CAPITAL — прямой эфир',
-        artwork: [
-          { src: art100, sizes: '100x100', type: 'image/jpeg' },
-          { src: art600, sizes: '600x600', type: 'image/jpeg' }
-        ]
-      });
-    }
+    currentArtwork = [
+      { src: art100, sizes: '100x100', type: 'image/jpeg' },
+      { src: art600, sizes: '600x600', type: 'image/jpeg' }
+    ];
+    setMediaSessionMeta(text);
   }
 
   function lookupArtwork(query){
@@ -1232,15 +1229,18 @@
     attempt = attempt || 0;
     var query = text.replace(/\s*[-–—]\s*/, ' ').trim();
     if (!query) return;
+    var retryDelay = attempt === 0 ? 1500 : 3000;
     lookupArtwork(query)
       .then(function(art100){
         if (text !== lastTrackText) return; // track already changed again — drop this
         if (art100){ applyArtwork(text, art100); return; }
-        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, 4000);
+        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, retryDelay);
+        else console.warn('[CAPITAL] no iTunes artwork match for:', text);
       })
-      .catch(function(){
+      .catch(function(err){
         if (text !== lastTrackText) return;
-        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, 4000);
+        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, retryDelay);
+        else console.warn('[CAPITAL] artwork fetch failed for:', text, err);
       });
   }
 
