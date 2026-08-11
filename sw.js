@@ -14,5 +14,14 @@ self.addEventListener('activate', function(event){
 });
 
 self.addEventListener('fetch', function(event){
+  // Only handle same-origin requests (the app's own HTML/CSS/JS/images) —
+  // leave cross-origin ones (iTunes artwork search, the metadata worker,
+  // the icecast stream) completely alone. iOS Safari's service worker
+  // implementation can fail cross-origin fetches re-issued from inside a
+  // fetch handler ("FetchEvent.respondWith received an error: Load
+  // failed"), which broke artwork lookups and could just as easily have
+  // been interrupting the stream itself.
+  var url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
   event.respondWith(fetch(event.request, { cache: 'no-store' }));
 });
