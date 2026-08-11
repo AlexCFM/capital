@@ -1284,5 +1284,16 @@
 })();
 </script>
 
+<script>
+// Registers sw.js so the Home Screen app reliably picks up new deploys
+// instead of getting stuck on whatever version was installed — see
+// sw.js for why this is specifically needed for standalone iOS mode.
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
+</script>
+
 </body>
 </html>
