@@ -1257,24 +1257,34 @@
     }
   }
 
-  function fetchArtwork(text){
+  function lookupArtwork(query){
+    return searchItunesArt(query).then(function(art100){
+      if (art100) return art100;
+      // Station edit/version tags like "(CFM Edit)" or "(Radio Edit)"
+      // aren't in iTunes' catalog and make the exact search miss —
+      // retry once with any parenthetical stripped out.
+      var stripped = query.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+      if (!stripped || stripped === query) return null;
+      return searchItunesArt(stripped);
+    });
+  }
+
+  // A dropped mobile-network request shouldn't leave a track stuck on the
+  // fallback art for its whole run — retry a couple times before giving up.
+  function fetchArtwork(text, attempt){
+    attempt = attempt || 0;
     var query = text.replace(/\s*[-–—]\s*/, ' ').trim();
     if (!query) return;
-    searchItunesArt(query)
+    lookupArtwork(query)
       .then(function(art100){
-        if (art100) return art100;
-        // Station edit/version tags like "(CFM Edit)" or "(Radio Edit)"
-        // aren't in iTunes' catalog and make the exact search miss —
-        // retry once with any parenthetical stripped out.
-        var stripped = query.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
-        if (!stripped || stripped === query) return null;
-        return searchItunesArt(stripped);
+        if (text !== lastTrackText) return; // track already changed again — drop this
+        if (art100){ applyArtwork(text, art100); return; }
+        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, 4000);
       })
-      .then(function(art100){
-        if (!art100 || text !== lastTrackText) return; // no match, or track already changed again
-        applyArtwork(text, art100);
-      })
-      .catch(function(){ /* no match / offline — keep the fallback art */ });
+      .catch(function(){
+        if (text !== lastTrackText) return;
+        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, 4000);
+      });
   }
 
   function pollMetadata(){
