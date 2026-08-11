@@ -421,6 +421,12 @@
     font-family:'JetBrains Mono',monospace;
     font-size:12px;color:rgba(255,255,255,.4);
   }
+  .np-debug{
+    margin-top:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;color:rgba(255,255,255,.28);
+    word-break:break-word;
+  }
   .np-play{
     width:74px;height:74px;border-radius:50%;
     background:var(--red);
@@ -747,6 +753,7 @@
         <div class="np-track">Overmono — So U Kno</div>
         <div class="np-meta"><span class="np-show-name">Фитнес Утро</span> · Melodic House</div>
         <div class="np-gear-caption">Играет вживую с CDJ в студии — не файл по расписанию.</div>
+        <div class="np-debug" id="np-debug"></div>
       </div>
       <button class="np-play" aria-label="Слушать эфир">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -1189,6 +1196,14 @@
   // DJ-gear photo back in; the old track's art just stays up a bit longer.
   var currentArtwork = stationArtworkSrc ? [{ src: stationArtworkSrc, sizes: '500x500', type: 'image/jpeg' }] : [];
 
+  // Tiny on-page diagnostic line (see .np-debug) — mobile Safari's console
+  // isn't reachable without a Mac, so failures need to be visible directly
+  // on the phone screen to actually get diagnosed from a screenshot.
+  function setDebug(msg){
+    var el = document.getElementById('np-debug');
+    if (el) el.textContent = msg || '';
+  }
+
   function setMediaSessionMeta(text){
     if (!('mediaSession' in navigator)) return;
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -1208,6 +1223,7 @@
     var playerT = document.querySelector('.player-track .t');
     if (playerT) playerT.textContent = text;
 
+    setDebug('');
     setMediaSessionMeta(text);
     fetchArtwork(text);
   }
@@ -1237,6 +1253,7 @@
       { src: art600, sizes: '600x600', type: 'image/jpeg' }
     ];
     setMediaSessionMeta(text);
+    setDebug('');
   }
 
   function lookupArtwork(query){
@@ -1258,17 +1275,28 @@
     var query = text.replace(/\s*[-–—]\s*/, ' ').trim();
     if (!query) return;
     var retryDelay = attempt === 0 ? 1500 : 3000;
+    if (attempt === 0) setDebug('ищу обложку: ' + query);
     lookupArtwork(query)
       .then(function(art100){
         if (text !== lastTrackText) return; // track already changed again — drop this
         if (art100){ applyArtwork(text, art100); return; }
-        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, retryDelay);
-        else console.warn('[CAPITAL] no iTunes artwork match for:', text);
+        if (attempt < 2){
+          setDebug('нет совпадения (попытка ' + (attempt + 1) + '/3): ' + query);
+          setTimeout(function(){ fetchArtwork(text, attempt + 1); }, retryDelay);
+        } else {
+          setDebug('нет обложки в iTunes для: ' + query);
+          console.warn('[CAPITAL] no iTunes artwork match for:', text);
+        }
       })
       .catch(function(err){
         if (text !== lastTrackText) return;
-        if (attempt < 2) setTimeout(function(){ fetchArtwork(text, attempt + 1); }, retryDelay);
-        else console.warn('[CAPITAL] artwork fetch failed for:', text, err);
+        if (attempt < 2){
+          setDebug('ошибка сети (попытка ' + (attempt + 1) + '/3): ' + err);
+          setTimeout(function(){ fetchArtwork(text, attempt + 1); }, retryDelay);
+        } else {
+          setDebug('не удалось загрузить: ' + err);
+          console.warn('[CAPITAL] artwork fetch failed for:', text, err);
+        }
       });
   }
 
