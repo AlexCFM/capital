@@ -1215,36 +1215,53 @@
   // Free, key-less, CORS-open track art lookup — no proxy needed (unlike
   // the stream metadata itself, iTunes' Search API sends
   // Access-Control-Allow-Origin: * directly).
+  function searchItunesArt(query){
+    return fetch('https://itunes.apple.com/search?media=music&limit=1&term=' + encodeURIComponent(query))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var hit = data && data.results && data.results[0];
+        return (hit && hit.artworkUrl100) || null;
+      });
+  }
+
+  function applyArtwork(text, art100){
+    var art600 = art100.replace('100x100bb', '600x600bb');
+    var cover = document.querySelector('.player-cover');
+    if (cover){
+      cover.src = art600;
+      cover.classList.add('is-visible');
+    }
+    if (npCoverImg) npCoverImg.src = art600;
+    if ('mediaSession' in navigator){
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: text,
+        artist: 'CAPITAL — прямой эфир',
+        artwork: [
+          { src: art100, sizes: '100x100', type: 'image/jpeg' },
+          { src: art600, sizes: '600x600', type: 'image/jpeg' }
+        ]
+      });
+    }
+  }
+
   function fetchArtwork(text){
     var query = text.replace(/\s*[-–—]\s*/, ' ').trim();
     if (!query) return;
-    fetch('https://itunes.apple.com/search?media=music&limit=1&term=' + encodeURIComponent(query))
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (text !== lastTrackText) return; // track already changed again — drop stale result
-        var hit = data && data.results && data.results[0];
-        var art100 = hit && hit.artworkUrl100;
-        if (!art100) return;
-        var art600 = art100.replace('100x100bb', '600x600bb');
-
-        var cover = document.querySelector('.player-cover');
-        if (cover){
-          cover.src = art600;
-          cover.classList.add('is-visible');
-        }
-        if (npCoverImg) npCoverImg.src = art600;
-        if ('mediaSession' in navigator){
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: text,
-            artist: 'CAPITAL — прямой эфир',
-            artwork: [
-              { src: art100, sizes: '100x100', type: 'image/jpeg' },
-              { src: art600, sizes: '600x600', type: 'image/jpeg' }
-            ]
-          });
-        }
+    searchItunesArt(query)
+      .then(function(art100){
+        if (art100) return art100;
+        // Station edit/version tags like "(CFM Edit)" or "(Radio Edit)"
+        // aren't in iTunes' catalog and make the exact search miss —
+        // retry once with any parenthetical stripped out.
+        var stripped = query.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!stripped || stripped === query) return null;
+        return searchItunesArt(stripped);
       })
-      .catch(function(){ /* no match / offline — keep the station mark */ });
+      .then(function(art100){
+        if (!art100 || text !== lastTrackText) return; // no match, or track already changed again
+        applyArtwork(text, art100);
+      })
+      .catch(function(){ /* no match / offline — keep the fallback art */ });
   }
 
   function pollMetadata(){
