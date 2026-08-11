@@ -145,9 +145,10 @@
   .play-state-icon::after{
     content:"";position:relative;
     width:26%;height:30%;
-    background:
-      linear-gradient(#fff,#fff) 0 0/38% 100% no-repeat,
-      linear-gradient(#fff,#fff) 100% 0/38% 100% no-repeat;
+    background:linear-gradient(90deg,
+      #fff 0, #fff 38%,
+      transparent 38%, transparent 62%,
+      #fff 62%, #fff 100%);
   }
   .is-playing .play-state-icon{opacity:1;}
   .np-play .icon-pause{display:none;}
