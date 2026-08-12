@@ -657,23 +657,33 @@
     .track-row.is-playing .track-inline-cover,
     .track-row.is-loading .track-inline-cover{display:block;}
   }
-  /* cursor-following cover preview (desktop): outer div is positioned by JS
-     every frame, the img handles its own scale/fade so the two transforms
-     never fight */
-  .track-float{
-    position:fixed;top:0;left:0;z-index:40;
-    width:240px;height:240px;
-    pointer-events:none;
-    filter:drop-shadow(0 24px 48px rgba(20,18,16,.35));
+  /* cover preview panel: sits in its own column to the left of the list
+     (sticky), crossfades to the hovered row's art — never covers the text */
+  .tracks-layout{
+    display:grid;
+    grid-template-columns:264px minmax(0,1fr);
+    gap:56px;
+    align-items:start;
   }
-  .track-float img{
+  .track-panel{
+    position:sticky;top:28px;
+    aspect-ratio:1/1;
+    filter:drop-shadow(0 20px 40px rgba(20,18,16,.28));
+  }
+  .track-panel img{
+    position:absolute;inset:0;
     width:100%;height:100%;object-fit:cover;
     clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
-    opacity:0;transform:scale(.9);
-    transition:opacity .18s ease, transform .22s ease;
+    opacity:0;transform:scale(.97);
+    transition:opacity .35s ease, transform .45s ease;
   }
-  .track-float.is-on img{opacity:1;transform:scale(1);}
-  @media (hover:none){.track-float{display:none;}}
+  .track-panel img.is-top{opacity:1;transform:none;}
+  /* narrow or touch: the panel column folds away (touch rows expand their
+     own inline cover instead) */
+  @media (max-width:1000px), (hover:none){
+    .tracks-layout{display:block;}
+    .track-panel{display:none;}
+  }
 
   /* ---------- SCHEDULE ---------- */
   /* ---------- DAY TABS (CSS-only switcher) ---------- */
@@ -1067,7 +1077,12 @@
       <span class="np-brand-mark">CAPITAL</span>
       <div class="rule-title"><h2>Новая музыка</h2></div>
     </div>
-    <div class="tracks-list">
+    <div class="tracks-layout">
+      <div class="track-panel" aria-hidden="true">
+        <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/19/9c/cf199c26-6f59-a4b6-4309-c597ceea14d2/14006.jpg/600x600bb.jpg" alt="" class="is-top" loading="lazy">
+        <img alt="">
+      </div>
+      <div class="tracks-list">
       <button class="track-row" aria-label="Слушать превью: Swedish House Mafia & Lykke Li — Happiness Is So Sad"
         data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/b4/73/20b4735b-8821-db34-9d98-042b09d3836b/mzaf_5234972172603467106.plus.aac.p.m4a"
         data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/19/9c/cf199c26-6f59-a4b6-4309-c597ceea14d2/14006.jpg/600x600bb.jpg">
@@ -1116,6 +1131,7 @@
         <span class="track-action" aria-hidden="true"></span>
         <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
       </button>
+      </div>
     </div>
   </div>
 </section>
@@ -1235,7 +1251,7 @@
 
 <div class="ticker" aria-hidden="true">
   <div class="ticker-track">
-    <span class="ticker-run">CAPITAL&nbsp;•&nbsp;Электронная музыка&nbsp;•&nbsp;В эфире&nbsp;•&nbsp;</span>
+    <span class="ticker-run">CAPITAL&nbsp;•&nbsp;Из Москвы на весь мир&nbsp;•&nbsp;24/7&nbsp;•&nbsp;</span>
   </div>
 </div>
 
@@ -1291,8 +1307,6 @@
      non-analysed player if the CDN ever stops sending CORS headers. -->
 <audio id="live-audio" preload="none" crossorigin="anonymous" src="https://icecast-vgtrk.cdnvideo.ru/capitalfmmp3"></audio>
 <audio id="preview-audio" preload="none"></audio>
-
-<div class="track-float" aria-hidden="true"><img alt=""></div>
 
 <div class="player" id="player">
   <button class="player-toggle" id="player-toggle" aria-label="Свернуть плеер" aria-expanded="true">
@@ -1764,64 +1778,25 @@
 
 <script>
 (function(){
-  // Cursor-following cover preview for the "Новая музыка" list: a 240px
-  // cover drifts after the pointer with lerp inertia while a row is
-  // hovered. Mouse-only — touch devices get the in-row cover instead.
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (!window.matchMedia('(hover:hover)').matches) return;
-
+  // Cover preview panel for the "Новая музыка" list: hovering a row
+  // crossfades the sticky panel on the left to that track's art. Two
+  // stacked imgs alternate so the previous cover fades under the next.
+  var panel = document.querySelector('.track-panel');
   var list = document.querySelector('.tracks-list');
-  var floatEl = document.querySelector('.track-float');
-  if (!list || !floatEl) return;
-  var img = floatEl.querySelector('img');
-
-  var SIZE = 240, GAP = 28;
-  var mx = 0, my = 0, fx = null, fy = null, tilt = 0;
-  var running = false;
-
-  function targetPos(){
-    var tx = mx + GAP;
-    if (tx + SIZE > window.innerWidth - 12) tx = mx - GAP - SIZE;
-    var ty = Math.min(Math.max(my - SIZE / 2, 12), window.innerHeight - SIZE - 12);
-    return { x: tx, y: ty };
-  }
-
-  function tick(){
-    var t = targetPos();
-    if (fx === null){ fx = t.x; fy = t.y; }
-    fx += (t.x - fx) * 0.16;
-    fy += (t.y - fy) * 0.16;
-    // slight tilt from horizontal lag sells the inertia
-    tilt += ((t.x - fx) * 0.02 - tilt) * 0.2;
-    tilt = Math.max(-6, Math.min(6, tilt));
-    floatEl.style.transform = 'translate3d(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px,0) rotate(' + tilt.toFixed(2) + 'deg)';
-    var settled = Math.abs(t.x - fx) < 0.5 && Math.abs(t.y - fy) < 0.5;
-    if (floatEl.classList.contains('is-on') || !settled){
-      requestAnimationFrame(tick);
-    } else {
-      running = false;
-    }
-  }
-  function ensure(){
-    if (!running){ running = true; requestAnimationFrame(tick); }
-  }
-
-  list.addEventListener('pointermove', function(e){
-    mx = e.clientX; my = e.clientY;
-    ensure();
-  }, { passive: true });
+  if (!panel || !list) return;
+  var imgs = panel.querySelectorAll('img');
+  var active = 0;
 
   list.addEventListener('pointerover', function(e){
     var row = e.target.closest('.track-row[data-cover]');
     if (!row) return;
     var src = row.getAttribute('data-cover');
-    if (img.getAttribute('src') !== src) img.src = src;
-    floatEl.classList.add('is-on');
-    ensure();
-  });
-
-  list.addEventListener('pointerleave', function(){
-    floatEl.classList.remove('is-on');
+    if (imgs[active].getAttribute('src') === src) return;
+    var next = 1 - active;
+    imgs[next].src = src;
+    imgs[next].classList.add('is-top');
+    imgs[active].classList.remove('is-top');
+    active = next;
   });
 })();
 </script>
