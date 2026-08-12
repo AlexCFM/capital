@@ -484,43 +484,89 @@
   .np-play:hover{transform:scale(1.06);background:var(--red-deep);}
   .np-play svg{width:24px;height:24px;fill:#fff;margin-left:3px;}
 
-  /* ---------- NEW MUSIC ---------- */
+  /* ---------- NEW MUSIC (showcase list: numbers + cursor cover preview) ---------- */
   .tracks-list{display:flex;flex-direction:column;}
   .track-row{
     display:grid;
-    grid-template-columns:auto 1fr;
+    grid-template-columns:44px 1fr auto;
     gap:22px;
     align-items:center;
+    width:100%;
     padding:22px 0;
-    border-bottom:1px solid var(--line);
+    border:0;border-bottom:1px solid var(--line);
+    background:transparent;
+    font:inherit;color:inherit;text-align:left;
+    cursor:pointer;
+    appearance:none;-webkit-appearance:none;
+    transition:padding-left .25s ease;
   }
+  .track-row:hover{padding-left:14px;}
   .track-row:first-child{padding-top:0;}
   .track-row:last-child{border-bottom:none;}
-  .track-cover{
-    width:56px;height:56px;border-radius:8px;
-    position:relative;overflow:hidden;
-    flex-shrink:0;cursor:pointer;background:var(--night);
-    border:none;padding:0;
-    transition:transform .15s ease;
+  .track-num{
+    display:flex;align-items:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:15px;font-weight:600;letter-spacing:.04em;
+    color:var(--ink-soft);
+    transition:color .2s ease;
   }
-  .track-cover:hover{transform:scale(1.04);}
-  .track-cover img{width:100%;height:100%;object-fit:cover;display:block;}
-  .track-cover .play-state-icon::after{width:30%;height:34%;}
-  .track-play-hint{
-    position:absolute;inset:0;z-index:1;
-    display:flex;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.35);
-    opacity:1;transition:opacity .15s ease;
+  .track-row:hover .track-num{color:var(--red);}
+  /* playing: the number hands its slot to a mini equalizer */
+  .track-eq{display:none;align-items:flex-end;gap:3px;height:16px;}
+  .track-eq i{
+    width:3px;background:var(--red);
+    transform-origin:bottom;
+    animation:eq-bounce 0.9s ease-in-out infinite;
   }
-  .track-play-hint::after{
-    content:"";
-    border-style:solid;border-width:7px 0 7px 12px;
-    border-color:transparent transparent transparent #fff;
-    margin-left:2px;
+  .track-eq i:nth-child(1){height:16px;animation-delay:-0.2s;}
+  .track-eq i:nth-child(2){height:16px;animation-delay:-0.55s;}
+  .track-eq i:nth-child(3){height:16px;animation-delay:-0.8s;}
+  @keyframes eq-bounce{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}
+  .track-row.is-playing .tn{display:none;}
+  .track-row.is-playing .track-eq{display:inline-flex;}
+  .track-title{
+    font-weight:700;font-size:19px;font-family:'Orbitron',sans-serif;
+    transition:font-weight .3s ease;
   }
-  .track-cover.is-playing .track-play-hint{opacity:0;}
-  .track-title{font-weight:800;font-size:18px;font-family:'Orbitron',sans-serif;}
-  .track-artist{color:var(--ink-soft);font-weight:500;font-size:14.5px;margin-top:4px;}
+  .track-row:hover .track-title{font-weight:900;}
+  .track-action{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;font-weight:700;letter-spacing:.12em;
+    color:var(--red);white-space:nowrap;
+    opacity:0;transition:opacity .2s ease;
+  }
+  .track-action::before{content:"PLAY";}
+  .track-row:hover .track-action,
+  .track-row.is-playing .track-action{opacity:1;}
+  .track-row.is-playing .track-action::before{content:"STOP";}
+  /* large in-row cover for touch devices (no cursor to attach a preview to) */
+  .track-inline-cover{display:none;grid-column:1 / -1;}
+  .track-inline-cover img{
+    width:min(240px,70vw);aspect-ratio:1/1;object-fit:cover;
+    clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
+  }
+  @media (hover:none){
+    .track-action{opacity:1;}
+    .track-row.is-playing .track-inline-cover,
+    .track-row.is-loading .track-inline-cover{display:block;}
+  }
+  /* cursor-following cover preview (desktop): outer div is positioned by JS
+     every frame, the img handles its own scale/fade so the two transforms
+     never fight */
+  .track-float{
+    position:fixed;top:0;left:0;z-index:40;
+    width:240px;height:240px;
+    pointer-events:none;
+    filter:drop-shadow(0 24px 48px rgba(20,18,16,.35));
+  }
+  .track-float img{
+    width:100%;height:100%;object-fit:cover;
+    clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
+    opacity:0;transform:scale(.9);
+    transition:opacity .18s ease, transform .22s ease;
+  }
+  .track-float.is-on img{opacity:1;transform:scale(1);}
+  @media (hover:none){.track-float{display:none;}}
 
   /* ---------- SCHEDULE ---------- */
   /* ---------- DAY TABS (CSS-only switcher) ---------- */
@@ -740,6 +786,8 @@
     .np-card{grid-template-columns:1fr;text-align:center;}
     .np-cover{max-width:180px;margin:0 auto;}
     .np-badge{justify-content:center;}
+    .track-row{grid-template-columns:36px 1fr auto;gap:14px;}
+    .track-title{font-size:16px;}
     .slot{grid-template-columns:1fr;gap:4px;}
     .day-tab-bar{gap:8px;}
     .day-tab-label{padding:9px 14px;font-size:12px;}
@@ -890,72 +938,54 @@
       <div class="rule-title"><h2>Новая музыка</h2></div>
     </div>
     <div class="tracks-list">
-      <div class="track-row">
-        <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/b4/73/20b4735b-8821-db34-9d98-042b09d3836b/mzaf_5234972172603467106.plus.aac.p.m4a">
-          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/19/9c/cf199c26-6f59-a4b6-4309-c597ceea14d2/14006.jpg/200x200bb.jpg" alt="" loading="lazy">
-          <span class="play-state-icon" aria-hidden="true"></span>
-          <span class="track-play-hint" aria-hidden="true"></span>
-        </button>
-        <div>
-          <div class="track-title">Swedish House Mafia & Lykke Li — Happiness Is So Sad</div>
-          <div class="track-artist">CAPITAL</div>
-        </div>
-      </div>
-      <div class="track-row">
-        <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/eb/55/21eb55d7-c18b-ba09-3ef3-87f41cedec2f/mzaf_8236556578494034135.plus.aac.p.m4a">
-          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e2/ee/b1/e2eeb1c6-a96a-d768-643c-20e087bce6d8/00823375156413_Cover.jpg/200x200bb.jpg" alt="" loading="lazy">
-          <span class="play-state-icon" aria-hidden="true"></span>
-          <span class="track-play-hint" aria-hidden="true"></span>
-        </button>
-        <div>
-          <div class="track-title">Tove Lo — DNH</div>
-          <div class="track-artist">CAPITAL</div>
-        </div>
-      </div>
-      <div class="track-row">
-        <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c0/56/08/c0560831-edf6-7b4c-905a-717479e3aba2/mzaf_4827829021468844407.plus.aac.p.m4a">
-          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e2/28/92/e22892a7-fe88-72cf-ecba-691030dfcf7e/26UMGIM41151.rgb.jpg/200x200bb.jpg" alt="" loading="lazy">
-          <span class="play-state-icon" aria-hidden="true"></span>
-          <span class="track-play-hint" aria-hidden="true"></span>
-        </button>
-        <div>
-          <div class="track-title">KATSEYE — Animal</div>
-          <div class="track-artist">CAPITAL</div>
-        </div>
-      </div>
-      <div class="track-row">
-        <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e5/f6/59/e5f65900-02de-cac1-ca98-3aa1c8e3a642/mzaf_16374337297138292701.plus.aac.p.m4a">
-          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/68/7f/2e687f3c-3fe0-dbb4-d9db-4076426be98b/26UMGIM83011.rgb.jpg/200x200bb.jpg" alt="" loading="lazy">
-          <span class="play-state-icon" aria-hidden="true"></span>
-          <span class="track-play-hint" aria-hidden="true"></span>
-        </button>
-        <div>
-          <div class="track-title">benny blanco & Bb trickz — Joven y Salvaje</div>
-          <div class="track-artist">CAPITAL</div>
-        </div>
-      </div>
-      <div class="track-row">
-        <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f8/e7/49/f8e7493f-646b-032d-70b2-c3097a0d18c6/mzaf_1782513975775586053.plus.aac.p.m4a">
-          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/56/f4/96/56f49612-02dd-83f4-44fe-d2118cc70707/26UMGIM51129.rgb.jpg/200x200bb.jpg" alt="" loading="lazy">
-          <span class="play-state-icon" aria-hidden="true"></span>
-          <span class="track-play-hint" aria-hidden="true"></span>
-        </button>
-        <div>
-          <div class="track-title">Ariana Grande — petal</div>
-          <div class="track-artist">CAPITAL</div>
-        </div>
-      </div>
-      <div class="track-row">
-        <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e1/2e/63/e12e630d-ba9a-b5b7-f3c4-e5a823aa2ed2/mzaf_14877706359153728445.plus.aac.p.m4a">
-          <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/91/da/8a/91da8a04-5fe5-2ac7-714e-ebc6f1751f8b/8718522630811.png/200x200bb.jpg" alt="" loading="lazy">
-          <span class="play-state-icon" aria-hidden="true"></span>
-          <span class="track-play-hint" aria-hidden="true"></span>
-        </button>
-        <div>
-          <div class="track-title">Armin van Buuren & SACHA — Everlasting</div>
-          <div class="track-artist">CAPITAL</div>
-        </div>
-      </div>
+      <button class="track-row" aria-label="Слушать превью: Swedish House Mafia & Lykke Li — Happiness Is So Sad"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/b4/73/20b4735b-8821-db34-9d98-042b09d3836b/mzaf_5234972172603467106.plus.aac.p.m4a"
+        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/19/9c/cf199c26-6f59-a4b6-4309-c597ceea14d2/14006.jpg/600x600bb.jpg">
+        <span class="track-num" aria-hidden="true"><span class="tn">01</span><span class="track-eq"><i></i><i></i><i></i></span></span>
+        <span class="track-title" aria-hidden="true">Swedish House Mafia & Lykke Li — Happiness Is So Sad</span>
+        <span class="track-action" aria-hidden="true"></span>
+        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
+      </button>
+      <button class="track-row" aria-label="Слушать превью: Tove Lo — DNH"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/eb/55/21eb55d7-c18b-ba09-3ef3-87f41cedec2f/mzaf_8236556578494034135.plus.aac.p.m4a"
+        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e2/ee/b1/e2eeb1c6-a96a-d768-643c-20e087bce6d8/00823375156413_Cover.jpg/600x600bb.jpg">
+        <span class="track-num" aria-hidden="true"><span class="tn">02</span><span class="track-eq"><i></i><i></i><i></i></span></span>
+        <span class="track-title" aria-hidden="true">Tove Lo — DNH</span>
+        <span class="track-action" aria-hidden="true"></span>
+        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
+      </button>
+      <button class="track-row" aria-label="Слушать превью: KATSEYE — Animal"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c0/56/08/c0560831-edf6-7b4c-905a-717479e3aba2/mzaf_4827829021468844407.plus.aac.p.m4a"
+        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e2/28/92/e22892a7-fe88-72cf-ecba-691030dfcf7e/26UMGIM41151.rgb.jpg/600x600bb.jpg">
+        <span class="track-num" aria-hidden="true"><span class="tn">03</span><span class="track-eq"><i></i><i></i><i></i></span></span>
+        <span class="track-title" aria-hidden="true">KATSEYE — Animal</span>
+        <span class="track-action" aria-hidden="true"></span>
+        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
+      </button>
+      <button class="track-row" aria-label="Слушать превью: benny blanco & Bb trickz — Joven y Salvaje"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e5/f6/59/e5f65900-02de-cac1-ca98-3aa1c8e3a642/mzaf_16374337297138292701.plus.aac.p.m4a"
+        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/68/7f/2e687f3c-3fe0-dbb4-d9db-4076426be98b/26UMGIM83011.rgb.jpg/600x600bb.jpg">
+        <span class="track-num" aria-hidden="true"><span class="tn">04</span><span class="track-eq"><i></i><i></i><i></i></span></span>
+        <span class="track-title" aria-hidden="true">benny blanco & Bb trickz — Joven y Salvaje</span>
+        <span class="track-action" aria-hidden="true"></span>
+        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
+      </button>
+      <button class="track-row" aria-label="Слушать превью: Ariana Grande — petal"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f8/e7/49/f8e7493f-646b-032d-70b2-c3097a0d18c6/mzaf_1782513975775586053.plus.aac.p.m4a"
+        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/56/f4/96/56f49612-02dd-83f4-44fe-d2118cc70707/26UMGIM51129.rgb.jpg/600x600bb.jpg">
+        <span class="track-num" aria-hidden="true"><span class="tn">05</span><span class="track-eq"><i></i><i></i><i></i></span></span>
+        <span class="track-title" aria-hidden="true">Ariana Grande — petal</span>
+        <span class="track-action" aria-hidden="true"></span>
+        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
+      </button>
+      <button class="track-row" aria-label="Слушать превью: Armin van Buuren & SACHA — Everlasting"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e1/2e/63/e12e630d-ba9a-b5b7-f3c4-e5a823aa2ed2/mzaf_14877706359153728445.plus.aac.p.m4a"
+        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/91/da/8a/91da8a04-5fe5-2ac7-714e-ebc6f1751f8b/8718522630811.png/600x600bb.jpg">
+        <span class="track-num" aria-hidden="true"><span class="tn">06</span><span class="track-eq"><i></i><i></i><i></i></span></span>
+        <span class="track-title" aria-hidden="true">Armin van Buuren & SACHA — Everlasting</span>
+        <span class="track-action" aria-hidden="true"></span>
+        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
+      </button>
     </div>
   </div>
 </section>
@@ -1125,6 +1155,8 @@
      non-analysed player if the CDN ever stops sending CORS headers. -->
 <audio id="live-audio" preload="none" crossorigin="anonymous" src="https://icecast-vgtrk.cdnvideo.ru/capitalfmmp3"></audio>
 <audio id="preview-audio" preload="none"></audio>
+
+<div class="track-float" aria-hidden="true"><img alt=""></div>
 
 <div class="player" id="player">
   <button class="player-toggle" id="player-toggle" aria-label="Свернуть плеер" aria-expanded="true">
@@ -1537,7 +1569,7 @@
   // preview pauses the live stream (and any other preview), and starting
   // the live stream stops whatever preview is playing.
   var previewAudio = document.getElementById('preview-audio');
-  var trackButtons = document.querySelectorAll('.track-cover');
+  var trackButtons = document.querySelectorAll('.track-row[data-preview]');
   if (!previewAudio || !trackButtons.length) return;
 
   var currentBtn = null;
@@ -1566,6 +1598,11 @@
 
       currentBtn = btn;
       btn.classList.add('is-loading');
+      // touch devices show the big cover inside the row — load it on demand
+      var inlineImg = btn.querySelector('.track-inline-cover img');
+      if (inlineImg && !inlineImg.getAttribute('src')){
+        inlineImg.src = btn.getAttribute('data-cover');
+      }
       previewAudio.src = url;
       previewAudio.play().catch(function(){
         btn.classList.remove('is-loading');
@@ -1586,6 +1623,70 @@
   // whatever preview is running.
   var liveAudio = document.getElementById('live-audio');
   if (liveAudio) liveAudio.addEventListener('playing', stopPreview);
+})();
+</script>
+
+<script>
+(function(){
+  // Cursor-following cover preview for the "Новая музыка" list: a 240px
+  // cover drifts after the pointer with lerp inertia while a row is
+  // hovered. Mouse-only — touch devices get the in-row cover instead.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!window.matchMedia('(hover:hover)').matches) return;
+
+  var list = document.querySelector('.tracks-list');
+  var floatEl = document.querySelector('.track-float');
+  if (!list || !floatEl) return;
+  var img = floatEl.querySelector('img');
+
+  var SIZE = 240, GAP = 28;
+  var mx = 0, my = 0, fx = null, fy = null, tilt = 0;
+  var running = false;
+
+  function targetPos(){
+    var tx = mx + GAP;
+    if (tx + SIZE > window.innerWidth - 12) tx = mx - GAP - SIZE;
+    var ty = Math.min(Math.max(my - SIZE / 2, 12), window.innerHeight - SIZE - 12);
+    return { x: tx, y: ty };
+  }
+
+  function tick(){
+    var t = targetPos();
+    if (fx === null){ fx = t.x; fy = t.y; }
+    fx += (t.x - fx) * 0.16;
+    fy += (t.y - fy) * 0.16;
+    // slight tilt from horizontal lag sells the inertia
+    tilt += ((t.x - fx) * 0.02 - tilt) * 0.2;
+    tilt = Math.max(-6, Math.min(6, tilt));
+    floatEl.style.transform = 'translate3d(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px,0) rotate(' + tilt.toFixed(2) + 'deg)';
+    var settled = Math.abs(t.x - fx) < 0.5 && Math.abs(t.y - fy) < 0.5;
+    if (floatEl.classList.contains('is-on') || !settled){
+      requestAnimationFrame(tick);
+    } else {
+      running = false;
+    }
+  }
+  function ensure(){
+    if (!running){ running = true; requestAnimationFrame(tick); }
+  }
+
+  list.addEventListener('pointermove', function(e){
+    mx = e.clientX; my = e.clientY;
+    ensure();
+  }, { passive: true });
+
+  list.addEventListener('pointerover', function(e){
+    var row = e.target.closest('.track-row[data-cover]');
+    if (!row) return;
+    var src = row.getAttribute('data-cover');
+    if (img.getAttribute('src') !== src) img.src = src;
+    floatEl.classList.add('is-on');
+    ensure();
+  });
+
+  list.addEventListener('pointerleave', function(){
+    floatEl.classList.remove('is-on');
+  });
 })();
 </script>
 
