@@ -445,6 +445,64 @@
     box-shadow:inset 0 -80px 90px -60px rgba(10,7,6,0.55);
   }
 
+  /* ---------- SCROLL CHOREOGRAPHY ---------- */
+  /* Reveal states are applied by JS only, so nothing is ever hidden for
+     no-JS visitors or reduced-motion users. */
+  .rv{
+    opacity:0;
+    transform:translateY(26px);
+    transition:opacity .65s ease, transform .65s cubic-bezier(.22,.9,.3,1);
+  }
+  .rv.rv-in{opacity:1;transform:none;}
+  /* section heads: the title assembles letter by letter, rule lines draw
+     outward, the brand mark fades in last */
+  .rv-head .hw{display:inline-block;}
+  .rv-head:not(.rv-in) .hw{opacity:0;transform:translateY(.6em);}
+  .rv-head .hw{transition:opacity .5s ease, transform .5s cubic-bezier(.22,.9,.3,1);transition-delay:var(--d,0s);}
+  .rv-head .rule-title::before{transform-origin:right center;}
+  .rv-head .rule-title::after{transform-origin:left center;}
+  .rv-head .rule-title::before,
+  .rv-head .rule-title::after{
+    transform:scaleX(0);
+    transition:transform .8s cubic-bezier(.65,.05,.35,1) .15s;
+  }
+  .rv-head.rv-in .rule-title::before,
+  .rv-head.rv-in .rule-title::after{transform:scaleX(1);}
+  .rv-head .np-brand-mark{opacity:0;transition:opacity .6s ease .35s;}
+  .rv-head.rv-in .np-brand-mark{opacity:1;}
+
+  /* kinetic ticker: a red band between sections that doubles as the
+     section boundary — it wipes in with notch-cut corners, and JS drives
+     the run speed / skew from scroll velocity */
+  .ticker{
+    background:var(--red);
+    color:#fff;
+    overflow:hidden;
+    padding:15px 0;
+    clip-path:polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
+  }
+  .ticker.wipe{
+    clip-path:polygon(0 0, 0 0, 0 26px, 0 100%, 0 100%, 0 calc(100% - 26px));
+    transition:clip-path 1s cubic-bezier(.65,.05,.35,1);
+  }
+  .ticker.wipe.wipe-in{
+    clip-path:polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
+  }
+  .ticker-track{
+    display:flex;
+    width:max-content;
+    white-space:nowrap;
+    will-change:transform;
+  }
+  .ticker-run{
+    display:block;
+    font-family:'Orbitron',sans-serif;
+    font-weight:800;
+    font-size:clamp(17px,2.2vw,27px);
+    letter-spacing:.02em;
+    text-transform:uppercase;
+  }
+
   /* ---------- SECTION HEADS ---------- */
   section{padding:100px 0;}
   .sec-head{
@@ -950,6 +1008,12 @@
   </div>
 </section>
 
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-run">CAPITAL&nbsp;•&nbsp;Из Москвы на весь мир&nbsp;•&nbsp;24/7&nbsp;•&nbsp;</span>
+  </div>
+</div>
+
 <section class="now-playing" id="now-playing">
   <div class="wrap">
     <div class="sec-head">
@@ -1145,6 +1209,12 @@
     </div>
   </div>
 </section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-run">CAPITAL&nbsp;•&nbsp;Электронная музыка&nbsp;•&nbsp;В эфире&nbsp;•&nbsp;</span>
+  </div>
+</div>
 
 <section>
   <div class="subscribe">
@@ -1813,6 +1883,153 @@
       ensure();
     }).observe(heroEl);
   }
+  ensure();
+})();
+</script>
+
+<script>
+(function(){
+  // Scroll choreography: staggered reveals on entry (section titles
+  // assemble letter by letter, list rows cascade up) and the kinetic
+  // ticker bands whose speed and skew follow scroll velocity.
+  // Classes are added from JS only — no-JS and reduced-motion visitors
+  // get the plain, fully visible page.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  /* ---------- reveals ---------- */
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      en.target.classList.add('rv-in', 'wipe-in');
+      io.unobserve(en.target);
+    });
+  }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
+
+  document.querySelectorAll('.sec-head').forEach(function(head){
+    head.querySelectorAll('h2').forEach(function(h2){
+      var text = h2.textContent;
+      h2.textContent = '';
+      var idx = 0;
+      for (var i = 0; i < text.length; i++){
+        if (text[i] === ' '){
+          h2.appendChild(document.createTextNode(' '));
+          continue;
+        }
+        var s = document.createElement('span');
+        s.className = 'hw';
+        s.textContent = text[i];
+        s.style.setProperty('--d', (idx++ * 0.035).toFixed(3) + 's');
+        h2.appendChild(s);
+      }
+    });
+    head.classList.add('rv-head');
+    io.observe(head);
+  });
+
+  // Track rows keep their own hover transition (padding-left), which the
+  // reveal transition would shadow — strip the reveal classes once done.
+  function revealOnce(el, delay){
+    el.classList.add('rv');
+    if (delay) el.style.transitionDelay = delay.toFixed(2) + 's';
+    el.addEventListener('transitionend', function done(e){
+      if (e.propertyName !== 'transform') return;
+      el.classList.remove('rv', 'rv-in');
+      el.style.transitionDelay = '';
+      el.removeEventListener('transitionend', done);
+    });
+    io.observe(el);
+  }
+
+  document.querySelectorAll('.np-card, .day-tab-bar, .subscribe').forEach(function(el){
+    revealOnce(el, 0);
+  });
+  document.querySelectorAll('.tracks-list .track-row').forEach(function(el, i){
+    revealOnce(el, (i % 8) * 0.07);
+  });
+  document.querySelectorAll('.schedule-list').forEach(function(panel){
+    panel.querySelectorAll('.slot').forEach(function(el, i){
+      revealOnce(el, i * 0.06);
+    });
+  });
+
+  /* ---------- kinetic ticker ---------- */
+  var tickers = Array.prototype.slice.call(document.querySelectorAll('.ticker'));
+  if (!tickers.length) return;
+
+  // NB: the collapsed clip-path zeroes the ticker's intersectionRatio, so
+  // the threshold-based reveal observer never fires for it — the wipe-in
+  // rides on the zero-threshold marquee observer below instead.
+  var items = tickers.map(function(t){
+    var track = t.querySelector('.ticker-track');
+    t.classList.add('wipe');
+    return { el: t, track: track, runW: 0, x: 0, visible: false };
+  });
+
+  function recalc(){
+    items.forEach(function(it){
+      var run = it.track.firstElementChild;
+      it.runW = run.offsetWidth;
+      if (!it.runW) return;
+      var need = Math.ceil((window.innerWidth + it.runW) / it.runW) + 1;
+      while (it.track.children.length < need){
+        it.track.appendChild(run.cloneNode(true));
+      }
+    });
+  }
+  recalc();
+  window.addEventListener('resize', recalc);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(recalc);
+
+  var lastY = window.scrollY, vel = 0, lastT = 0, running = false;
+
+  function frame(ts){
+    var dt = lastT ? Math.min((ts - lastT) / 1000, 0.05) : 0.016;
+    lastT = ts;
+    var y = window.scrollY;
+    var instV = Math.max(-6000, Math.min(6000, (y - lastY) / dt));
+    lastY = y;
+    vel += (instV - vel) * 0.12;
+
+    // base leftward drift; scrolling down accelerates it, scrolling up
+    // can slow and even reverse it — the band feels physically dragged
+    var speed = Math.max(-500, Math.min(600, 80 + vel * 0.55));
+    var skew = Math.max(-10, Math.min(10, -vel * 0.008));
+
+    var any = false;
+    items.forEach(function(it){
+      if (!it.visible || !it.runW) return;
+      any = true;
+      it.x -= speed * dt;
+      if (it.x <= -it.runW) it.x += it.runW;
+      if (it.x > 0) it.x -= it.runW;
+      it.track.style.transform = 'translate3d(' + it.x.toFixed(1) + 'px,0,0) skewX(' + skew.toFixed(2) + 'deg)';
+    });
+
+    if (any && !document.hidden){
+      requestAnimationFrame(frame);
+    } else {
+      running = false;
+      lastT = 0;
+    }
+  }
+  function ensure(){
+    if (running || document.hidden) return;
+    running = true;
+    requestAnimationFrame(frame);
+  }
+
+  var vio = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      items.forEach(function(it){
+        if (it.el !== en.target) return;
+        it.visible = en.isIntersecting;
+        if (en.isIntersecting) it.el.classList.add('wipe-in');
+      });
+    });
+    ensure();
+  });
+  items.forEach(function(it){ vio.observe(it.el); });
+  document.addEventListener('visibilitychange', ensure);
   ensure();
 })();
 </script>
