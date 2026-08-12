@@ -19,7 +19,10 @@
 <link rel="icon" type="image/jpeg" href="assets/brand-reel.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Orbitron is requested as a variable font (full wght axis) so the hero
+     wordmark can animate letter weight continuously; the fixed weights the
+     rest of the site uses (700/800/900) are all inside this range. -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --paper:#FAFAF7;
@@ -278,9 +281,16 @@
     text-transform:uppercase;color:rgba(255,255,255,.78);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .dial-seg.is-now{background:var(--red);}
+  .dial-seg.is-now{background:var(--red);position:relative;}
   .dial-seg.is-now b{color:rgba(255,255,255,.85);}
   .dial-seg.is-now i{color:#fff;}
+  /* Live-spectrum canvas layered behind the active segment's text */
+  .dial-seg b,.dial-seg i{position:relative;z-index:1;}
+  .dial-viz{
+    position:absolute;inset:0;z-index:0;
+    width:100%;height:100%;display:block;
+    pointer-events:none;
+  }
   .dial-now-mark{
     position:absolute;top:0;bottom:0;
     width:2px;background:#fff;
@@ -330,8 +340,17 @@
     font-size:clamp(44px,6vw,76px);
     font-weight:900;
     line-height:0.88;
+    /* the kinetic letters are inline-block spans — without nowrap the
+       browser would happily wrap the word between them */
+    white-space:nowrap;
   }
   .hero-title-block{min-width:0;}
+  /* Kinetic wordmark letters: JS splits the h1 into these spans and drives
+     font-weight (variable Orbitron) + translateY per letter every frame. */
+  .hero h1 .wl{
+    display:inline-block;
+    will-change:transform;
+  }
   .hero-slogan{
     margin-top:6px;
     font-family:'JetBrains Mono',monospace;
@@ -673,6 +692,12 @@
     .player-track .t.is-marquee{text-overflow:ellipsis;}
   }
   .player-track .a{font-size:12.5px;color:rgba(255,255,255,.55);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  /* Thin live-spectrum strip under the track title; stays a blank (invisible
+     on the dark bar) 10px strip when JS/reduced-motion disables drawing */
+  .player-viz{
+    display:block;width:100%;height:14px;margin-top:3px;
+    pointer-events:none;
+  }
   .player-freq{
     display:flex;align-items:center;gap:10px;
     font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,.75);
@@ -1094,7 +1119,11 @@
   </div>
 </footer>
 
-<audio id="live-audio" preload="none" src="https://icecast-vgtrk.cdnvideo.ru/capitalfmmp3"></audio>
+<!-- crossorigin lets Web Audio's AnalyserNode read real spectrum data from
+     the stream (the icecast CDN sends Access-Control-Allow-Origin: *).
+     The visualizer script below strips this attribute and falls back to a
+     non-analysed player if the CDN ever stops sending CORS headers. -->
+<audio id="live-audio" preload="none" crossorigin="anonymous" src="https://icecast-vgtrk.cdnvideo.ru/capitalfmmp3"></audio>
 <audio id="preview-audio" preload="none"></audio>
 
 <div class="player" id="player">
@@ -1110,6 +1139,7 @@
     <div class="player-track">
       <div class="t"><span class="t-text"><span>Overmono — So U Kno</span></span></div>
       <div class="a">Фитнес Утро</div>
+      <canvas class="player-viz" aria-hidden="true"></canvas>
     </div>
     <div class="player-freq">
       <span class="live-dot"></span> В ЭФИРЕ
@@ -1556,6 +1586,270 @@
   // whatever preview is running.
   var liveAudio = document.getElementById('live-audio');
   if (liveAudio) liveAudio.addEventListener('playing', stopPreview);
+})();
+</script>
+
+<script>
+(function(){
+  // Shared Web Audio engine + the two visual layers it feeds:
+  //   1) kinetic hero wordmark — letters breathe (variable font weight),
+  //      react to the cursor, and jump to the live stream's spectrum;
+  //   2) spectrum visualizer canvases — behind the active broadcast-dial
+  //      segment and as a thin strip in the fixed player bar. When nothing
+  //      is playing they show a calm travelling sine as a standby state.
+  // One AnalyserNode serves everything; only the live stream is analysed
+  // (iTunes preview clips don't send CORS headers, so routing them through
+  // Web Audio would silence them).
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var audioEl = document.getElementById('live-audio');
+  if (!audioEl) return;
+
+  /* ---------- audio engine ---------- */
+  var actx = null, analyser = null, freqData = null, graphFailed = false;
+
+  // Cheap CORS probe: if the CDN ever stops sending ACAO headers, the
+  // crossorigin attribute would make playback fail outright — strip it
+  // pre-emptively and run without analysis rather than break the radio.
+  fetch(audioEl.src, { method: 'HEAD', mode: 'cors', cache: 'no-store' })
+    .catch(function(){
+      graphFailed = true;
+      audioEl.removeAttribute('crossorigin');
+      if (audioEl.paused) audioEl.load();
+    });
+
+  // AudioContext must be created inside a user gesture to start unlocked.
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('.hero-play, .player-play, .np-play')) return;
+    if (!actx && !graphFailed){
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx){
+        try { actx = new Ctx(); } catch (err) { graphFailed = true; }
+      } else {
+        graphFailed = true;
+      }
+    }
+    if (actx && actx.state === 'suspended') actx.resume();
+  }, true);
+
+  // The element is only captured into the graph once it has actually
+  // reached 'playing' with the crossorigin attribute intact — at that point
+  // CORS is proven to work, so capturing can't silence the stream.
+  audioEl.addEventListener('playing', function(){
+    if (actx && !analyser && !graphFailed && audioEl.crossOrigin){
+      try {
+        var src = actx.createMediaElementSource(audioEl);
+        analyser = actx.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.5;
+        src.connect(analyser);
+        analyser.connect(actx.destination);
+        freqData = new Uint8Array(analyser.frequencyBinCount);
+      } catch (err) { analyser = null; graphFailed = true; }
+    }
+    if (actx && actx.state === 'suspended') actx.resume();
+    ensureLoop();
+  });
+
+  // If the crossorigin fetch fails before the element is captured, retry
+  // once as a plain non-analysed player so listening always works.
+  var corsRetried = false;
+  audioEl.addEventListener('error', function(){
+    if (corsRetried || !audioEl.crossOrigin || analyser) return;
+    corsRetried = true;
+    graphFailed = true;
+    audioEl.removeAttribute('crossorigin');
+    audioEl.load();
+    audioEl.play().catch(function(){});
+  });
+
+  function liveSpectrum(){
+    if (!analyser || audioEl.paused) return null;
+    analyser.getByteFrequencyData(freqData);
+    return freqData;
+  }
+  // On-device diagnostic hook (mobile Safari has no reachable console):
+  // window.__capitalSpectrum() in devtools returns the live band data.
+  window.__capitalSpectrum = liveSpectrum;
+
+  /* ---------- kinetic wordmark ---------- */
+  var wordEl = document.querySelector('.hero h1');
+  var letters = [];
+  if (wordEl){
+    var text = wordEl.textContent.trim();
+    wordEl.setAttribute('aria-label', text);
+    wordEl.textContent = '';
+    for (var i = 0; i < text.length; i++){
+      var s = document.createElement('span');
+      s.className = 'wl';
+      s.textContent = text[i];
+      s.setAttribute('aria-hidden', 'true');
+      wordEl.appendChild(s);
+      letters.push({ el: s, w: 900, lift: 0, audio: 0 });
+    }
+  }
+
+  // One log-spaced analyser band per letter: first letter gets bass,
+  // last gets highs (128 bins; music content lives mostly under bin ~100).
+  var bandEdges = [];
+  for (var b = 0; b <= letters.length; b++){
+    bandEdges.push(Math.round(2 * Math.pow(50, b / (letters.length || 1))));
+  }
+
+  var mouse = { x: -1e4, y: -1e4 };
+  window.addEventListener('pointermove', function(e){
+    mouse.x = e.clientX; mouse.y = e.clientY;
+    ensureLoop();
+  }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', function(){
+    mouse.x = -1e4; mouse.y = -1e4;
+  });
+
+  function tickWordmark(t, spec){
+    for (var i = 0; i < letters.length; i++){
+      var L = letters[i];
+      var r = L.el.getBoundingClientRect();
+
+      // (a) idle breathing: slow weight wave travelling left to right,
+      // kept below ~810 so cursor and beat hits have visible headroom
+      var w = 700 + 110 * (0.5 + 0.5 * Math.sin(t / 1400 - i * 0.7));
+
+      // (b) magnetic cursor: nearby letters gain weight and rise
+      var dx = mouse.x - (r.left + r.width / 2);
+      var dy = mouse.y - (r.top + r.height / 2);
+      var infl = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / 180);
+      infl = infl * infl * (3 - 2 * infl);
+      w += infl * 160;
+      var lift = infl * 7;
+
+      // (c) live spectrum: each letter follows its own frequency band
+      var a = 0;
+      if (spec){
+        var sum = 0, from = bandEdges[i], to = Math.max(bandEdges[i + 1], from + 1);
+        for (var k = from; k < to; k++) sum += spec[k];
+        // A loud mp3 stream keeps most bands near the top of the byte range;
+        // only the part above a floor reads as a "hit", so letters bounce on
+        // beats instead of sitting pinned at max weight.
+        a = Math.pow(Math.max(0, sum / (to - from) / 255 - 0.6) / 0.4, 1.4);
+      }
+      // fast attack / slow decay keeps the bounce punchy but not jittery
+      L.audio += (a - L.audio) * (a > L.audio ? 0.55 : 0.12);
+      w += L.audio * 190;
+      lift += L.audio * r.height * 0.18;
+
+      L.w += (Math.min(900, w) - L.w) * 0.22;
+      L.lift += (lift - L.lift) * 0.3;
+      L.el.style.fontWeight = Math.round(L.w);
+      L.el.style.transform = 'translateY(' + (-L.lift).toFixed(2) + 'px)';
+    }
+  }
+
+  /* ---------- spectrum canvases ---------- */
+  function makeViz(canvas, opts){
+    var c2 = canvas.getContext('2d');
+    var dpr = 1, vals = [];
+    function resize(){
+      dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.round(canvas.clientWidth * dpr));
+      canvas.height = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    function draw(t, spec){
+      var W = canvas.width, H = canvas.height;
+      c2.clearRect(0, 0, W, H);
+      var n = Math.max(12, Math.floor(canvas.clientWidth / opts.step));
+      var bw = Math.max(1, Math.round(opts.barW * dpr));
+      c2.fillStyle = opts.color;
+      c2.globalAlpha = spec ? opts.liveAlpha : opts.idleAlpha;
+      for (var i = 0; i < n; i++){
+        var v;
+        if (spec){
+          var bin = 2 + Math.floor(Math.pow(i / n, 1.7) * 100);
+          // same floor as the wordmark: keep dynamics visible on a hot stream
+          v = Math.pow(Math.max(0, spec[bin] / 255 - 0.3) / 0.7, 1.3);
+        } else {
+          // standby: calm travelling sine
+          v = 0.28 + 0.2 * Math.sin(i * 0.45 - t / 650);
+        }
+        vals[i] = vals[i] === undefined ? v
+          : vals[i] + (v - vals[i]) * (v > vals[i] ? 0.5 : 0.2);
+        var bh = Math.max(dpr, vals[i] * H);
+        c2.fillRect(
+          Math.round((i + 0.5) * (W / n) - bw / 2),
+          Math.round((H - bh) / 2),
+          bw, bh
+        );
+      }
+      c2.globalAlpha = 1;
+    }
+    return { draw: draw };
+  }
+
+  var playerBar = document.getElementById('player');
+  var playerVizEl = document.querySelector('.player-viz');
+  var playerViz = playerVizEl
+    ? makeViz(playerVizEl, { color: '#FF2E2E', liveAlpha: 0.95, idleAlpha: 0.5, step: 5, barW: 2 })
+    : null;
+
+  var dialViz = null;
+  var dialSegNow = document.querySelector('.dial-seg.is-now');
+  if (dialSegNow){
+    var dialCanvas = document.createElement('canvas');
+    dialCanvas.className = 'dial-viz';
+    dialCanvas.setAttribute('aria-hidden', 'true');
+    dialSegNow.insertBefore(dialCanvas, dialSegNow.firstChild);
+    dialViz = makeViz(dialCanvas, { color: '#fff', liveAlpha: 0.5, idleAlpha: 0.28, step: 4, barW: 2 });
+  }
+
+  /* ---------- one rAF loop for everything ---------- */
+  var heroVisible = false, dialVisible = false;
+  var running = false;
+
+  function frame(t){
+    var spec = liveSpectrum();
+    var any = false;
+    if (heroVisible && letters.length){ tickWordmark(t, spec); any = true; }
+    if (dialVisible && dialViz){ dialViz.draw(t, spec); any = true; }
+    if (playerViz && !playerBar.classList.contains('is-collapsed')){ playerViz.draw(t, spec); any = true; }
+    if (any && !document.hidden){
+      requestAnimationFrame(frame);
+    } else {
+      running = false;
+    }
+  }
+  function ensureLoop(){
+    if (running || document.hidden) return;
+    running = true;
+    requestAnimationFrame(frame);
+  }
+
+  var heroEl = document.querySelector('.hero');
+  if (heroEl){
+    new IntersectionObserver(function(entries){
+      heroVisible = entries[0].isIntersecting;
+      ensureLoop();
+    }).observe(heroEl);
+  }
+  var dialEl = document.querySelector('.dial');
+  if (dialEl){
+    new IntersectionObserver(function(entries){
+      dialVisible = entries[0].isIntersecting;
+      ensureLoop();
+    }).observe(dialEl);
+  }
+  // The player bar is collapsed/expanded by the now-playing observer in an
+  // earlier script — watch the same section so a re-expanded bar restarts
+  // a loop that had gone fully idle.
+  var npSection = document.getElementById('now-playing');
+  if (npSection){
+    new IntersectionObserver(function(){ ensureLoop(); }, { threshold: 0.45 }).observe(npSection);
+  }
+  document.addEventListener('visibilitychange', ensureLoop);
+  var playerToggle = document.getElementById('player-toggle');
+  if (playerToggle) playerToggle.addEventListener('click', ensureLoop);
+
+  ensureLoop();
 })();
 </script>
 
