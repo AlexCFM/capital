@@ -478,38 +478,6 @@
   .rv-head .np-brand-mark{opacity:0;transition:opacity .6s ease .35s;}
   .rv-head.rv-in .np-brand-mark{opacity:1;}
 
-  /* kinetic ticker: a red band between sections that doubles as the
-     section boundary — it wipes in with notch-cut corners, and JS drives
-     the run speed / skew from scroll velocity */
-  .ticker{
-    background:var(--red);
-    color:#fff;
-    overflow:hidden;
-    padding:15px 0;
-    clip-path:polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
-  }
-  .ticker.wipe{
-    clip-path:polygon(0 0, 0 0, 0 26px, 0 100%, 0 100%, 0 calc(100% - 26px));
-    transition:clip-path 1s cubic-bezier(.65,.05,.35,1);
-  }
-  .ticker.wipe.wipe-in{
-    clip-path:polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px));
-  }
-  .ticker-track{
-    display:flex;
-    width:max-content;
-    white-space:nowrap;
-    will-change:transform;
-  }
-  .ticker-run{
-    display:block;
-    font-family:'Orbitron',sans-serif;
-    font-weight:800;
-    font-size:clamp(17px,2.2vw,27px);
-    letter-spacing:.02em;
-    text-transform:uppercase;
-  }
-
   /* ---------- SECTION HEADS ---------- */
   section{padding:100px 0;}
   .sec-head{
@@ -1041,9 +1009,18 @@
   </div>
 </section>
 
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-track">
-    <span class="ticker-run">CAPITAL&nbsp;•&nbsp;Из Москвы на весь мир&nbsp;•&nbsp;24/7&nbsp;•&nbsp;</span>
+<!-- the broadcast dial repeats as a section divider: an informative,
+     live boundary (today's schedule + now marker + spectrum) instead of
+     a decorative band. Static fallback content matches the top dial and
+     is rebuilt by the same script. -->
+<div class="dial">
+  <div class="dial-ruler">
+    <div class="dial-now-mark" style="left:36.11%"></div>
+    <div class="dial-seg" style="flex-grow:7"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
+    <div class="dial-seg is-now" style="flex-grow:4"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
+    <div class="dial-seg" style="flex-grow:5"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
+    <div class="dial-seg" style="flex-grow:4"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
+    <div class="dial-seg" style="flex-grow:4"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
   </div>
 </div>
 
@@ -1249,9 +1226,14 @@
   </div>
 </section>
 
-<div class="ticker" aria-hidden="true">
-  <div class="ticker-track">
-    <span class="ticker-run">CAPITAL&nbsp;•&nbsp;Из Москвы на весь мир&nbsp;•&nbsp;24/7&nbsp;•&nbsp;</span>
+<div class="dial">
+  <div class="dial-ruler">
+    <div class="dial-now-mark" style="left:36.11%"></div>
+    <div class="dial-seg" style="flex-grow:7"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
+    <div class="dial-seg is-now" style="flex-grow:4"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
+    <div class="dial-seg" style="flex-grow:5"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
+    <div class="dial-seg" style="flex-grow:4"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
+    <div class="dial-seg" style="flex-grow:4"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
   </div>
 </div>
 
@@ -1381,18 +1363,18 @@
     var dialSlots = DIAL_SCHEDULE[rawKey];
     var dialActiveIdx = findActiveIndex(dialSlots, decHour);
 
-    // Rebuild the broadcast dial for today's real schedule
-    var ruler = document.querySelector('.dial-ruler');
-    if (ruler) {
-      var markerPct = (decHour / 24 * 100).toFixed(2) + '%';
-      var html = '<div class="dial-now-mark" style="left:' + markerPct + '"></div>';
-      dialSlots.forEach(function(seg, i){
-        var grow = seg[1] - seg[0];
-        var cls = 'dial-seg' + (i === dialActiveIdx ? ' is-now' : '');
-        html += '<div class="' + cls + '" style="flex-grow:' + grow + '"><b>' + fmtHour(seg[0]) + '–' + fmtHour(seg[1]) + '</b><i>' + seg[2] + '</i></div>';
-      });
+    // Rebuild every broadcast dial (the top one and the section dividers)
+    // for today's real schedule
+    var markerPct = (decHour / 24 * 100).toFixed(2) + '%';
+    var html = '<div class="dial-now-mark" style="left:' + markerPct + '"></div>';
+    dialSlots.forEach(function(seg, i){
+      var grow = seg[1] - seg[0];
+      var cls = 'dial-seg' + (i === dialActiveIdx ? ' is-now' : '');
+      html += '<div class="' + cls + '" style="flex-grow:' + grow + '"><b>' + fmtHour(seg[0]) + '–' + fmtHour(seg[1]) + '</b><i>' + seg[2] + '</i></div>';
+    });
+    document.querySelectorAll('.dial-ruler').forEach(function(ruler){
       ruler.innerHTML = html;
-    }
+    });
 
     // Pre-select today's tab
     var tabInput = document.getElementById('day-' + tabKey);
@@ -1898,7 +1880,7 @@
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
       if (!en.isIntersecting) return;
-      en.target.classList.add('rv-in', 'wipe-in');
+      en.target.classList.add('rv-in');
       io.unobserve(en.target);
     });
   }, { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
@@ -1949,86 +1931,6 @@
       revealOnce(el, i * 0.06);
     });
   });
-
-  /* ---------- kinetic ticker ---------- */
-  var tickers = Array.prototype.slice.call(document.querySelectorAll('.ticker'));
-  if (!tickers.length) return;
-
-  // NB: the collapsed clip-path zeroes the ticker's intersectionRatio, so
-  // the threshold-based reveal observer never fires for it — the wipe-in
-  // rides on the zero-threshold marquee observer below instead.
-  var items = tickers.map(function(t){
-    var track = t.querySelector('.ticker-track');
-    t.classList.add('wipe');
-    return { el: t, track: track, runW: 0, x: 0, visible: false };
-  });
-
-  function recalc(){
-    items.forEach(function(it){
-      var run = it.track.firstElementChild;
-      it.runW = run.offsetWidth;
-      if (!it.runW) return;
-      var need = Math.ceil((window.innerWidth + it.runW) / it.runW) + 1;
-      while (it.track.children.length < need){
-        it.track.appendChild(run.cloneNode(true));
-      }
-    });
-  }
-  recalc();
-  window.addEventListener('resize', recalc);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(recalc);
-
-  var lastY = window.scrollY, vel = 0, lastT = 0, running = false;
-
-  function frame(ts){
-    var dt = lastT ? Math.min((ts - lastT) / 1000, 0.05) : 0.016;
-    lastT = ts;
-    var y = window.scrollY;
-    var instV = Math.max(-6000, Math.min(6000, (y - lastY) / dt));
-    lastY = y;
-    vel += (instV - vel) * 0.12;
-
-    // base leftward drift; scrolling down accelerates it, scrolling up
-    // can slow and even reverse it — the band feels physically dragged
-    var speed = Math.max(-500, Math.min(600, 80 + vel * 0.55));
-    var skew = Math.max(-10, Math.min(10, -vel * 0.008));
-
-    var any = false;
-    items.forEach(function(it){
-      if (!it.visible || !it.runW) return;
-      any = true;
-      it.x -= speed * dt;
-      if (it.x <= -it.runW) it.x += it.runW;
-      if (it.x > 0) it.x -= it.runW;
-      it.track.style.transform = 'translate3d(' + it.x.toFixed(1) + 'px,0,0) skewX(' + skew.toFixed(2) + 'deg)';
-    });
-
-    if (any && !document.hidden){
-      requestAnimationFrame(frame);
-    } else {
-      running = false;
-      lastT = 0;
-    }
-  }
-  function ensure(){
-    if (running || document.hidden) return;
-    running = true;
-    requestAnimationFrame(frame);
-  }
-
-  var vio = new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      items.forEach(function(it){
-        if (it.el !== en.target) return;
-        it.visible = en.isIntersecting;
-        if (en.isIntersecting) it.el.classList.add('wipe-in');
-      });
-    });
-    ensure();
-  });
-  items.forEach(function(it){ vio.observe(it.el); });
-  document.addEventListener('visibilitychange', ensure);
-  ensure();
 })();
 </script>
 
@@ -2238,25 +2140,36 @@
     ? makeViz(playerVizEl, { color: '#FF2E2E', liveAlpha: 0.95, idleAlpha: 0.5, step: 5, barW: 2 })
     : null;
 
-  var dialViz = null;
-  var dialSegNow = document.querySelector('.dial-seg.is-now');
-  if (dialSegNow){
+  // One spectrum canvas per dial — the top strip and both section-divider
+  // dials — each tracking its own viewport visibility.
+  var dialVizes = [];
+  document.querySelectorAll('.dial-seg.is-now').forEach(function(seg){
     var dialCanvas = document.createElement('canvas');
     dialCanvas.className = 'dial-viz';
     dialCanvas.setAttribute('aria-hidden', 'true');
-    dialSegNow.insertBefore(dialCanvas, dialSegNow.firstChild);
-    dialViz = makeViz(dialCanvas, { color: '#fff', liveAlpha: 0.5, idleAlpha: 0.28, step: 4, barW: 2 });
-  }
+    seg.insertBefore(dialCanvas, seg.firstChild);
+    var item = {
+      viz: makeViz(dialCanvas, { color: '#fff', liveAlpha: 0.5, idleAlpha: 0.28, step: 4, barW: 2 }),
+      visible: false
+    };
+    dialVizes.push(item);
+    new IntersectionObserver(function(entries){
+      item.visible = entries[0].isIntersecting;
+      ensureLoop();
+    }).observe(seg.closest('.dial') || seg);
+  });
 
   /* ---------- one rAF loop for everything ---------- */
-  var heroVisible = false, dialVisible = false;
+  var heroVisible = false;
   var running = false;
 
   function frame(t){
     var spec = liveSpectrum();
     var any = false;
     if (heroVisible && letters.length){ tickWordmark(t, spec); any = true; }
-    if (dialVisible && dialViz){ dialViz.draw(t, spec); any = true; }
+    dialVizes.forEach(function(item){
+      if (item.visible){ item.viz.draw(t, spec); any = true; }
+    });
     if (playerViz && !playerBar.classList.contains('is-collapsed')){ playerViz.draw(t, spec); any = true; }
     if (any && !document.hidden){
       requestAnimationFrame(frame);
@@ -2276,13 +2189,6 @@
       heroVisible = entries[0].isIntersecting;
       ensureLoop();
     }).observe(heroEl);
-  }
-  var dialEl = document.querySelector('.dial');
-  if (dialEl){
-    new IntersectionObserver(function(entries){
-      dialVisible = entries[0].isIntersecting;
-      ensureLoop();
-    }).observe(dialEl);
   }
   // The player bar is collapsed/expanded by the now-playing observer in an
   // earlier script — watch the same section so a re-expanded bar restarts
