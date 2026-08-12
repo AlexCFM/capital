@@ -495,6 +495,19 @@
   .track-cover:hover{transform:scale(1.04);}
   .track-cover img{width:100%;height:100%;object-fit:cover;display:block;}
   .track-cover .play-state-icon::after{width:30%;height:34%;}
+  .track-play-hint{
+    position:absolute;inset:0;z-index:1;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.35);
+    opacity:1;transition:opacity .15s ease;
+  }
+  .track-play-hint::after{
+    content:"";
+    border-style:solid;border-width:7px 0 7px 12px;
+    border-color:transparent transparent transparent #fff;
+    margin-left:2px;
+  }
+  .track-cover.is-playing .track-play-hint{opacity:0;}
   .track-title{font-weight:800;font-size:18px;font-family:'Orbitron',sans-serif;}
   .track-artist{color:var(--ink-soft);font-weight:500;font-size:14.5px;margin-top:4px;}
 
@@ -839,15 +852,15 @@
 <section id="new-music">
   <div class="wrap">
     <div class="sec-head">
-      <span class="eyebrow">Свежее</span>
+      <span class="eyebrow">CAPITAL</span>
       <div class="rule-title"><h2>Новая музыка</h2></div>
-      <p>Треки, которые резиденты добавили в ротацию на этой неделе.</p>
     </div>
     <div class="tracks-list">
       <div class="track-row">
         <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/b4/73/20b4735b-8821-db34-9d98-042b09d3836b/mzaf_5234972172603467106.plus.aac.p.m4a">
           <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/19/9c/cf199c26-6f59-a4b6-4309-c597ceea14d2/14006.jpg/200x200bb.jpg" alt="" loading="lazy">
           <span class="play-state-icon" aria-hidden="true"></span>
+          <span class="track-play-hint" aria-hidden="true"></span>
         </button>
         <div>
           <div class="track-title">Swedish House Mafia & Lykke Li — Happiness Is So Sad</div>
@@ -858,6 +871,7 @@
         <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/eb/55/21eb55d7-c18b-ba09-3ef3-87f41cedec2f/mzaf_8236556578494034135.plus.aac.p.m4a">
           <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e2/ee/b1/e2eeb1c6-a96a-d768-643c-20e087bce6d8/00823375156413_Cover.jpg/200x200bb.jpg" alt="" loading="lazy">
           <span class="play-state-icon" aria-hidden="true"></span>
+          <span class="track-play-hint" aria-hidden="true"></span>
         </button>
         <div>
           <div class="track-title">Tove Lo — DNH</div>
@@ -868,6 +882,7 @@
         <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c0/56/08/c0560831-edf6-7b4c-905a-717479e3aba2/mzaf_4827829021468844407.plus.aac.p.m4a">
           <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e2/28/92/e22892a7-fe88-72cf-ecba-691030dfcf7e/26UMGIM41151.rgb.jpg/200x200bb.jpg" alt="" loading="lazy">
           <span class="play-state-icon" aria-hidden="true"></span>
+          <span class="track-play-hint" aria-hidden="true"></span>
         </button>
         <div>
           <div class="track-title">KATSEYE — Animal</div>
@@ -878,6 +893,7 @@
         <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e5/f6/59/e5f65900-02de-cac1-ca98-3aa1c8e3a642/mzaf_16374337297138292701.plus.aac.p.m4a">
           <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/68/7f/2e687f3c-3fe0-dbb4-d9db-4076426be98b/26UMGIM83011.rgb.jpg/200x200bb.jpg" alt="" loading="lazy">
           <span class="play-state-icon" aria-hidden="true"></span>
+          <span class="track-play-hint" aria-hidden="true"></span>
         </button>
         <div>
           <div class="track-title">benny blanco & Bb trickz — Joven y Salvaje</div>
@@ -888,6 +904,7 @@
         <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f8/e7/49/f8e7493f-646b-032d-70b2-c3097a0d18c6/mzaf_1782513975775586053.plus.aac.p.m4a">
           <img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/56/f4/96/56f49612-02dd-83f4-44fe-d2118cc70707/26UMGIM51129.rgb.jpg/200x200bb.jpg" alt="" loading="lazy">
           <span class="play-state-icon" aria-hidden="true"></span>
+          <span class="track-play-hint" aria-hidden="true"></span>
         </button>
         <div>
           <div class="track-title">Ariana Grande — petal</div>
@@ -898,6 +915,7 @@
         <button class="track-cover" aria-label="Слушать превью" data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e1/2e/63/e12e630d-ba9a-b5b7-f3c4-e5a823aa2ed2/mzaf_14877706359153728445.plus.aac.p.m4a">
           <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/91/da/8a/91da8a04-5fe5-2ac7-714e-ebc6f1751f8b/8718522630811.png/200x200bb.jpg" alt="" loading="lazy">
           <span class="play-state-icon" aria-hidden="true"></span>
+          <span class="track-play-hint" aria-hidden="true"></span>
         </button>
         <div>
           <div class="track-title">Armin van Buuren & SACHA — Everlasting</div>
