@@ -1336,13 +1336,24 @@
   };
 
   function moscowNow(){
-    var fmt = new Intl.DateTimeFormat('en-US', {
-      timeZone:'Europe/Moscow', weekday:'short', hour:'2-digit', minute:'2-digit', hour12:false
+    // hourCycle:'h23' is explicit and unambiguous (00-23). hour12:false
+    // alone isn't enough — some mobile Safari versions ignore it for
+    // en-US and silently fall back to 12-hour digits, which would shift
+    // every schedule/dial calculation by up to 12 hours on exactly the
+    // devices this needs to be most reliable on.
+    var fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone:'Europe/Moscow', weekday:'short', hour:'2-digit', minute:'2-digit', hourCycle:'h23'
     });
     var parts = {};
     fmt.formatToParts(new Date()).forEach(function(p){ parts[p.type] = p.value; });
     var map = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
     var hour = parseInt(parts.hour, 10);
+    // Defensive fallback in case a browser still leaks a 12-hour value
+    // with an AM/PM part despite the request above.
+    if (parts.dayPeriod){
+      if (/am/i.test(parts.dayPeriod) && hour === 12) hour = 0;
+      else if (/pm/i.test(parts.dayPeriod) && hour !== 12) hour += 12;
+    }
     if (hour === 24) hour = 0;
     return { weekday: map[parts.weekday], hour: hour, minute: parseInt(parts.minute, 10) };
   }
