@@ -423,6 +423,7 @@
 
   /* ---------- NOW PLAYING ---------- */
   .now-playing{background:var(--paper-dim);padding-top:56px;}
+  #schedule{background:var(--paper-dim);}
   .np-card{
     display:grid;
     grid-template-columns:220px 1fr auto;
@@ -524,7 +525,7 @@
     font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;
     text-transform:uppercase;
     padding:10px 20px;
-    border:1px solid var(--ink);color:var(--ink);
+    border:1px solid var(--red);color:var(--red);
     clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
     transition:background .15s ease, color .15s ease;
   }
@@ -534,7 +535,7 @@
   #day-fri:checked ~ .day-tab-bar label[for="day-fri"],
   #day-sat:checked ~ .day-tab-bar label[for="day-sat"],
   #day-sun:checked ~ .day-tab-bar label[for="day-sun"]{
-    background:var(--ink);color:var(--paper);border-color:var(--ink);
+    background:var(--red);color:#fff;border-color:var(--red);
   }
   #day-wd:checked ~ #panel-wd,
   #day-fri:checked ~ #panel-fri,
@@ -568,7 +569,7 @@
 
   /* ---------- SUBSCRIBE ---------- */
   .subscribe{
-    background:var(--night) url('assets/subscribe-bg.jpg') center 68%/cover;
+    background:var(--night) url('assets/rooftop.jpg') center 68%/cover;
     color:#fff;
     clip-path:polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
     margin:0 32px;
@@ -597,7 +598,7 @@
   }
   .foot-top{
     display:grid;
-    grid-template-columns:1.2fr repeat(3,1fr);
+    grid-template-columns:1fr 2fr;
     gap:40px;
     padding-bottom:48px;
     border-bottom:1px solid var(--line);
@@ -611,11 +612,18 @@
     display:block;padding:6px 0;font-weight:600;font-size:14.5px;
   }
   .foot-col a:hover{color:var(--red-deep);}
+  .foot-legal p{
+    color:var(--ink-soft);font-size:13px;line-height:1.6;
+    max-width:640px;margin-bottom:12px;
+  }
+  .foot-legal p:last-child{margin-bottom:0;}
   .foot-bottom{
     display:flex;justify-content:space-between;align-items:center;
     padding-top:26px;font-size:13px;color:var(--ink-soft);font-weight:500;
     font-family:'JetBrains Mono',monospace;
   }
+  .foot-bottom a{color:var(--ink-soft);}
+  .foot-bottom a:hover{color:var(--red-deep);}
 
   /* ---------- FIXED PLAYER (signature) ---------- */
   .player{
@@ -723,7 +731,8 @@
     .slot{grid-template-columns:1fr;gap:4px;}
     .day-tab-bar{gap:8px;}
     .day-tab-label{padding:9px 14px;font-size:12px;}
-    .foot-top{grid-template-columns:1fr 1fr;}
+    .foot-top{grid-template-columns:1fr;}
+    .foot-bottom{flex-direction:column;gap:10px;align-items:flex-start;}
     .subscribe{margin:0 20px;padding:52px 28px;}
     .player-inner{grid-template-columns:auto auto 1fr;padding:0 20px;}
     .player-freq{display:none;}
@@ -852,7 +861,7 @@
 <section id="new-music">
   <div class="wrap">
     <div class="sec-head">
-      <span class="eyebrow">CAPITAL</span>
+      <span class="np-brand-mark">CAPITAL</span>
       <div class="rule-title"><h2>Новая музыка</h2></div>
     </div>
     <div class="tracks-list">
@@ -929,9 +938,8 @@
 <section id="schedule">
   <div class="wrap">
     <div class="sec-head">
-      <span class="eyebrow">Расписание</span>
+      <span class="np-brand-mark">CAPITAL</span>
       <div class="rule-title"><h2>Line-Up</h2></div>
-      <p>Своя сетка на будни, пятницу и выходные — с ночного драйва до CAPITAL Nights.</p>
     </div>
 
     <input type="radio" name="day" id="day-wd" class="day-tab-input" checked>
@@ -1042,8 +1050,6 @@
 
 <section>
   <div class="subscribe">
-    <h2>Слушай CAPITAL везде</h2>
-    <p>Добавь CAPITAL в закладки — или просто скажи умной колонке: «Включи Капитал».</p>
     <div class="sub-actions">
       <a href="#" class="btn btn-primary">Открыть в приложении</a>
       <a href="https://t.me/capitalfmmoscow" class="btn btn-ghost-light" target="_blank" rel="noopener">Telegram-канал</a>
@@ -1056,31 +1062,26 @@
     <div class="foot-top">
       <div class="foot-col">
         <div class="logo"><span class="logo-mark mark-crop"><img src="assets/brand-reel.jpg" alt=""></span>CAPITAL</div>
-        <p style="margin-top:14px;color:var(--ink-soft);font-size:14px;max-width:220px;">Электронная музыка в прямом эфире. Москва.</p>
+        <div class="social-cluster" style="margin-top:18px;">
+          <a href="https://t.me/capitalfmmoscow" class="social-icon-btn" target="_blank" rel="noopener" aria-label="Телеграм-канал CAPITAL">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          </a>
+          <a href="https://vk.ru/capitalfm" class="social-icon-btn" target="_blank" rel="noopener" aria-label="ВКонтакте CAPITAL">
+            <span class="vk-mono">VK</span>
+          </a>
+        </div>
+        <a href="tel:+79251111053" style="display:block;margin-top:14px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--ink-soft);">+7 925 111-10-53</a>
       </div>
-      <div class="foot-col">
-        <h3>Навигация</h3>
-        <a href="#now-playing">Прямой эфир</a>
-        <a href="#">Программы</a>
-        <a href="#">Контакты</a>
-        <a href="logo.html">Медиакит</a>
-      </div>
-      <div class="foot-col">
-        <h3>Соцсети</h3>
-        <a href="https://t.me/capitalfmmoscow" target="_blank" rel="noopener">Telegram-канал</a>
-        <a href="https://t.me/+Nf6spK23r_ZhZTUy" target="_blank" rel="noopener">Чат слушателей</a>
-        <a href="https://vk.ru/capitalfm" target="_blank" rel="noopener">ВКонтакте</a>
-      </div>
-      <div class="foot-col">
-        <h3>Контакты</h3>
-        <a href="#">reklama@capital.fm</a>
-        <a href="#">Москва</a>
-        <a href="tel:+79251111053">Пиши нам в любой мессенджер: +7 925 111-10-53</a>
+      <div class="foot-col foot-legal">
+        <p>СМИ сетевое издание «Capital FM» зарегистрировано в Федеральной службе по надзору в сфере связи, информационных технологий и массовых коммуникаций. Свидетельство о регистрации средства массовой информации Эл № ФС 77-89187 от 28 февраля 2025 г.</p>
+        <p>Учредитель — АО «Москва Медиа». Главный редактор М.С. Димов.</p>
+        <p>Адрес редакции: 125124, РФ, г. Москва, ул. Правды, д. 24, стр. 2.</p>
+        <p>Почта: music@capitalfm.moscow. Тел.: +7 (495) 728-73-36</p>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 CAPITAL RADIO</span>
-      <span>ПРЯМОЙ ЭФИР · 24/7</span>
+      <span>&copy; Capital FM, 2017 – 2026</span>
+      <a href="https://drive.google.com/file/d/1ZZ3sC89A7CUpvZbot62tvVnFeO3uQgkW/view?usp=drive_link" target="_blank" rel="noopener">Политика обработки персональных данных</a>
     </div>
   </div>
 </footer>
