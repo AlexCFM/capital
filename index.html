@@ -94,6 +94,13 @@
   }
   .bb-pattern{width:52px;flex-shrink:0;}
   .bb-pattern svg{width:100%;height:100%;display:block;}
+  /* logo is a real link to the site root, but a same-page click is
+     intercepted by JS to scroll to top without reloading (a reload would
+     kill the live stream) */
+  .bb-home{
+    display:flex;align-items:stretch;flex-shrink:0;
+  }
+  .bb-home:hover .bb-word{background:var(--red-deep);}
   .bb-mark{
     width:92px;flex-shrink:0;
     background:var(--paper);
@@ -136,6 +143,7 @@
     padding:0 26px;
     font-family:'Orbitron',sans-serif;font-weight:900;font-size:25px;
     letter-spacing:-0.01em;text-transform:uppercase;white-space:nowrap;
+    transition:background .15s ease;
   }
   .bb-nav{
     flex:1;min-width:0;
@@ -923,8 +931,10 @@
 <header>
   <div class="brand-bar">
     <div class="bb-pattern"><svg><rect width="100%" height="100%" fill="url(#capital-tile-pattern)"/></svg></div>
-    <div class="bb-mark"><span class="mark-crop bb-mark-icon"><img src="assets/brand-reel.jpg" alt="Capital"></span></div>
-    <div class="bb-word">Capital</div>
+    <a class="bb-home" href="./" aria-label="CAPITAL — на главную">
+      <div class="bb-mark"><span class="mark-crop bb-mark-icon"><img src="assets/brand-reel.jpg" alt="Capital"></span></div>
+      <div class="bb-word">Capital</div>
+    </a>
     <div class="bb-nav">
       <nav class="nav-links">
         <a href="#now-playing">Сейчас в эфире</a>
@@ -1435,6 +1445,19 @@
   // open behind the restored desktop nav (burger takes over below 961px).
   window.addEventListener('resize', function(){
     if (window.innerWidth > 960) setOpen(false);
+  });
+})();
+
+(function(){
+  // Header logo links to the site root, but a plain click while already
+  // on the page would reload and kill the live stream — scroll to the
+  // top instead. Modified clicks (new tab, etc.) pass through untouched.
+  var home = document.querySelector('.bb-home');
+  if (!home) return;
+  home.addEventListener('click', function(e){
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 })();
 </script>
