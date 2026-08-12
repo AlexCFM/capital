@@ -163,8 +163,13 @@
     display:flex;
     align-items:center;
     gap:22px;
+    /* same mono-uppercase voice as every other label in the bar
+       (phone, ЧАТ, VK) — one typographic register per strip */
+    font-family:'JetBrains Mono',monospace;
     font-weight:600;
-    font-size:14.5px;
+    font-size:12.5px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
     white-space:nowrap;
   }
   .nav-links a{
@@ -211,8 +216,8 @@
   .social-chat-link svg{width:15px;height:15px;flex-shrink:0;}
   .social-chat-link:hover{opacity:.7;}
 
-  /* Burger + slide-down panel: below 860px .nav-links is hidden, so this is
-     the only way to reach the section links on a phone. */
+  /* Burger + slide-down panel: below 961px .nav-links is hidden, so this is
+     the only way to reach the section links on a phone/narrow tablet. */
   .burger{
     display:none;
     width:40px;height:40px;flex-shrink:0;
@@ -239,7 +244,9 @@
   .mobile-menu.is-open{display:block;}
   .mobile-menu a{
     display:block;padding:14px 0;
-    font-weight:700;font-size:17px;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:600;font-size:14px;
+    letter-spacing:.05em;text-transform:uppercase;
     border-bottom:1px solid var(--line);
   }
   .mobile-menu a:last-child{border-bottom:none;}
@@ -859,6 +866,21 @@
     .hero-sub{grid-template-columns:auto minmax(0,1fr);}
     .hero-visual{grid-column:1 / -1;width:min(560px,100%);margin:16px auto 0;}
   }
+  /* mono-uppercase nav is wider than the old Manrope one — below 1140px
+     the ЧАТ link retires early and the links pack tighter */
+  @media (max-width:1140px) and (min-width:961px){
+    .social-chat-link{display:none;}
+    .nav-links{gap:15px;font-size:12px;}
+    .bb-nav{gap:16px;}
+    .bb-chevron{width:110px;}
+  }
+  /* below 961px even the packed mono nav can't fit next to the socials —
+     hand over to the burger early instead of shrinking type further */
+  @media (max-width:960px){
+    .nav-links{display:none;}
+    .social-chat-link{display:none;}
+    .burger{display:flex;}
+  }
   @media (max-width:860px){
     .wrap{padding:0 20px;}
     .nav-links{display:none;}
@@ -911,10 +933,11 @@
 
 <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;">
   <defs>
-    <pattern id="capital-tile-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-      <rect width="40" height="40" fill="var(--red)"/>
-      <circle cx="15" cy="20" r="6" fill="none" stroke="#fff" stroke-opacity="0.5" stroke-width="2"/>
-      <line x1="19" y1="16" x2="30" y2="8" stroke="#fff" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round"/>
+    <!-- stacked mini chevrons: mirrors the big chevron block on the bar's
+         right edge, two per 92px bar height -->
+    <pattern id="capital-tile-pattern" width="52" height="46" patternUnits="userSpaceOnUse">
+      <rect width="52" height="46" fill="#fff"/>
+      <polygon points="12,8 26,8 40,23 26,38 12,38 26,23" fill="var(--red)"/>
     </pattern>
   </defs>
 </svg>
@@ -1413,9 +1436,9 @@
   });
 
   // Leaving mobile width with the menu still open would otherwise strand it
-  // open behind the restored desktop nav.
+  // open behind the restored desktop nav (burger takes over below 961px).
   window.addEventListener('resize', function(){
-    if (window.innerWidth > 860) setOpen(false);
+    if (window.innerWidth > 960) setOpen(false);
   });
 })();
 </script>
