@@ -250,7 +250,43 @@
   }
   .social-chat-link svg{width:15px;height:15px;flex-shrink:0;}
   .social-chat-link:hover{opacity:.7;}
-  .burger{display:none;}
+
+  /* Burger + slide-down panel: below 860px .nav-links is hidden, so this is
+     the only way to reach the section links on a phone. */
+  .burger{
+    display:none;
+    width:40px;height:40px;flex-shrink:0;
+    background:transparent;padding:0;
+    border:1.5px solid var(--red);
+    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    cursor:pointer;
+    align-items:center;justify-content:center;
+    flex-direction:column;gap:4px;
+  }
+  .burger span{
+    display:block;width:18px;height:2px;background:var(--red);
+    transition:transform .2s ease, opacity .2s ease;
+  }
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg);}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0;}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg);}
+  .mobile-menu{
+    display:none;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    padding:8px 20px 20px;
+  }
+  .mobile-menu.is-open{display:block;}
+  .mobile-menu a{
+    display:block;padding:14px 0;
+    font-weight:700;font-size:17px;
+    border-bottom:1px solid var(--line);
+  }
+  .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu .mm-phone{
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;
+    color:var(--red);
+  }
 
   /* ---------- BROADCAST DIAL (signature: real 24h schedule as a ruler) ---------- */
   .dial{
@@ -645,8 +681,7 @@
   .player-inner{
     max-width:1180px;margin:0 auto;padding:0 32px;
     height:88px;
-    display:grid;
-    grid-template-columns:auto auto 1fr auto;
+    display:flex;
     align-items:center;
     gap:22px;
   }
@@ -666,7 +701,7 @@
     display:none;
   }
   .player-cover.is-visible{display:block;}
-  .player-track{min-width:0;}
+  .player-track{min-width:0;flex:1;}
   .player-track .t{
     font-weight:700;font-size:14.5px;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
@@ -708,12 +743,18 @@
   @media (max-width:860px){
     .wrap{padding:0 20px;}
     .nav-links{display:none;}
+    /* The text "Чат" link doesn't fit next to the burger — it moves into
+       the slide-down menu instead. */
+    .social-chat-link{display:none;}
+    .burger{display:flex;}
     .brand-bar{height:62px;}
     .bb-pattern,.bb-chevron{display:none;}
     .bb-mark{width:62px;}
     .bb-mark-icon{width:32px;height:32px;}
     .bb-word{font-size:18px;padding:0 16px;}
     .bb-nav{padding:0 16px;}
+    .nav-cta{gap:10px;}
+    .social-cluster{gap:8px;}
     .dial-ruler{overflow-x:auto;scrollbar-width:none;}
     .dial-ruler::-webkit-scrollbar{display:none;}
     .dial-seg{flex:0 0 150px;padding:12px 14px;}
@@ -731,7 +772,7 @@
     .foot-top{grid-template-columns:1fr;}
     .foot-bottom{flex-direction:column;gap:10px;align-items:flex-start;}
     .subscribe{margin:0 20px;}
-    .player-inner{grid-template-columns:auto auto 1fr;padding:0 20px;}
+    .player-inner{padding:0 20px;}
     .player-freq{display:none;}
     body{padding-bottom:84px;}
     .player-inner{height:76px;}
@@ -782,6 +823,9 @@
             Чат
           </a>
         </div>
+        <button class="burger" id="burger" aria-label="Открыть меню" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
     <div class="bb-chevron">
@@ -793,6 +837,14 @@
       </svg>
     </div>
   </div>
+  <nav class="mobile-menu" id="mobile-menu">
+    <a href="#now-playing">Сейчас в эфире</a>
+    <a href="#new-music">Новая музыка</a>
+    <a href="#schedule">Line Up</a>
+    <a href="#contacts">Контакты</a>
+    <a href="https://t.me/+Nf6spK23r_ZhZTUy" target="_blank" rel="noopener">Чат слушателей</a>
+    <a href="tel:+79251111053" class="mm-phone">+7 925 111-10-53</a>
+  </nav>
 </header>
 
 <div class="dial">
@@ -1209,6 +1261,39 @@
     // Time API unavailable — the static markup already shows a sensible example.
   }
 })();
+
+(function(){
+  // Mobile menu: .nav-links is hidden below 860px, so the burger is the only
+  // route to the section links on a phone.
+  var burger = document.getElementById('burger');
+  var menu = document.getElementById('mobile-menu');
+  if (!burger || !menu) return;
+
+  function setOpen(open){
+    menu.classList.toggle('is-open', open);
+    burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+  }
+
+  burger.addEventListener('click', function(){
+    setOpen(!menu.classList.contains('is-open'));
+  });
+
+  // Jumping to a section should get the menu out of the way.
+  menu.addEventListener('click', function(e){
+    if (e.target.closest('a')) setOpen(false);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') setOpen(false);
+  });
+
+  // Leaving mobile width with the menu still open would otherwise strand it
+  // open behind the restored desktop nav.
+  window.addEventListener('resize', function(){
+    if (window.innerWidth > 860) setOpen(false);
+  });
+})();
 </script>
 
 <script>
@@ -1324,7 +1409,11 @@
   // Tiny on-page diagnostic line (see .np-debug) — mobile Safari's console
   // isn't reachable without a Mac, so failures need to be visible directly
   // on the phone screen to actually get diagnosed from a screenshot.
+  // Off by default so visitors never see artwork-lookup chatter; open the
+  // site with ?debug=1 to switch it back on when something needs diagnosing.
+  var DEBUG_VISIBLE = /[?&]debug=1\b/.test(location.search);
   function setDebug(msg){
+    if (!DEBUG_VISIBLE) return;
     var el = document.getElementById('np-debug');
     if (el) el.textContent = msg || '';
   }
