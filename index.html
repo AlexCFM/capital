@@ -569,27 +569,14 @@
 
   /* ---------- SUBSCRIBE ---------- */
   .subscribe{
-    background:var(--night) url('assets/rooftop.jpg') center 68%/cover;
-    color:#fff;
+    background:var(--night);
     clip-path:polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
-    margin:0 32px;
-    padding:72px 56px;
     max-width:1180px;
     margin:0 auto;
-    text-align:center;
     position:relative;
     overflow:hidden;
   }
-  .subscribe::before{
-    content:"";position:absolute;inset:0;
-    background:
-      linear-gradient(180deg, rgba(10,7,6,.35) 0%, rgba(10,7,6,.82) 100%),
-      linear-gradient(0deg, rgba(255,46,46,.4), transparent 60%);
-  }
-  .subscribe > *{position:relative;}
-  .subscribe h2{font-size:clamp(30px,4.4vw,48px);font-weight:800;text-transform:uppercase;max-width:640px;margin:0 auto 18px;}
-  .subscribe p{color:rgba(255,255,255,.68);font-weight:500;max-width:460px;margin:0 auto 36px;}
-  .sub-actions{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;}
+  .subscribe img{width:100%;height:auto;display:block;}
 
   /* ---------- FOOTER ---------- */
   footer{
@@ -612,6 +599,7 @@
     display:block;padding:6px 0;font-weight:600;font-size:14.5px;
   }
   .foot-col a:hover{color:var(--red-deep);}
+  .foot-col .social-icon-btn{display:flex;padding:0;}
   .foot-legal p{
     color:var(--ink-soft);font-size:13px;line-height:1.6;
     max-width:640px;margin-bottom:12px;
@@ -733,7 +721,7 @@
     .day-tab-label{padding:9px 14px;font-size:12px;}
     .foot-top{grid-template-columns:1fr;}
     .foot-bottom{flex-direction:column;gap:10px;align-items:flex-start;}
-    .subscribe{margin:0 20px;padding:52px 28px;}
+    .subscribe{margin:0 20px;}
     .player-inner{grid-template-columns:auto auto 1fr;padding:0 20px;}
     .player-freq{display:none;}
     body{padding-bottom:84px;}
@@ -1050,10 +1038,7 @@
 
 <section>
   <div class="subscribe">
-    <div class="sub-actions">
-      <a href="#" class="btn btn-primary">Открыть в приложении</a>
-      <a href="https://t.me/capitalfmmoscow" class="btn btn-ghost-light" target="_blank" rel="noopener">Telegram-канал</a>
-    </div>
+    <img src="assets/rooftop.jpg" alt="CAPITAL — вечеринка на крыше на закате">
   </div>
 </section>
 
@@ -1062,15 +1047,18 @@
     <div class="foot-top">
       <div class="foot-col">
         <div class="logo"><span class="logo-mark mark-crop"><img src="assets/brand-reel.jpg" alt=""></span>CAPITAL</div>
-        <div class="social-cluster" style="margin-top:18px;">
+        <div class="social-cluster" style="margin-top:18px;margin-left:54px;">
           <a href="https://t.me/capitalfmmoscow" class="social-icon-btn" target="_blank" rel="noopener" aria-label="Телеграм-канал CAPITAL">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
           </a>
           <a href="https://vk.ru/capitalfm" class="social-icon-btn" target="_blank" rel="noopener" aria-label="ВКонтакте CAPITAL">
             <span class="vk-mono">VK</span>
           </a>
+          <a href="https://t.me/+Nf6spK23r_ZhZTUy" class="social-icon-btn" target="_blank" rel="noopener" aria-label="Чат слушателей CAPITAL">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 012 2v9a2 2 0 01-2 2H9l-5 4v-4H4a2 2 0 01-2-2V6a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          </a>
         </div>
-        <a href="tel:+79251111053" style="display:block;margin-top:14px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--ink-soft);">+7 925 111-10-53</a>
+        <a href="tel:+79251111053" style="display:block;margin-top:14px;margin-left:54px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--ink-soft);">+7 925 111-10-53</a>
       </div>
       <div class="foot-col foot-legal">
         <p>СМИ сетевое издание «Capital FM» зарегистрировано в Федеральной службе по надзору в сфере связи, информационных технологий и массовых коммуникаций. Свидетельство о регистрации средства массовой информации Эл № ФС 77-89187 от 28 февраля 2025 г.</p>
