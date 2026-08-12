@@ -428,12 +428,14 @@
     transform:rotate(var(--hero-tilt));
     will-change:transform;
   }
+  /* 7 slides x 8s each = 56s cycle (was 8 x 8s = 64s) — keyframe percents
+     and delays are derived from slide count, recompute both if it changes */
   .hero-visual img{
     position:absolute;inset:0;
     width:100%;height:100%;
     object-fit:cover;
     opacity:0;
-    animation:hero-carousel 64s ease-in-out infinite;
+    animation:hero-carousel 56s ease-in-out infinite;
   }
   .hero-visual img:nth-child(1){animation-delay:0s;}
   .hero-visual img:nth-child(2){animation-delay:-8s;}
@@ -442,12 +444,11 @@
   .hero-visual img:nth-child(5){animation-delay:-32s;}
   .hero-visual img:nth-child(6){animation-delay:-40s;}
   .hero-visual img:nth-child(7){animation-delay:-48s;}
-  .hero-visual img:nth-child(8){animation-delay:-56s;}
   @keyframes hero-carousel{
     0%{opacity:0;}
-    1%{opacity:1;}
-    11.5%{opacity:1;}
-    12.5%{opacity:0;}
+    1.14%{opacity:1;}
+    13.14%{opacity:1;}
+    14.29%{opacity:0;}
     100%{opacity:0;}
   }
   @media (prefers-reduced-motion:reduce){
@@ -1009,9 +1010,8 @@
       <img src="assets/carousel/afisha.jpg" alt="Сити / Сити Уикенд / Сити.Едим — гид по жизни в Москве от Евгении Смурыгиной, каждый день на CAPITAL">
       <img src="assets/carousel/bravo.jpg" alt="Министерство здравого смысла Марии Браво — развенчиваем мифы, тревоги и манипуляции, каждый день на CAPITAL">
       <img src="assets/carousel/skidki.jpg" alt="Скидки недели с Юлей Майской — каждый день на CAPITAL">
-      <img src="assets/carousel/warm.jpg" alt="WARM Global Dance Radio Chart на CAPITAL — пятница 16:00, суббота 21:00">
+      <img src="assets/carousel/warm.jpg" alt="WARM Global Dance Radio Chart на CAPITAL — пятница 19:00, суббота 21:00">
       <img src="assets/carousel/renata.jpg" alt="Это надо видеть с Ренатой Пиотровски — о главных премьерах, новых фильмах и сериалах, каждый день на CAPITAL">
-      <img src="assets/carousel/broadcast.jpg" alt="Хочешь транслировать CAPITAL в своём городе? Пиши на music@capitalfm.moscow">
       <img src="assets/carousel/fitness.jpg" alt="Фитнес Утро — включи CAPITAL на пробежке, 7–11 утра">
       <img src="assets/carousel/nights.jpg" alt="CAPITAL Nights — лучшие диджеи и сэты, пятница 20:00, суббота 22:00">
       </div>
