@@ -17,6 +17,8 @@
 <meta name="apple-mobile-web-app-title" content="CAPITAL">
 <link rel="apple-touch-icon" href="apple-touch-icon.jpg">
 <link rel="icon" type="image/jpeg" href="assets/brand-reel.jpg">
+<!-- first carousel slide paints immediately instead of flashing in late -->
+<link rel="preload" as="image" href="assets/carousel/afisha.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Orbitron is requested as a variable font (full wght axis) so the hero
@@ -299,19 +301,22 @@
   }
   @keyframes dial-blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-  /* ---------- HERO ---------- */
+  /* ---------- HERO (brand manifest: giant kinetic wordmark first) ---------- */
   .hero{
     position:relative;
+    overflow:hidden; /* the tilted carousel's corners must not spill out */
   }
-  .hero-grid{
+  .hero-manifest{
+    max-width:1180px;
+    margin:0 auto;
+    padding:clamp(36px,5vh,64px) 32px clamp(48px,7vh,84px);
+  }
+  .hero-sub{
     display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);
+    grid-template-columns:auto minmax(0,1fr) minmax(280px,42%);
+    gap:clamp(24px,4vw,56px);
     align-items:center;
-  }
-  .hero-copy{
-    padding:40px clamp(24px,4vw,64px) 40px clamp(24px,5vw,64px);
-    display:flex;flex-direction:column;justify-content:flex-start;
-    max-width:600px;
+    margin-top:clamp(22px,3vw,42px);
   }
   .live-dot{
     width:9px;height:9px;border-radius:50%;
@@ -325,26 +330,51 @@
     70%{box-shadow:0 0 0 10px rgba(255,46,46,0);}
     100%{box-shadow:0 0 0 0 rgba(255,46,46,0);}
   }
-  .hero-play-row{
-    display:flex;align-items:center;gap:24px;
+  /* main CTA: play button with an appearance progress-ring; the magnetic
+     cursor-follow transform is driven by JS, so no transform here */
+  .hero-cta{
+    position:relative;
+    width:clamp(96px,10vw,140px);
+    aspect-ratio:1/1;
+    flex-shrink:0;
   }
   .hero-play{
-    width:118px;height:118px;
+    width:100%;height:100%;
     display:flex;align-items:center;justify-content:center;
-    border:none;cursor:pointer;flex-shrink:0;background:transparent;padding:0;
+    border:none;cursor:pointer;background:transparent;padding:0;
     filter:drop-shadow(0 18px 36px rgba(255,46,46,.55));
-    transition:transform .15s ease, filter .2s ease;
+    transition:filter .2s ease;
+    will-change:transform;
   }
-  .hero-play:hover{transform:scale(1.06) rotate(-6deg);filter:drop-shadow(0 18px 36px rgba(255,46,46,.75));}
+  .hero-cta:hover .hero-play{filter:drop-shadow(0 18px 36px rgba(255,46,46,.75));}
+  .cta-ring{
+    position:absolute;inset:-9%;
+    width:118%;height:118%;
+    pointer-events:none;
+  }
+  .cta-ring circle{
+    fill:none;
+    stroke:var(--red);
+    stroke-width:1.6;
+    stroke-linecap:round;
+    stroke-dasharray:100;
+    stroke-dashoffset:100;
+    transform:rotate(-90deg);
+    transform-origin:50% 50%;
+    animation:ring-draw 1.1s ease .35s forwards;
+  }
+  @keyframes ring-draw{to{stroke-dashoffset:0;}}
+  /* while the stream buffers, the drawn ring spins as a loading indicator */
+  .hero-cta:has(.is-loading) .cta-ring{animation:ring-spin .9s linear infinite;}
+  @keyframes ring-spin{to{transform:rotate(360deg);}}
   .hero h1{
-    font-size:clamp(44px,6vw,76px);
+    font-size:clamp(54px,15vw,208px);
     font-weight:900;
-    line-height:0.88;
+    line-height:0.92;
     /* the kinetic letters are inline-block spans — without nowrap the
        browser would happily wrap the word between them */
     white-space:nowrap;
   }
-  .hero-title-block{min-width:0;}
   /* Kinetic wordmark letters: JS splits the h1 into these spans and drives
      font-weight (variable Orbitron) + translateY per letter every frame. */
   .hero h1 .wl{
@@ -352,24 +382,36 @@
     will-change:transform;
   }
   .hero-slogan{
-    margin-top:6px;
     font-family:'JetBrains Mono',monospace;
-    font-size:clamp(16px,1.85vw,23px);
+    font-size:clamp(15px,1.8vw,24px);
     font-weight:700;
     letter-spacing:.06em;
     text-transform:uppercase;
     color:var(--red);
-    white-space:nowrap;
+    min-height:1.5em; /* the typing animation must not reflow the grid */
+    white-space:nowrap; /* keeps the caret glued to the typed line */
   }
+  .slogan-caret{
+    display:inline-block;
+    width:.55em;height:1.05em;
+    margin-left:8px;
+    background:var(--red);
+    vertical-align:-0.15em;
+    animation:caret-blink 1.1s steps(2,start) infinite;
+  }
+  @keyframes caret-blink{50%{opacity:0;}}
 
-  /* hero visual: promo banner carousel, framed with a right-hand gutter */
+  /* hero visual: promo carousel demoted to a supporting layer — tilted,
+     notch-cut, slowly drifting on scroll (JS drives the translate part) */
   .hero-visual{
     position:relative;
     overflow:hidden;
     background:var(--night);
-    margin-right:clamp(24px,4vw,56px);
-    aspect-ratio:16/9;
-    max-height:calc(100vh - 320px);
+    aspect-ratio:16/10;
+    clip-path:polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+    --hero-tilt:-3deg;
+    transform:rotate(var(--hero-tilt));
+    will-change:transform;
   }
   .hero-visual img{
     position:absolute;inset:0;
@@ -755,10 +797,9 @@
   @media (max-width:1380px){
     .nav-phone{display:none;}
   }
-  @media (max-width:1280px) and (min-width:861px){
-    .hero-grid{grid-template-columns:1fr;}
-    .hero-visual{order:-1;margin:0 clamp(24px,4vw,64px);aspect-ratio:16/9;max-height:none;}
-    .hero-copy{max-width:none;}
+  @media (max-width:1100px) and (min-width:861px){
+    .hero-sub{grid-template-columns:auto minmax(0,1fr);}
+    .hero-visual{grid-column:1 / -1;width:min(560px,100%);margin:16px auto 0;}
   }
   @media (max-width:860px){
     .wrap{padding:0 20px;}
@@ -778,11 +819,12 @@
     .dial-ruler{overflow-x:auto;scrollbar-width:none;}
     .dial-ruler::-webkit-scrollbar{display:none;}
     .dial-seg{flex:0 0 150px;padding:12px 14px;}
-    .hero-grid{grid-template-columns:1fr;}
-    .hero-visual{order:-1;margin:0 20px;aspect-ratio:16/9;max-height:none;}
-    .hero-copy{max-width:none;padding:40px 20px 44px;}
-    .hero-play{width:88px;height:88px;}
-    .hero h1{font-size:clamp(38px,11vw,56px);}
+    .hero-manifest{padding:32px 20px 48px;}
+    .hero h1{font-size:clamp(42px,14.5vw,64px);}
+    .hero-sub{grid-template-columns:auto minmax(0,1fr);gap:20px;}
+    .hero-cta{width:88px;}
+    .hero-slogan{font-size:15px;}
+    .hero-visual{grid-column:1 / -1;margin-top:18px;--hero-tilt:-2deg;}
     .np-card{grid-template-columns:1fr;text-align:center;}
     .np-cover{max-width:180px;margin:0 auto;}
     .np-badge{justify-content:center;}
@@ -881,20 +923,20 @@
 </div>
 
 <section class="hero">
-  <div class="hero-grid">
-    <div class="hero-copy">
-      <div class="hero-play-row">
+  <div class="hero-manifest">
+    <h1 class="display">CAPITAL</h1>
+    <div class="hero-sub">
+      <div class="hero-cta">
+        <svg class="cta-ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="47.5" pathLength="100"/>
+        </svg>
         <button class="hero-play mark-crop" aria-label="Слушать эфир">
           <img src="assets/brand-player.jpg" alt="">
           <span class="play-state-icon" aria-hidden="true"></span>
         </button>
-        <div class="hero-title-block">
-          <h1 class="display">CAPITAL</h1>
-          <p class="hero-slogan">Из Москвы на весь мир</p>
-        </div>
       </div>
-    </div>
-    <div class="hero-visual">
+      <p class="hero-slogan"><span class="slogan-text">Из Москвы на весь мир</span><span class="slogan-caret" aria-hidden="true"></span></p>
+      <div class="hero-visual">
       <img src="assets/carousel/afisha.jpg" alt="Сити / Сити Уикенд / Сити.Едим — гид по жизни в Москве от Евгении Смурыгиной, каждый день на CAPITAL">
       <img src="assets/carousel/bravo.jpg" alt="Министерство здравого смысла Марии Браво — развенчиваем мифы, тревоги и манипуляции, каждый день на CAPITAL">
       <img src="assets/carousel/skidki.jpg" alt="Скидки недели с Юлей Майской — каждый день на CAPITAL">
@@ -903,6 +945,7 @@
       <img src="assets/carousel/broadcast.jpg" alt="Хочешь транслировать CAPITAL в своём городе? Пиши на music@capitalfm.moscow">
       <img src="assets/carousel/fitness.jpg" alt="Фитнес Утро — включи CAPITAL на пробежке, 7–11 утра">
       <img src="assets/carousel/nights.jpg" alt="CAPITAL Nights — лучшие диджеи и сэты, пятница 20:00, суббота 22:00">
+      </div>
     </div>
   </div>
 </section>
@@ -1692,6 +1735,90 @@
 
 <script>
 (function(){
+  // Hero manifest behaviors: typewriter slogan, magnetic play CTA and the
+  // slow scroll drift of the demoted promo carousel.
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Typewriter: markup ships the full slogan (no-JS / reduced-motion
+  // fallback), then it is retyped once on load.
+  var sloganEl = document.querySelector('.slogan-text');
+  if (sloganEl && !reduced){
+    var full = sloganEl.textContent;
+    sloganEl.textContent = '';
+    var chars = 0;
+    setTimeout(function type(){
+      sloganEl.textContent = full.slice(0, ++chars);
+      if (chars < full.length) setTimeout(type, 34 + Math.random() * 46);
+    }, 600);
+  }
+  if (reduced) return;
+
+  var btn = document.querySelector('.hero-play');
+  var visual = document.querySelector('.hero-visual');
+  var heroEl = document.querySelector('.hero');
+  var canHover = window.matchMedia('(hover:hover)').matches;
+
+  var mx = -1e4, my = -1e4;
+  var bx = 0, by = 0, py = 0;
+  var running = false, heroVisible = true;
+
+  if (canHover){
+    window.addEventListener('pointermove', function(e){
+      mx = e.clientX; my = e.clientY;
+      ensure();
+    }, { passive: true });
+  }
+  window.addEventListener('scroll', ensure, { passive: true });
+
+  function tick(){
+    var active = false;
+
+    // magnetic CTA: the button leans toward a nearby cursor
+    if (btn && canHover){
+      var r = btn.getBoundingClientRect();
+      var dx = mx - (r.left + r.width / 2);
+      var dy = my - (r.top + r.height / 2);
+      var infl = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / (r.width * 1.6));
+      infl = infl * infl * (3 - 2 * infl);
+      var txx = dx * infl * 0.22, tyy = dy * infl * 0.22;
+      bx += (txx - bx) * 0.18;
+      by += (tyy - by) * 0.18;
+      btn.style.transform = 'translate(' + bx.toFixed(2) + 'px,' + by.toFixed(2) + 'px) scale(' + (1 + infl * 0.06).toFixed(3) + ')';
+      if (infl > 0 || Math.abs(bx) > 0.2 || Math.abs(by) > 0.2) active = true;
+    }
+
+    // parallax: the tilted carousel drifts up slower than the page scrolls
+    if (visual){
+      var ty = -window.scrollY * 0.08;
+      py += (ty - py) * 0.15;
+      visual.style.transform = 'rotate(var(--hero-tilt)) translate3d(0,' + py.toFixed(1) + 'px,0)';
+      if (Math.abs(ty - py) > 0.2) active = true;
+    }
+
+    if (active && heroVisible && !document.hidden){
+      requestAnimationFrame(tick);
+    } else {
+      running = false;
+    }
+  }
+  function ensure(){
+    if (running || !heroVisible || document.hidden) return;
+    running = true;
+    requestAnimationFrame(tick);
+  }
+
+  if (heroEl){
+    new IntersectionObserver(function(entries){
+      heroVisible = entries[0].isIntersecting;
+      ensure();
+    }).observe(heroEl);
+  }
+  ensure();
+})();
+</script>
+
+<script>
+(function(){
   // Shared Web Audio engine + the two visual layers it feeds:
   //   1) kinetic hero wordmark — letters breathe (variable font weight),
   //      react to the cursor, and jump to the live stream's spectrum;
@@ -1815,10 +1942,13 @@
       // kept below ~810 so cursor and beat hits have visible headroom
       var w = 700 + 110 * (0.5 + 0.5 * Math.sin(t / 1400 - i * 0.7));
 
-      // (b) magnetic cursor: nearby letters gain weight and rise
+      // (b) magnetic cursor: nearby letters gain weight and rise; the
+      // radius scales with the rendered letter size so the giant hero
+      // wordmark feels the cursor from a proportional distance
       var dx = mouse.x - (r.left + r.width / 2);
       var dy = mouse.y - (r.top + r.height / 2);
-      var infl = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / 180);
+      var radius = Math.max(180, r.height * 1.3);
+      var infl = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / radius);
       infl = infl * infl * (3 - 2 * infl);
       w += infl * 160;
       var lift = infl * 7;
