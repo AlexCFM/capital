@@ -581,15 +581,23 @@
   /* ---------- FOOTER ---------- */
   footer{
     background:var(--paper);
-    padding:70px 0 30px;
+    padding:48px 0 30px;
   }
   .foot-top{
     display:grid;
     grid-template-columns:1fr 2fr;
     gap:40px;
-    padding-bottom:48px;
-    border-bottom:1px solid var(--line);
+    padding-bottom:32px;
   }
+  .foot-partners{
+    display:flex;flex-wrap:wrap;
+    gap:8px 28px;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+    color:var(--ink-soft);
+  }
+  .foot-partners a:hover{color:var(--red-deep);}
   .foot-col h3{
     font-family:'JetBrains Mono',monospace;
     font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
@@ -811,6 +819,7 @@
       </div>
     </div>
     <div class="hero-visual">
+      <img src="assets/carousel/afisha.jpg">
       <img src="assets/carousel/bravo.jpg">
       <img src="assets/carousel/skidki.jpg">
       <img src="assets/carousel/warm.jpg">
@@ -1066,6 +1075,14 @@
         <p>Адрес редакции: 125124, РФ, г. Москва, ул. Правды, д. 24, стр. 2.</p>
         <p>Почта: music@capitalfm.moscow. Тел.: +7 (495) 728-73-36</p>
       </div>
+    </div>
+    <div class="foot-partners">
+      <a href="https://www.mosfm.com/" target="_blank" rel="noopener">Москва FM</a>
+      <a href="https://radiomoskvy.ru/" target="_blank" rel="noopener">Радио Москвы</a>
+      <a href="https://www.moscowmedia.net/" target="_blank" rel="noopener">Москва Медиа</a>
+      <a href="https://www.m24.ru/" target="_blank" rel="noopener">Москва 24</a>
+      <a href="https://www.doverie-tv.ru/" target="_blank" rel="noopener">Москва. Доверие</a>
+      <a href="https://www.mskagency.ru/" target="_blank" rel="noopener">Агентство "Москва"</a>
     </div>
     <div class="foot-bottom">
       <span>&copy; Capital FM, 2017 – 2026</span>
