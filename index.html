@@ -1986,6 +1986,28 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   /* ---------- reveals ---------- */
+  // Safety net: anything a renderer never actually scrolls past — a
+  // search-crawler snapshot, a social-card bot, a full-page screenshot
+  // tool, or IntersectionObserver just not existing — would otherwise sit
+  // at opacity:0 forever despite being fully present in the markup. Every
+  // observed element gets a hard deadline; whichever fires first (real
+  // scroll-into-view or the deadline) reveals it.
+  var revealTargets = [];
+  var FORCE_REVEAL_MS = 2500;
+  function forceRevealAll(){
+    revealTargets.forEach(function(el){
+      if (!el.classList.contains('rv-in')) el.classList.add('rv-in');
+      io.unobserve(el);
+    });
+    revealTargets.length = 0;
+  }
+  setTimeout(forceRevealAll, FORCE_REVEAL_MS);
+  // A tab that's backgrounded/throttled (or a prerender) shouldn't burn
+  // its budget while invisible — reveal as soon as it's actually shown.
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible') forceRevealAll();
+  });
+
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(en){
       if (!en.isIntersecting) return;
@@ -2013,6 +2035,7 @@
     });
     head.classList.add('rv-head');
     io.observe(head);
+    revealTargets.push(head);
   });
 
   // Track rows keep their own hover transition (padding-left), which the
@@ -2027,6 +2050,7 @@
       el.removeEventListener('transitionend', done);
     });
     io.observe(el);
+    revealTargets.push(el);
   }
 
   document.querySelectorAll('.np-card, .day-tab-bar, .subscribe').forEach(function(el){
