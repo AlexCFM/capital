@@ -1486,13 +1486,47 @@
     playButtons.forEach(function(btn){ btn.classList.toggle('is-loading', isLoading); });
   }
 
+  // Auto-reconnect: a live icecast stream drops on any network blip (CDN
+  // hiccup, mobile handoff between towers, wifi<->cellular switch) — the
+  // <audio> element just stops and normally leaves the listener staring
+  // at a paused button until they notice and press play again. userWantsPlaying
+  // tracks *intent* separately from audio.paused, so a drop while intent
+  // is still "playing" retries with backoff instead of silently giving up.
+  var userWantsPlaying = false;
+  var reconnectAttempts = 0;
+  var reconnectTimer = null;
+  var RECONNECT_BASE_MS = 2000;
+  var RECONNECT_MAX_MS = 15000;
+
+  function clearReconnect(){
+    if (reconnectTimer){ clearTimeout(reconnectTimer); reconnectTimer = null; }
+  }
+
+  function scheduleReconnect(){
+    if (!audio || !userWantsPlaying || reconnectTimer) return;
+    setLoadingState(true);
+    var delay = Math.min(RECONNECT_BASE_MS * Math.pow(1.6, reconnectAttempts), RECONNECT_MAX_MS);
+    reconnectAttempts++;
+    reconnectTimer = setTimeout(function(){
+      reconnectTimer = null;
+      if (!userWantsPlaying) return;
+      audio.load();
+      audio.play().catch(function(){ scheduleReconnect(); });
+    }, delay);
+  }
+
   function doPlay(){
     if (!audio) return;
+    userWantsPlaying = true;
+    clearReconnect();
     setLoadingState(true);
-    audio.play().catch(function(){ setLoadingState(false); });
+    audio.play().catch(function(){ scheduleReconnect(); });
   }
   function doPause(){
     if (!audio) return;
+    userWantsPlaying = false;
+    clearReconnect();
+    reconnectAttempts = 0;
     audio.pause();
   }
   function togglePlay(){
@@ -1546,21 +1580,58 @@
     navigator.mediaSession.setActionHandler('stop', doPause);
   }
 
+  // Watchdog for the silent-hang case: some browsers (notably Safari)
+  // never fire 'error' when an icecast connection dies mid-stream — they
+  // just sit in 'waiting' forever. If buffering drags on this long while
+  // we still want to be playing, force a reconnect rather than trust the
+  // browser to notice on its own.
+  var stallWatchdog = null;
+  var STALL_TIMEOUT_MS = 12000;
+  function clearStallWatchdog(){
+    if (stallWatchdog){ clearTimeout(stallWatchdog); stallWatchdog = null; }
+  }
+  function armStallWatchdog(){
+    clearStallWatchdog();
+    stallWatchdog = setTimeout(function(){
+      stallWatchdog = null;
+      if (userWantsPlaying) scheduleReconnect();
+    }, STALL_TIMEOUT_MS);
+  }
+
   if (audio){
     audio.addEventListener('playing', function(){
+      reconnectAttempts = 0;
+      clearReconnect();
+      clearStallWatchdog();
       setLoadingState(false); setPlayingState(true);
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     });
-    audio.addEventListener('waiting', function(){ setLoadingState(true); });
+    audio.addEventListener('waiting', function(){
+      setLoadingState(true);
+      if (userWantsPlaying) armStallWatchdog();
+    });
     audio.addEventListener('pause', function(){
+      // audio.load() during a reconnect cycle also fires 'pause' — that's
+      // an internal artifact, not the listener asking to stop, so the UI
+      // should stay in its loading state rather than flash "not playing".
+      if (userWantsPlaying) return;
+      clearStallWatchdog();
       setLoadingState(false); setPlayingState(false);
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     });
     audio.addEventListener('ended', function(){
+      // Icecast streams don't end under normal operation — this is
+      // effectively a drop, so treat it the same as a network error.
+      if (userWantsPlaying){ scheduleReconnect(); return; }
+      clearStallWatchdog();
       setLoadingState(false); setPlayingState(false);
       if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
     });
-    audio.addEventListener('error', function(){ setLoadingState(false); setPlayingState(false); });
+    audio.addEventListener('error', function(){
+      clearStallWatchdog();
+      if (userWantsPlaying){ scheduleReconnect(); return; }
+      setLoadingState(false); setPlayingState(false);
+    });
   }
 })();
 
