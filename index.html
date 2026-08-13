@@ -199,10 +199,12 @@
     color:var(--ink-soft);white-space:nowrap;
     transition:color .15s ease;
   }
-  .nav-phone:hover{color:var(--red);}
+  .nav-phone:hover{color:var(--red-deep);}
   .social-cluster{display:flex;align-items:center;gap:10px;}
   .social-icon-btn{
-    width:40px;height:40px;flex-shrink:0;
+    /* WCAG 2.5.5 target size: 44x44 hit area, kept visually tight by
+       trimming the surrounding cluster gap rather than growing the icon */
+    width:44px;height:44px;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;
     border:1.5px solid var(--red);
     clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
@@ -213,14 +215,19 @@
   .social-icon-btn svg{width:18px;height:18px;}
   .social-icon-btn .vk-mono{
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:-.02em;
+    /* small text needs the AA-safe shade; the button's border/icon stay
+       brand red since a 1.5px stroke is judged as non-text UI (3:1) */
+    color:var(--red-deep);
   }
+  .social-icon-btn:hover .vk-mono{color:#fff;}
   .social-chat-link{
     display:inline-flex;align-items:center;gap:6px;
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
     letter-spacing:.04em;text-transform:uppercase;
-    color:var(--red);white-space:nowrap;
+    color:var(--red-deep);white-space:nowrap;
     transition:opacity .15s ease;
   }
+  .social-chat-link svg{color:var(--red);}
   .social-chat-link svg{width:15px;height:15px;flex-shrink:0;}
   .social-chat-link:hover{opacity:.7;}
 
@@ -260,7 +267,7 @@
   .mobile-menu a:last-child{border-bottom:none;}
   .mobile-menu .mm-phone{
     font-family:'JetBrains Mono',monospace;font-weight:600;font-size:14px;
-    color:var(--red);
+    color:var(--red-deep);
   }
 
   /* ---------- BROADCAST DIAL (signature: real 24h schedule as a ruler) ---------- */
@@ -402,7 +409,7 @@
     font-weight:700;
     letter-spacing:.06em;
     text-transform:uppercase;
-    color:var(--red);
+    color:var(--red-deep);
     min-height:1.5em; /* the typing animation must not reflow the grid */
     white-space:nowrap; /* keeps the caret glued to the typed line */
   }
@@ -594,7 +601,7 @@
     color:var(--ink-soft);
     transition:color .2s ease;
   }
-  .track-row:hover .track-num{color:var(--red);}
+  .track-row:hover .track-num{color:var(--red-deep);}
   /* playing: the number hands its slot to a mini equalizer */
   .track-eq{display:none;align-items:flex-end;gap:3px;height:16px;}
   .track-eq i{
@@ -616,7 +623,7 @@
   .track-action{
     font-family:'JetBrains Mono',monospace;
     font-size:11px;font-weight:700;letter-spacing:.12em;
-    color:var(--red);white-space:nowrap;
+    color:var(--red-deep);white-space:nowrap;
     opacity:0;transition:opacity .2s ease;
   }
   .track-action::before{content:"PLAY";}
@@ -675,11 +682,11 @@
     font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;
     text-transform:uppercase;
     padding:10px 20px;
-    border:1px solid var(--red);color:var(--red);
+    border:1px solid var(--red);color:var(--red-deep);
     clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
     transition:background .15s ease, color .15s ease;
   }
-  .day-tab-label:hover{border-color:var(--red);color:var(--red);}
+  .day-tab-label:hover{border-color:var(--red);color:var(--red-deep);}
   .day-panel.schedule-list{display:none;}
   #day-wd:checked ~ .day-tab-bar label[for="day-wd"],
   #day-fri:checked ~ .day-tab-bar label[for="day-fri"],
@@ -713,11 +720,11 @@
     letter-spacing:.02em;text-transform:uppercase;
   }
   .slot.is-now{background:var(--paper-dim);}
-  .slot.is-now .slot-time{color:var(--red);}
+  .slot.is-now .slot-time{color:var(--red-deep);}
   .slot.is-now .slot-show::after{
     content:"• В ЭФИРЕ";
     font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;
-    color:var(--red);margin-left:12px;vertical-align:middle;
+    color:var(--red-deep);margin-left:12px;vertical-align:middle;
   }
 
 
