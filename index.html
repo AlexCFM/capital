@@ -761,11 +761,16 @@
   .foot-partners a:hover{color:var(--red-deep);}
   .foot-col a{
     display:block;padding:6px 0;font-weight:600;font-size:14.5px;
+    font-family:'JetBrains Mono',monospace;
   }
   .foot-col a:hover{color:var(--red-deep);}
   .foot-col .social-icon-btn{display:flex;padding:0;}
+  /* legal/registration text matches the mono voice the rest of the footer
+     (partner links, copyright bar) already uses, instead of falling back
+     to body-text Manrope */
   .foot-legal p{
-    color:var(--ink-soft);font-size:13px;line-height:1.6;
+    font-family:'JetBrains Mono',monospace;
+    color:var(--ink-soft);font-size:13px;line-height:1.7;
     max-width:640px;margin-bottom:12px;
   }
   .foot-legal p:last-child{margin-bottom:0;}
