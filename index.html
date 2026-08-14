@@ -271,33 +271,46 @@
   }
 
   /* ---------- BROADCAST DIAL (signature: real 24h schedule as a ruler) ---------- */
+  /* Broadcast dial: a fixed-size red "now" window stays centered and
+     constant, while the hour-ruler scrolls continuously underneath it in
+     real time. This decouples the "now" label's size from how long the
+     live show actually runs — a 1-hour slot (Warm Dance Chart) used to
+     get squeezed into a sliver of flex-grow width and its name clipped;
+     now the label box is always comfortably sized regardless. */
   .dial{
     background:var(--ink);
     border-top:1px solid rgba(255,255,255,.08);
     border-bottom:1px solid rgba(255,255,255,.08);
+    position:relative;
+    overflow:hidden;
+    height:54px;
+  }
+  .dial-viewport{
+    max-width:1180px;margin:0 auto;
+    position:relative;height:100%;
     overflow:hidden;
   }
-  .dial-ruler{
-    position:relative;
-    display:flex;
-    max-width:1180px;margin:0 auto;
+  .dial-viewport::before{
+    content:"";position:absolute;inset:0;pointer-events:none;z-index:1;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,.14) 0, rgba(255,255,255,.14) 1px, transparent 1px, transparent 64px);
   }
-  .dial-ruler::before{
-    content:"";position:absolute;inset:0;pointer-events:none;
-    background:repeating-linear-gradient(90deg, rgba(255,255,255,.14) 0, rgba(255,255,255,.14) 1px, transparent 1px, transparent calc(100%/24));
+  .dial-ruler{
+    position:absolute;top:0;left:0;height:100%;
+    display:flex;
+    will-change:transform;
   }
   .dial-seg{
-    flex:1;min-width:0;
+    flex-shrink:0;box-sizing:border-box;height:100%;
     padding:13px 16px 11px;
     border-right:1px solid rgba(255,255,255,.08);
     color:rgba(255,255,255,.5);
+    overflow:hidden;
   }
-  .dial-seg:last-child{border-right:none;}
   .dial-seg b{
     display:block;
     font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.03em;
     color:rgba(255,255,255,.58);
-    margin-bottom:3px;
+    margin-bottom:3px;white-space:nowrap;
   }
   .dial-seg i{
     display:block;font-style:normal;
@@ -305,11 +318,31 @@
     text-transform:uppercase;color:rgba(255,255,255,.78);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .dial-seg.is-now{background:var(--red);position:relative;}
-  .dial-seg.is-now b{color:rgba(255,255,255,.85);}
-  .dial-seg.is-now i{color:#fff;}
-  /* Live-spectrum canvas layered behind the active segment's text */
-  .dial-seg b,.dial-seg i{position:relative;z-index:1;}
+  /* the fixed, centered "now" window — constant comfortable size,
+     independent of the live segment's real duration */
+  .dial-now{
+    position:absolute;top:0;left:50%;height:100%;
+    transform:translateX(-50%);
+    min-width:190px;
+    padding:13px 20px 11px;
+    background:var(--red);
+    box-sizing:border-box;
+    display:flex;flex-direction:column;justify-content:center;
+    box-shadow:0 0 0 1px rgba(255,255,255,.1);
+    z-index:2;
+    pointer-events:none;
+  }
+  .dial-now b{
+    display:block;position:relative;z-index:1;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.03em;
+    color:rgba(255,255,255,.85);margin-bottom:3px;white-space:nowrap;
+  }
+  .dial-now i{
+    display:block;font-style:normal;position:relative;z-index:1;
+    font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px;letter-spacing:-0.02em;
+    text-transform:uppercase;color:#fff;white-space:nowrap;
+  }
+  /* Live-spectrum canvas layered behind the "now" window's text */
   .dial-viz{
     position:absolute;inset:0;z-index:0;
     width:100%;height:100%;display:block;
@@ -899,9 +932,10 @@
     .bb-nav{padding:0 16px;}
     .nav-cta{gap:10px;}
     .social-cluster{gap:8px;}
-    .dial-ruler{overflow-x:auto;scrollbar-width:none;}
-    .dial-ruler::-webkit-scrollbar{display:none;}
-    .dial-seg{flex:0 0 150px;padding:12px 14px;}
+    .dial{height:46px;}
+    .dial-seg{padding:11px 14px 9px;}
+    .dial-seg b,.dial-seg i,.dial-now b,.dial-now i{font-size:10px;}
+    .dial-now{min-width:150px;padding:11px 16px 9px;}
     .hero-manifest{padding:32px 20px 48px;}
     .hero h1{font-size:clamp(42px,14.5vw,64px);}
     .hero-sub{grid-template-columns:auto minmax(0,1fr);gap:20px;}
@@ -998,13 +1032,18 @@
 </header>
 
 <div class="dial">
-  <div class="dial-ruler">
-    <div class="dial-now-mark" style="left:36.11%"></div>
-    <div class="dial-seg" style="flex-grow:7"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
-    <div class="dial-seg is-now" style="flex-grow:4"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
-    <div class="dial-seg" style="flex-grow:5"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
-    <div class="dial-seg" style="flex-grow:4"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
-    <div class="dial-seg" style="flex-grow:4"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
+  <div class="dial-viewport">
+    <div class="dial-ruler">
+      <div class="dial-seg" style="width:448px"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
+      <div class="dial-seg" style="width:320px"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
+    </div>
+  </div>
+  <div class="dial-now">
+    <span class="dial-now-mark" aria-hidden="true"></span>
+    <b>07:00–11:00</b><i>Фитнес Утро</i>
   </div>
 </div>
 
@@ -1040,13 +1079,18 @@
      a decorative band. Static fallback content matches the top dial and
      is rebuilt by the same script. -->
 <div class="dial">
-  <div class="dial-ruler">
-    <div class="dial-now-mark" style="left:36.11%"></div>
-    <div class="dial-seg" style="flex-grow:7"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
-    <div class="dial-seg is-now" style="flex-grow:4"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
-    <div class="dial-seg" style="flex-grow:5"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
-    <div class="dial-seg" style="flex-grow:4"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
-    <div class="dial-seg" style="flex-grow:4"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
+  <div class="dial-viewport">
+    <div class="dial-ruler">
+      <div class="dial-seg" style="width:448px"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
+      <div class="dial-seg" style="width:320px"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
+    </div>
+  </div>
+  <div class="dial-now">
+    <span class="dial-now-mark" aria-hidden="true"></span>
+    <b>07:00–11:00</b><i>Фитнес Утро</i>
   </div>
 </div>
 
@@ -1253,13 +1297,18 @@
 </section>
 
 <div class="dial">
-  <div class="dial-ruler">
-    <div class="dial-now-mark" style="left:36.11%"></div>
-    <div class="dial-seg" style="flex-grow:7"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
-    <div class="dial-seg is-now" style="flex-grow:4"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
-    <div class="dial-seg" style="flex-grow:5"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
-    <div class="dial-seg" style="flex-grow:4"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
-    <div class="dial-seg" style="flex-grow:4"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
+  <div class="dial-viewport">
+    <div class="dial-ruler">
+      <div class="dial-seg" style="width:448px"><b>00:00–07:00</b><i>Ночной Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>07:00–11:00</b><i>Фитнес Утро</i></div>
+      <div class="dial-seg" style="width:320px"><b>11:00–16:00</b><i>Рабочий Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>16:00–20:00</b><i>Прайм Драйв</i></div>
+      <div class="dial-seg" style="width:256px"><b>20:00–00:00</b><i>Вечерний Драйв</i></div>
+    </div>
+  </div>
+  <div class="dial-now">
+    <span class="dial-now-mark" aria-hidden="true"></span>
+    <b>07:00–11:00</b><i>Фитнес Утро</i>
   </div>
 </div>
 
@@ -1399,19 +1448,85 @@
 
     var dialSlots = DIAL_SCHEDULE[rawKey];
     var dialActiveIdx = findActiveIndex(dialSlots, decHour);
+    var activeSeg = dialSlots[dialActiveIdx];
 
-    // Rebuild every broadcast dial (the top one and the section dividers)
-    // for today's real schedule
-    var markerPct = (decHour / 24 * 100).toFixed(2) + '%';
-    var html = '<div class="dial-now-mark" style="left:' + markerPct + '"></div>';
-    dialSlots.forEach(function(seg, i){
-      var grow = seg[1] - seg[0];
-      var cls = 'dial-seg' + (i === dialActiveIdx ? ' is-now' : '');
-      html += '<div class="' + cls + '" style="flex-grow:' + grow + '"><b>' + fmtHour(seg[0]) + '–' + fmtHour(seg[1]) + '</b><i>' + seg[2] + '</i></div>';
+    // Broadcast dial: build a 3-day (yesterday/today/tomorrow) ribbon of
+    // segments in absolute hours so the ruler always has content to show
+    // on both sides of "now", no matter how close to midnight it is.
+    var PX_PER_HOUR = 64;
+    var yesterdayKey = weekdayToKey[(now.weekday + 6) % 7];
+    var tomorrowKey = weekdayToKey[(now.weekday + 1) % 7];
+    var rulerHtml = '';
+    [[yesterdayKey, 0], [rawKey, 24], [tomorrowKey, 48]].forEach(function(pair){
+      DIAL_SCHEDULE[pair[0]].forEach(function(seg){
+        var w = Math.round((seg[1] - seg[0]) * PX_PER_HOUR);
+        rulerHtml += '<div class="dial-seg" style="width:' + w + 'px"><b>' + fmtHour(seg[0]) + '–' + fmtHour(seg[1]) + '</b><i>' + seg[2] + '</i></div>';
+      });
     });
     document.querySelectorAll('.dial-ruler').forEach(function(ruler){
-      ruler.innerHTML = html;
+      ruler.innerHTML = rulerHtml;
     });
+
+    // Fixed "now" window: always a comfortably sized label, independent
+    // of how short the live segment's real duration is.
+    function paintNowBoxes(seg, decH){
+      var pct = Math.max(0, Math.min(100, (decH - seg[0]) / (seg[1] - seg[0]) * 100));
+      document.querySelectorAll('.dial-now').forEach(function(box){
+        var b = box.querySelector('b'), i = box.querySelector('i'), mark = box.querySelector('.dial-now-mark');
+        if (b) b.textContent = fmtHour(seg[0]) + '–' + fmtHour(seg[1]);
+        if (i) i.textContent = seg[2];
+        if (mark) mark.style.left = pct.toFixed(2) + '%';
+      });
+    }
+    paintNowBoxes(activeSeg, decHour);
+    // Keep the label honest if the tab stays open across a segment
+    // boundary — cheap enough to just recheck once a minute.
+    setInterval(function(){
+      var n2 = moscowNow();
+      var dh2 = n2.hour + n2.minute / 60;
+      paintNowBoxes(dialSlots[findActiveIndex(dialSlots, dh2)], dh2);
+    }, 60000);
+
+    // Scroll the ruler continuously so "now" stays centered under the
+    // fixed window. Re-anchored to a single accurate clock read instead
+    // of calling Intl every frame — performance.now() deltas from here
+    // drift by nothing that matters over a browsing session.
+    var nowAbsHour0 = 24 + decHour; // "today" starts at abs hour 24 in the ribbon
+    var anchorPerf = performance.now();
+    var dialRulers = document.querySelectorAll('.dial-ruler');
+    var dialViewports = document.querySelectorAll('.dial-viewport');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function positionRulersStatic(){
+      var abs = nowAbsHour0 + (performance.now() - anchorPerf) / 3600000;
+      for (var k = 0; k < dialRulers.length; k++){
+        var x = dialViewports[k].clientWidth / 2 - abs * PX_PER_HOUR;
+        dialRulers[k].style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)';
+      }
+    }
+    if (reduceMotion){
+      // Static: centered on load, no continuous motion, matches the
+      // reduced-motion contract the rest of the site already keeps.
+      positionRulersStatic();
+      window.addEventListener('resize', positionRulersStatic);
+    } else {
+      var dialLoopRunning = false;
+      var dialFrame = function(){
+        positionRulersStatic();
+        if (!document.hidden){
+          requestAnimationFrame(dialFrame);
+        } else {
+          dialLoopRunning = false;
+        }
+      };
+      var ensureDialLoop = function(){
+        if (dialLoopRunning || document.hidden) return;
+        dialLoopRunning = true;
+        requestAnimationFrame(dialFrame);
+      };
+      ensureDialLoop();
+      document.addEventListener('visibilitychange', ensureDialLoop);
+      window.addEventListener('resize', positionRulersStatic);
+    }
 
     // Pre-select today's tab
     var tabInput = document.getElementById('day-' + tabKey);
@@ -2288,11 +2403,11 @@
   // One spectrum canvas per dial — the top strip and both section-divider
   // dials — each tracking its own viewport visibility.
   var dialVizes = [];
-  document.querySelectorAll('.dial-seg.is-now').forEach(function(seg){
+  document.querySelectorAll('.dial-now').forEach(function(box){
     var dialCanvas = document.createElement('canvas');
     dialCanvas.className = 'dial-viz';
     dialCanvas.setAttribute('aria-hidden', 'true');
-    seg.insertBefore(dialCanvas, seg.firstChild);
+    box.insertBefore(dialCanvas, box.firstChild);
     var item = {
       viz: makeViz(dialCanvas, { color: '#fff', liveAlpha: 0.5, idleAlpha: 0.28, step: 4, barW: 2 }),
       visible: false
@@ -2301,7 +2416,7 @@
     new IntersectionObserver(function(entries){
       item.visible = entries[0].isIntersecting;
       ensureLoop();
-    }).observe(seg.closest('.dial') || seg);
+    }).observe(box.closest('.dial') || box);
   });
 
   /* ---------- one rAF loop for everything ---------- */
