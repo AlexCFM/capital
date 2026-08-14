@@ -1651,6 +1651,12 @@
     userWantsPlaying = true;
     clearReconnect();
     setLoadingState(true);
+    // A paused <audio> element can keep its already-buffered audio around
+    // and resume playing from that stale point instead of reconnecting to
+    // the live edge — the stream would then audibly lag behind the track
+    // metadata (which always reflects what's actually on air right now).
+    // load() drops that buffer so every play starts from the live stream.
+    audio.load();
     audio.play().catch(function(){ scheduleReconnect(); });
   }
   function doPause(){
