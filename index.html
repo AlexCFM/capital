@@ -2361,6 +2361,22 @@
   /* ---------- audio engine ---------- */
   var actx = null, analyser = null, freqData = null, graphFailed = false;
 
+  // iOS Safari (and any iOS browser — they're all WebKit under the hood)
+  // suspends the AudioContext outright as soon as the page is backgrounded
+  // or the screen locks. Once createMediaElementSource() reroutes the live
+  // stream through that context, ALL audio — not just the visualizer —
+  // depends on the context staying 'running', so the stream goes silent
+  // the moment the screen turns off, with no click available to resume it.
+  // The native <audio> + Media Session pipeline is what iOS actually keeps
+  // alive in the background, so on iOS the stream is never captured into
+  // Web Audio at all — graphFailed reuses the same standby fallback the
+  // CORS-failure path below already relies on, so the kinetic letters and
+  // spectrum canvases just sit in their idle/standby animation instead of
+  // reacting to audio, and background playback stays intact.
+  var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (isIOS) graphFailed = true;
+
   // Cheap CORS probe: if the CDN ever stops sending ACAO headers, the
   // crossorigin attribute would make playback fail outright — strip it
   // pre-emptively and run without analysis rather than break the radio.
@@ -2605,7 +2621,15 @@
   if (npSection){
     new IntersectionObserver(function(){ ensureLoop(); }, { threshold: 0.45 }).observe(npSection);
   }
-  document.addEventListener('visibilitychange', ensureLoop);
+  document.addEventListener('visibilitychange', function(){
+    // Belt-and-suspenders for non-iOS browsers that also suspend the
+    // AudioContext on backgrounding: resume it as soon as the tab is
+    // visible again so a returning listener isn't stuck silently
+    // "playing" nothing (iOS never creates actx in the first place —
+    // see graphFailed above — so this is a no-op there).
+    if (!document.hidden && actx && actx.state === 'suspended') actx.resume();
+    ensureLoop();
+  });
   var playerToggle = document.getElementById('player-toggle');
   if (playerToggle) playerToggle.addEventListener('click', ensureLoop);
 
