@@ -1968,14 +1968,22 @@
     document.addEventListener('visibilitychange', function(){
       if (document.hidden || !userWantsPlaying) return;
       if (reconnectPending || audio.paused){
+        // Device logs show iOS pauses the element itself at screen lock
+        // with a full buffer — that needs a plain resume, not a rebuild.
+        // load() there would throw away good buffered audio and make the
+        // resume look like a brand-new request, so only rebuild when
+        // something actually broke (deferred failure, error, dead source).
+        var needsRebuild = reconnectPending || !!audio.error || audio.networkState === 3;
         reconnectPending = false;
         clearReconnect();
         clearStallWatchdog();
         reconnectAttempts = 0;
         setLoadingState(true);
-        audio.load();
+        if (needsRebuild) audio.load();
         audio.play().catch(function(){
-          // Genuinely can't resume without a fresh tap — stop claiming to.
+          // iOS refuses un-gestured play() after it interrupts playback,
+          // so the listener has to tap again — say so honestly instead of
+          // leaving a play button sitting over silence.
           userWantsPlaying = false;
           setLoadingState(false);
           setPlayingState(false);
