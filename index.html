@@ -934,6 +934,38 @@
     .ios-tip{animation:none;}
   }
 
+  /* ---------- debug log (?debug=1 only) ---------- */
+  .dbg-log{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    max-height:46vh;display:flex;flex-direction:column;
+    background:rgba(8,6,5,.94);color:#fff;
+    border-bottom:2px solid var(--red);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .dbg-log[hidden]{display:none;}
+  .dbg-log-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;padding:7px 10px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+    font-size:11px;letter-spacing:.04em;color:var(--red);
+    flex-shrink:0;
+  }
+  .dbg-log-head button{
+    background:transparent;border:1px solid rgba(255,255,255,.3);
+    color:#fff;font-family:inherit;font-size:10px;
+    padding:3px 8px;cursor:pointer;
+  }
+  .dbg-log-list{
+    margin:0;padding:6px 10px 10px;list-style:none;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+    font-size:10px;line-height:1.5;
+  }
+  .dbg-log-list li{
+    white-space:pre-wrap;word-break:break-word;
+    border-bottom:1px solid rgba(255,255,255,.07);
+    padding:1px 0;
+  }
+
   /* ---------- VOLUME (fixed player) ---------- */
   .player-volume{display:flex;align-items:center;gap:10px;flex-shrink:0;}
   .vol-btn{
@@ -1516,6 +1548,19 @@
   <button class="ios-tip-close" id="ios-tip-close" type="button" aria-label="Закрыть подсказку">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
+</div>
+
+<!-- Playback event log, only with ?debug=1 — mobile Safari has no
+     reachable console without a Mac, and the whole point is to see what
+     happened while the screen was locked, so it renders on the page and
+     persists to localStorage (which also exposes iOS discarding the tab
+     entirely: that shows up as a fresh PAGE LOAD line). -->
+<div class="dbg-log" id="dbg-log" hidden>
+  <div class="dbg-log-head">
+    <b>DEBUG · журнал плеера</b>
+    <button type="button" id="dbg-log-clear">очистить</button>
+  </div>
+  <ol class="dbg-log-list" id="dbg-log-list"></ol>
 </div>
 
 <script>
@@ -2756,6 +2801,100 @@
   if (playerToggle) playerToggle.addEventListener('click', ensureLoop);
 
   ensureLoop();
+})();
+</script>
+
+<script>
+(function(){
+  // Playback diagnostics for ?debug=1. Everything is written to
+  // localStorage as it happens, so the log survives the screen lock, a
+  // tab switch, or iOS discarding and reloading the page outright —
+  // which is itself a suspect, and shows up here as an unexplained
+  // "PAGE LOAD" line appearing mid-session.
+  if (!/[?&]debug=1\b/.test(location.search)) return;
+
+  var panel = document.getElementById('dbg-log');
+  var list = document.getElementById('dbg-log-list');
+  var clearBtn = document.getElementById('dbg-log-clear');
+  var audio = document.getElementById('live-audio');
+  if (!panel || !list || !audio) return;
+
+  var KEY = 'capitalDebugLog';
+  var MAX = 90;
+  panel.hidden = false;
+
+  function read(){
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+  function write(entries){
+    try { localStorage.setItem(KEY, JSON.stringify(entries.slice(-MAX))); }
+    catch (e) {}
+  }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function stamp(){
+    var d = new Date();
+    return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+  // Compact state fingerprint: playing/paused, readyState, networkState,
+  // playback position (frozen position = silent stall), hidden flag.
+  function snap(){
+    return (audio.paused ? 'PAUSED' : 'play') +
+      ' rs' + audio.readyState +
+      ' ns' + audio.networkState +
+      ' t' + (audio.currentTime || 0).toFixed(0) +
+      (document.hidden ? ' [hidden]' : '');
+  }
+  function render(){
+    var entries = read();
+    list.innerHTML = '';
+    for (var i = entries.length - 1; i >= 0; i--){
+      var li = document.createElement('li');
+      li.textContent = entries[i];
+      list.appendChild(li);
+    }
+  }
+  function log(what){
+    var entries = read();
+    entries.push(stamp() + '  ' + what + '  ·  ' + snap());
+    write(entries);
+    render();
+  }
+
+  log('PAGE LOAD');
+
+  ['play','playing','pause','waiting','stalled','suspend','error','ended','emptied','abort']
+    .forEach(function(ev){
+      audio.addEventListener(ev, function(){ log(ev.toUpperCase()); });
+    });
+
+  document.addEventListener('visibilitychange', function(){
+    log(document.hidden ? '=== ФОН (экран погас/свернули)' : '=== ВЕРНУЛИСЬ');
+  });
+  window.addEventListener('pagehide', function(){ log('PAGEHIDE'); });
+  window.addEventListener('pageshow', function(e){ log('PAGESHOW' + (e.persisted ? ' (из кеша)' : '')); });
+
+  // Catch the silent case: element still claims to be playing but the
+  // position stops advancing, and no event ever fires.
+  var lastTime = -1, frozen = false;
+  setInterval(function(){
+    if (audio.paused){ lastTime = -1; frozen = false; return; }
+    var t = audio.currentTime;
+    if (lastTime >= 0 && t === lastTime){
+      if (!frozen){ frozen = true; log('!!! ЗАВИС (позиция не растёт)'); }
+    } else if (frozen){
+      frozen = false;
+      log('>>> пошёл дальше');
+    }
+    lastTime = t;
+  }, 5000);
+
+  clearBtn.addEventListener('click', function(){
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    render();
+  });
+
+  render();
 })();
 </script>
 
