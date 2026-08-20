@@ -896,6 +896,45 @@
   }
   .player-freq .live-dot{margin-right:2px;}
 
+  /* ---------- iOS "add to home screen" tip ---------- */
+  /* Plain Safari tabs on iOS suspend background audio when the screen
+     locks, regardless of Media Session — installing to the home screen
+     is Apple's actual sanctioned fix for that, so nudge iOS listeners
+     toward it once they've started playing. */
+  .ios-tip{
+    position:fixed;left:16px;right:16px;
+    bottom:calc(76px + 14px);
+    z-index:60;
+    max-width:420px;margin:0 auto;
+    background:var(--night);color:#fff;
+    border:1px solid rgba(255,255,255,.12);
+    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    display:flex;align-items:flex-start;gap:12px;
+    padding:14px 40px 14px 14px;
+    box-shadow:0 12px 32px rgba(0,0,0,.35);
+    animation:ios-tip-in .35s cubic-bezier(.22,.9,.3,1);
+  }
+  .ios-tip[hidden]{display:none;}
+  @keyframes ios-tip-in{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+  .ios-tip-icon{width:20px;height:20px;flex-shrink:0;color:var(--red);margin-top:1px;}
+  .ios-tip p{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.82);
+  }
+  .ios-tip p b{color:#fff;font-weight:700;}
+  .ios-tip-close{
+    position:absolute;top:10px;right:10px;
+    width:24px;height:24px;padding:0;
+    background:transparent;border:none;cursor:pointer;
+    color:rgba(255,255,255,.55);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .ios-tip-close:hover{color:#fff;}
+  .ios-tip-close svg{width:14px;height:14px;}
+  @media (prefers-reduced-motion:reduce){
+    .ios-tip{animation:none;}
+  }
+
   /* ---------- VOLUME (fixed player) ---------- */
   .player-volume{display:flex;align-items:center;gap:10px;flex-shrink:0;}
   .vol-btn{
@@ -1468,6 +1507,21 @@
   </div>
 </div>
 
+<div class="ios-tip" id="ios-tip" role="status" hidden>
+  <svg class="ios-tip-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 3v12" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M8 7l4-4 4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/>
+  </svg>
+  <p>
+    Чтобы музыка не останавливалась при блокировке экрана — добавьте
+    CAPITAL на экран «Домой»: <b>Поделиться → Добавить на экран «Домой»</b>.
+  </p>
+  <button class="ios-tip-close" id="ios-tip-close" type="button" aria-label="Закрыть подсказку">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
 <script>
 (function(){
   // CAPITAL вещает по московскому времени (GMT+3) независимо от часового пояса посетителя.
@@ -1911,6 +1965,37 @@
       localStorage.setItem('capitalMuted', muted ? '1' : '0');
       apply();
     });
+  });
+})();
+
+(function(){
+  // Nudge iOS Safari listeners toward "Add to Home Screen": a plain
+  // Safari tab suspends background audio when the screen locks no
+  // matter what the page does (confirmed — Media Session wired up,
+  // stream kept off Web Audio, still stops); installing to the home
+  // screen is Apple's actual fix for that, so point at it once someone
+  // has actually started listening rather than pre-emptively.
+  var tip = document.getElementById('ios-tip');
+  var closeBtn = document.getElementById('ios-tip-close');
+  var audio = document.getElementById('live-audio');
+  if (!tip || !closeBtn || !audio) return;
+
+  var isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var isStandalone = window.navigator.standalone === true ||
+    window.matchMedia('(display-mode: standalone)').matches;
+  if (!isIOS || isStandalone) return;
+  if (localStorage.getItem('capitalIOSTipDismissed') === '1') return;
+
+  function dismiss(){
+    tip.hidden = true;
+    localStorage.setItem('capitalIOSTipDismissed', '1');
+  }
+  closeBtn.addEventListener('click', dismiss);
+
+  audio.addEventListener('playing', function once(){
+    audio.removeEventListener('playing', once);
+    tip.hidden = false;
   });
 })();
 
