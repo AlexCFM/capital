@@ -909,19 +909,18 @@
     background:var(--night);color:#fff;
     border:1px solid rgba(255,255,255,.12);
     clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
-    display:flex;align-items:flex-start;gap:12px;
+    display:flex;align-items:center;gap:12px;
     padding:14px 40px 14px 14px;
     box-shadow:0 12px 32px rgba(0,0,0,.35);
     animation:ios-tip-in .35s cubic-bezier(.22,.9,.3,1);
   }
   .ios-tip[hidden]{display:none;}
   @keyframes ios-tip-in{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
-  .ios-tip-icon{width:20px;height:20px;flex-shrink:0;color:var(--red);margin-top:1px;}
+  .ios-tip-icon{width:20px;height:20px;flex-shrink:0;color:var(--red);}
   .ios-tip p{
     font-family:'JetBrains Mono',monospace;
-    font-size:12.5px;line-height:1.55;color:rgba(255,255,255,.82);
+    font-size:12.5px;line-height:1.4;color:#fff;
   }
-  .ios-tip p b{color:#fff;font-weight:700;}
   .ios-tip-close{
     position:absolute;top:10px;right:10px;
     width:24px;height:24px;padding:0;
@@ -1513,10 +1512,7 @@
     <path d="M8 7l4-4 4 4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.8" fill="none"/>
   </svg>
-  <p>
-    Чтобы музыка не останавливалась при блокировке экрана — добавьте
-    CAPITAL на экран «Домой»: <b>Поделиться → Добавить на экран «Домой»</b>.
-  </p>
+  <p>Добавить CAPITAL на экран «Домой»</p>
   <button class="ios-tip-close" id="ios-tip-close" type="button" aria-label="Закрыть подсказку">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
