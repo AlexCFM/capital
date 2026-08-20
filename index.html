@@ -1762,6 +1762,7 @@
   var userWantsPlaying = false;
   var reconnectAttempts = 0;
   var reconnectTimer = null;
+  var reconnectPending = false; // a reconnect was needed while hidden
   var RECONNECT_BASE_MS = 2000;
   var RECONNECT_MAX_MS = 15000;
 
@@ -1771,6 +1772,15 @@
 
   function scheduleReconnect(){
     if (!audio || !userWantsPlaying || reconnectTimer) return;
+    // Never rebuild the stream while the page is hidden. iOS is perfectly
+    // happy to keep a plain <audio> element playing through a screen lock,
+    // but audio.load() tears that playback down, and the play() that
+    // follows fires from a timer with no user gesture behind it — which
+    // iOS then rejects. The stream ends up dead while userWantsPlaying
+    // still says "playing": exactly the reported symptom of coming back
+    // to the tab and finding a playing button over silence. Defer the
+    // whole repair to the visibilitychange handler below instead.
+    if (document.hidden){ reconnectPending = true; return; }
     setLoadingState(true);
     var delay = Math.min(RECONNECT_BASE_MS * Math.pow(1.6, reconnectAttempts), RECONNECT_MAX_MS);
     reconnectAttempts++;
@@ -1865,6 +1875,10 @@
   }
   function armStallWatchdog(){
     clearStallWatchdog();
+    // Buffering while backgrounded is normal — iOS powers the radio down
+    // between fetches — so a stall there must not arm the destructive
+    // reconnect above. Recovery waits until the page is visible again.
+    if (document.hidden) return;
     stallWatchdog = setTimeout(function(){
       stallWatchdog = null;
       if (userWantsPlaying) scheduleReconnect();
@@ -1904,6 +1918,33 @@
       clearStallWatchdog();
       if (userWantsPlaying){ scheduleReconnect(); return; }
       setLoadingState(false); setPlayingState(false);
+    });
+
+    // Foreground again — the only safe place to repair a stream that died
+    // or stalled while hidden, and the only place the UI can be resynced
+    // with what the element is actually doing, so a background failure
+    // never leaves a "playing" button sitting over silence.
+    document.addEventListener('visibilitychange', function(){
+      if (document.hidden || !userWantsPlaying) return;
+      if (reconnectPending || audio.paused){
+        reconnectPending = false;
+        clearReconnect();
+        clearStallWatchdog();
+        reconnectAttempts = 0;
+        setLoadingState(true);
+        audio.load();
+        audio.play().catch(function(){
+          // Genuinely can't resume without a fresh tap — stop claiming to.
+          userWantsPlaying = false;
+          setLoadingState(false);
+          setPlayingState(false);
+          if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+        });
+      } else if (audio.readyState < 3){
+        // Still connected but starved — now that reconnecting is safe
+        // again, let the watchdog do its job.
+        armStallWatchdog();
+      }
     });
   }
 })();
