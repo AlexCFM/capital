@@ -2100,7 +2100,7 @@
   // that reads the stream's in-band ICY StreamTitle tag server-side (the
   // browser can't do this directly — see capital-metadata-worker.js for why).
   var METADATA_URL = 'https://capital-metadata.samoylenko-aleksanderil.workers.dev/';
-  var POLL_MS = 15000;
+  var POLL_MS = 30000;
   if (!METADATA_URL) return;
 
   var lastTrackText = null;
@@ -2254,8 +2254,17 @@
       .catch(function(){ /* unreachable — keep last known track name */ });
   }
 
+  // Skip polling while the tab is backgrounded — a hidden tab burns through
+  // the Worker's daily request quota for a track title nobody is looking
+  // at. Poll immediately on return instead of waiting out the interval.
+  var pollTimer = setInterval(function(){
+    if (!document.hidden) pollMetadata();
+  }, POLL_MS);
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) pollMetadata();
+  });
+
   pollMetadata();
-  setInterval(pollMetadata, POLL_MS);
 })();
 </script>
 
