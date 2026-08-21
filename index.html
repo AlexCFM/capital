@@ -1860,6 +1860,12 @@
 
   playButtons.forEach(function(btn){ btn.addEventListener('click', togglePlay); });
 
+  // Exposed so other players (e.g. the "Новая музыка" preview) can stop the
+  // live stream through the same intent-tracking path instead of calling
+  // audio.pause() directly, which would leave userWantsPlaying stale and
+  // the play button stuck showing "playing".
+  window.CapitalLive = { pause: doPause };
+
   // Player bar can be tucked away — mainly useful on the "Сейчас в эфире"
   // card, which already shows the same track info.
   var playerBar = document.getElementById('player');
@@ -2285,7 +2291,10 @@
 
       stopPreview();
       var live = document.getElementById('live-audio');
-      if (live && !live.paused) live.pause();
+      if (live && !live.paused){
+        if (window.CapitalLive && window.CapitalLive.pause) window.CapitalLive.pause();
+        else live.pause();
+      }
 
       currentBtn = btn;
       btn.classList.add('is-loading');
