@@ -2254,14 +2254,23 @@
       .catch(function(){ /* unreachable — keep last known track name */ });
   }
 
-  // Skip polling while the tab is backgrounded — a hidden tab burns through
-  // the Worker's daily request quota for a track title nobody is looking
-  // at. Poll immediately on return instead of waiting out the interval.
+  // Skip polling only when the tab is both hidden AND nothing is actually
+  // playing — a backgrounded tab with no listener burns through the
+  // Worker's daily request quota for a track title nobody is looking at.
+  // But a hidden tab with the stream still going (phone screen locked,
+  // CarPlay, background playback via Media Session) is exactly the case
+  // this metadata is for — skipping there is what left the CarPlay/lock
+  // screen "Now Playing" title frozen on a stale track for the whole
+  // drive, since polling never resumed until the tab became visible again.
+  var liveAudioEl = document.getElementById('live-audio');
+  function shouldPoll(){
+    return !document.hidden || (liveAudioEl && !liveAudioEl.paused);
+  }
   var pollTimer = setInterval(function(){
-    if (!document.hidden) pollMetadata();
+    if (shouldPoll()) pollMetadata();
   }, POLL_MS);
   document.addEventListener('visibilitychange', function(){
-    if (!document.hidden) pollMetadata();
+    if (shouldPoll()) pollMetadata();
   });
 
   pollMetadata();
