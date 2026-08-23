@@ -1787,6 +1787,11 @@
   var audio = document.getElementById('live-audio');
   var playButtons = document.querySelectorAll('.hero-play, .player-play, .np-play');
 
+  var mediaSessionArtworkImg = document.querySelector('.player-play img');
+  var mediaSessionArtwork = mediaSessionArtworkImg
+    ? [{ src: mediaSessionArtworkImg.src, sizes: '500x500', type: 'image/jpeg' }]
+    : [];
+
   function setPlayingState(isPlaying){
     playButtons.forEach(function(btn){ btn.classList.toggle('is-playing', isPlaying); });
   }
@@ -1838,6 +1843,22 @@
     userWantsPlaying = true;
     clearReconnect();
     setLoadingState(true);
+    // Re-assert the Media Session metadata/state synchronously inside the
+    // user's tap, not just once at page load. iOS only reliably hands the
+    // CarPlay/Control Center "Now Playing" card over from whatever app was
+    // already playing when the new session is claimed inside an actual
+    // gesture — registering it passively at load (and only flipping
+    // playbackState to 'playing' later, once the 'playing' event fires
+    // after buffering) left CarPlay showing the previous app's card even
+    // though Capital's stream was audibly already playing.
+    if ('mediaSession' in navigator){
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'CAPITAL — прямой эфир',
+        artist: 'Электронная музыка 24/7',
+        artwork: mediaSessionArtwork
+      });
+      navigator.mediaSession.playbackState = 'playing';
+    }
     // A paused <audio> element can keep its already-buffered audio around
     // and resume playing from that stale point instead of reconnecting to
     // the live edge — the stream would then audibly lag behind the track
@@ -1897,14 +1918,10 @@
   // Media Session API: registers the stream with the OS as real media
   // playback, so it keeps running (and shows play/pause controls) when the
   // phone's screen locks, instead of getting silently paused/suspended as
-  // a background browser tab.
+  // a background browser tab. Metadata/playbackState themselves are set
+  // inside doPlay(), synchronously with the user's gesture — see the
+  // comment there for why that timing matters for CarPlay handoff.
   if ('mediaSession' in navigator){
-    var artworkImg = document.querySelector('.player-play img');
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: 'CAPITAL — прямой эфир',
-      artist: 'Электронная музыка 24/7',
-      artwork: artworkImg ? [{ src: artworkImg.src, sizes: '500x500', type: 'image/jpeg' }] : []
-    });
     navigator.mediaSession.setActionHandler('play', doPlay);
     navigator.mediaSession.setActionHandler('pause', doPause);
     navigator.mediaSession.setActionHandler('stop', doPause);
