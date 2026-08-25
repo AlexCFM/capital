@@ -2369,6 +2369,10 @@
   // whatever preview is running.
   var liveAudio = document.getElementById('live-audio');
   if (liveAudio) liveAudio.addEventListener('playing', stopPreview);
+
+  // Read by the cover-preview panel script below, so it knows which track
+  // (if any) is actually playing once the mouse stops hovering rows.
+  window.CapitalPreview = { currentButton: function(){ return currentBtn; } };
 })();
 </script>
 
@@ -2382,17 +2386,29 @@
   if (!panel || !list) return;
   var imgs = panel.querySelectorAll('img');
   var active = 0;
+  var defaultCover = imgs[active].getAttribute('src');
 
-  list.addEventListener('pointerover', function(e){
-    var row = e.target.closest('.track-row[data-cover]');
-    if (!row) return;
-    var src = row.getAttribute('data-cover');
-    if (imgs[active].getAttribute('src') === src) return;
+  function showCover(src){
+    if (!src || imgs[active].getAttribute('src') === src) return;
     var next = 1 - active;
     imgs[next].src = src;
     imgs[next].classList.add('is-top');
     imgs[active].classList.remove('is-top');
     active = next;
+  }
+
+  list.addEventListener('pointerover', function(e){
+    var row = e.target.closest('.track-row[data-cover]');
+    if (!row) return;
+    showCover(row.getAttribute('data-cover'));
+  });
+
+  // Once the mouse leaves the list entirely, the panel shouldn't keep
+  // showing whatever row it last happened to pass over — it should reflect
+  // what's actually playing (or the default cover if nothing is).
+  list.addEventListener('pointerleave', function(){
+    var playingBtn = window.CapitalPreview && window.CapitalPreview.currentButton && window.CapitalPreview.currentButton();
+    showCover(playingBtn ? playingBtn.getAttribute('data-cover') : defaultCover);
   });
 })();
 </script>
