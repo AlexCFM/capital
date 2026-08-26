@@ -775,6 +775,21 @@
     overflow:hidden;
   }
   .subscribe img{width:100%;height:auto;display:block;}
+  /* The video matches the photo's 2.67:1 framing, so it can sit right on top
+     of it — the photo stays as the base layer and doubles as the poster,
+     which means no layout shift and no gap while the video loads. */
+  .subscribe-video{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+    opacity:0;
+    transition:opacity .8s ease;
+    pointer-events:none;
+  }
+  .subscribe.is-live .subscribe-video{opacity:1;}
+  @media (prefers-reduced-motion:reduce){
+    .subscribe-video{display:none;}
+  }
 
   /* ---------- FOOTER ---------- */
   footer{
@@ -1464,6 +1479,11 @@
 <section>
   <div class="subscribe">
     <img src="assets/rooftop.jpg" alt="CAPITAL — вечеринка на крыше на закате">
+    <!-- Same rooftop scene, animated: fades in over the photo only while the
+         live stream is actually playing. preload="none" keeps it off the wire
+         for everyone who never presses play. -->
+    <video class="subscribe-video" src="assets/rooftop-live.mp4"
+      muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
   </div>
 </section>
 
@@ -1803,8 +1823,15 @@
     ? [{ src: mediaSessionArtworkImg.src, sizes: '500x500', type: 'image/jpeg' }]
     : [];
 
+  // Anything that needs to react to the stream starting/stopping (the
+  // rooftop video, for one) subscribes here rather than listening to the
+  // audio element directly: this fires only on real state changes, so the
+  // internal pause/play churn of a reconnect doesn't leak out as flicker.
+  var playingListeners = [];
+
   function setPlayingState(isPlaying){
     playButtons.forEach(function(btn){ btn.classList.toggle('is-playing', isPlaying); });
+    playingListeners.forEach(function(fn){ fn(isPlaying); });
   }
   function setLoadingState(isLoading){
     playButtons.forEach(function(btn){ btn.classList.toggle('is-loading', isLoading); });
@@ -1896,7 +1923,13 @@
   // live stream through the same intent-tracking path instead of calling
   // audio.pause() directly, which would leave userWantsPlaying stale and
   // the play button stuck showing "playing".
-  window.CapitalLive = { pause: doPause };
+  window.CapitalLive = {
+    pause: doPause,
+    onPlayingChange: function(fn){
+      playingListeners.push(fn);
+      fn(!!audio && !audio.paused);
+    }
+  };
 
   // Player bar can be tucked away — mainly useful on the "Сейчас в эфире"
   // card, which already shows the same track info.
@@ -2373,6 +2406,31 @@
   // Read by the cover-preview panel script below, so it knows which track
   // (if any) is actually playing once the mouse stops hovering rows.
   window.CapitalPreview = { currentButton: function(){ return currentBtn; } };
+})();
+</script>
+
+<script>
+(function(){
+  // Rooftop banner comes alive while the live stream plays: the still photo
+  // stays underneath and the looping video crossfades in on top, then back
+  // out when playback stops.
+  var box = document.querySelector('.subscribe');
+  var video = document.querySelector('.subscribe-video');
+  if (!box || !video || !window.CapitalLive || !window.CapitalLive.onPlayingChange) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  window.CapitalLive.onPlayingChange(function(isPlaying){
+    if (isPlaying){
+      // First play is also what pulls the file down (preload="none"), so a
+      // slow connection just means the photo stays up a moment longer.
+      var started = video.play();
+      if (started && started.catch) started.catch(function(){});
+      box.classList.add('is-live');
+    } else {
+      box.classList.remove('is-live');
+      video.pause();
+    }
+  });
 })();
 </script>
 

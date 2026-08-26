@@ -23,5 +23,12 @@ self.addEventListener('fetch', function(event){
   // been interrupting the stream itself.
   var url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  // Media is served straight from the network too, but it must not be
+  // re-issued from in here: players fetch video with Range headers, and a
+  // range request replayed through a fetch handler is exactly where Safari
+  // tends to drop the 206 and stall playback. Let the browser own it.
+  if (event.request.destination === 'video' ||
+      event.request.destination === 'audio' ||
+      event.request.headers.has('range')) return;
   event.respondWith(fetch(event.request, { cache: 'no-store' }));
 });
