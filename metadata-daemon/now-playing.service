@@ -1,0 +1,39 @@
+[Unit]
+Description=CAPITAL FM now-playing metadata publisher
+Documentation=https://github.com/AlexCFM/capital
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nowplaying
+Group=nowplaying
+
+Environment=STREAM_URL=http://icecast.vgtrk.cdnvideo.ru/capitalfmmp3
+Environment=OUTPUT_FILE=/var/www/nowplaying/capital.json
+# Restart ffmpeg if the stream goes quiet for this long without disconnecting.
+Environment=STALL_TIMEOUT=30
+
+ExecStart=/opt/nowplaying/now_playing.py
+
+# The script reconnects on its own; this only covers it crashing outright.
+Restart=always
+RestartSec=5
+
+# The only thing it needs to touch is the directory it publishes into.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/nowplaying
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+MemoryMax=256M
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
