@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru" prefix="og: http://ogp.me/ns#">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAPITAL FM — слушать прямой эфир</title>
+<meta name="description" content="Capital FM — московское радио. Слушайте прямой эфир онлайн.">
+<meta property="og:title" content="CAPITAL FM">
+<meta property="og:description" content="Слушайте прямой эфир Capital FM онлайн.">
+
+<link rel="shortcut icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSIjZWIxYzIzIi8+PGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjUiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI4IiBjeT0iOCIgcj0iMi4zIiBmaWxsPSIjZWIxYzIzIi8+PC9zdmc+" type="image/x-icon">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI+PHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSIjZWIxYzIzIi8+PGNpcmNsZSBjeD0iOCIgY3k9IjgiIHI9IjUiIGZpbGw9IiNmZmYiLz48Y2lyY2xlIGN4PSI4IiBjeT0iOCIgcj0iMi4zIiBmaWxsPSIjZWIxYzIzIi8+PC9zdmc+" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+    --red: #eb1c23;
+    --paper: #f0f0f1;
+    --ink: #111114;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+ul { list-style: none; }
+img { display: block; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Montserrat', Tahoma, Helvetica, sans-serif;
+    color: #fff;
+    background: #000;
+    overflow-x: hidden;
+}
+
+.bg {
+    position: fixed; inset: 0; z-index: -2;
+    background:
+        radial-gradient(90% 70% at 20% 15%, rgba(235,28,35,.30), transparent 55%),
+        radial-gradient(80% 60% at 85% 80%, rgba(90,10,120,.35), transparent 55%),
+        radial-gradient(60% 50% at 70% 25%, rgba(20,40,180,.22), transparent 60%),
+        #0a0a0e;
+    transform: scale(1.04);
+    animation: drift 40s ease-in-out infinite alternate;
+}
+@keyframes drift {
+    from { transform: scale(1.04) translateX(0); }
+    to   { transform: scale(1.04) translateX(-1.5%); }
+}
+.bg-tint {
+    position: fixed; inset: 0; z-index: -1;
+    background:
+        radial-gradient(120% 90% at 50% 10%, rgba(235,28,35,.18), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.78));
+}
+
+main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding: 40px 20px;
+}
+
+.card {
+    width: min(560px, 100%);
+    background: rgba(16, 16, 20, .55);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .55), 0 0 0 1px rgba(235,28,35,.08);
+}
+
+.logo { line-height: 0; }
+.logo a { display: block; }
+.logo img { width: 100%; height: auto; }
+
+.player {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 28px;
+}
+
+.play {
+    flex: none;
+    width: 96px; height: 96px;
+    border: 0; border-radius: 50%;
+    cursor: pointer;
+    background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzIgMTMyIj48Y2lyY2xlIGN4PSI2NiIgY3k9IjY2IiByPSI2NiIgZmlsbD0iI2ViMWMyMyIvPjxwYXRoIGQ9Ik01MiA0MCA5NiA2NiA1MiA5MnoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=) 50% 50% no-repeat;
+    background-size: 96px 96px;
+    transition: transform .25s ease, box-shadow .25s ease;
+    box-shadow: 0 8px 30px rgba(235, 28, 35, .35);
+}
+.play:hover { transform: scale(1.06); box-shadow: 0 10px 40px rgba(235,28,35,.55); }
+.play:active { transform: scale(.97); }
+.play.active { background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMzIgMTMyIj48Y2lyY2xlIGN4PSI2NiIgY3k9IjY2IiByPSI2NiIgZmlsbD0iI2ViMWMyMyIvPjxyZWN0IHg9IjQ2IiB5PSI0MiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjQ4IiByeD0iMyIgZmlsbD0iI2ZmZiIvPjxyZWN0IHg9IjcyIiB5PSI0MiIgd2lkdGg9IjE0IiBoZWlnaHQ9IjQ4IiByeD0iMyIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==); }
+
+.card.playing .play { animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 8px 30px rgba(235,28,35,.35), 0 0 0 0 rgba(235,28,35,.35); }
+    50%      { box-shadow: 0 8px 30px rgba(235,28,35,.55), 0 0 0 14px rgba(235,28,35,0); }
+}
+
+.player-info { flex: 1; min-width: 0; }
+
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--paper);
+}
+.live-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--red);
+    animation: blink 1.6s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: .3; } }
+
+.eq {
+    margin-top: 14px;
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 34px;
+}
+.eq i {
+    flex: 1;
+    max-width: 10px;
+    height: 15%;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--red), #a3121a);
+    opacity: .45;
+    transition: height .4s ease, opacity .4s ease;
+}
+.card.playing .eq i { opacity: 1; animation: bounce 1s ease-in-out infinite; }
+.card.playing .eq i:nth-child(2n)  { animation-duration: .8s;  animation-delay: .1s; }
+.card.playing .eq i:nth-child(3n)  { animation-duration: 1.2s; animation-delay: .25s; }
+.card.playing .eq i:nth-child(4n)  { animation-duration: .7s;  animation-delay: .05s; }
+.card.playing .eq i:nth-child(5n)  { animation-duration: 1.1s; animation-delay: .35s; }
+@keyframes bounce {
+    0%, 100% { height: 20%; }
+    50%      { height: 95%; }
+}
+
+.socials {
+    display: flex;
+    gap: 12px;
+    padding: 0 28px 26px;
+}
+.socials a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .1);
+    transition: background .25s ease, transform .25s ease, border-color .25s ease;
+}
+.socials a img { width: 30px; height: 30px; }
+.socials a:hover {
+    background: var(--red);
+    border-color: var(--red);
+    transform: translateY(-3px);
+}
+.socials .vk img { filter: none; }
+
+.legal {
+    position: relative;
+    width: min(560px, 100%);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, .65);
+    padding-right: 52px;
+}
+.legal p { margin-bottom: 8px; }
+.legal a { color: rgba(255, 255, 255, .85); }
+.legal a:hover { color: #fff; }
+
+.age {
+    position: absolute;
+    top: 0; right: 0;
+    font-size: 15px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, .8);
+    border: 2px solid rgba(255, 255, 255, .5);
+    border-radius: 8px;
+    padding: 4px 7px;
+}
+
+.copyright { color: rgba(255, 255, 255, .45); }
+
+@media (max-width: 480px) {
+    .player { padding: 20px; gap: 16px; }
+    .play { width: 76px; height: 76px; background-size: 76px 76px; }
+    .socials { padding: 0 20px 20px; }
+    .socials a { width: 50px; height: 50px; }
+}
+</style>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-126675342-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-126675342-1');
+</script>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<div class="bg-tint"></div>
+
+<main>
+
+    <section class="card">
+
+        <h1 class="logo"><a href="/"><svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Capital FM" style="display:block;width:100%;height:auto">
+<rect width="720" height="360" fill="#f0f0f1"/>
+<path d="M10 10 L95 90 L10 170 L58 170 L143 90 L58 10 Z" fill="#eb1c23"/>
+<rect x="180" y="0" width="180" height="180" fill="#eb1c23"/>
+<circle cx="270" cy="90" r="62" fill="#fff"/>
+<circle cx="270" cy="90" r="29" fill="#eb1c23"/>
+<g transform="rotate(-40 270 90)"><rect x="270" y="82" width="66" height="16" rx="8" fill="#fff" stroke="#eb1c23" stroke-width="7"/></g>
+<circle cx="270" cy="90" r="13" fill="#fff"/>
+<text x="450" y="103" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-weight="900" font-size="31" letter-spacing="0.5" fill="#eb1c23">CAPITAL</text>
+<rect x="540" y="0" width="180" height="180" fill="#eb1c23"/>
+<path d="M540 10 L560 10 L645 90 L560 170 L540 170 L540 152 L606 90 L540 28 Z" fill="#f0f0f1"/>
+<path d="M598 10 L646 10 L720 80 L720 100 L646 170 L598 170 L683 90 Z" fill="#f0f0f1"/>
+<g fill="#eb1c23">
+<rect x="240" y="180" width="40" height="40"/><rect x="320" y="180" width="40" height="40"/>
+<rect x="280" y="220" width="40" height="40"/>
+<rect x="240" y="260" width="40" height="40"/><rect x="320" y="260" width="40" height="40"/>
+<rect x="280" y="300" width="40" height="40"/>
+</g>
+<rect x="360" y="180" width="180" height="180" fill="#eb1c23"/>
+</svg></a></h1>
+
+        <audio id="capitalfm" preload="none">
+            <source src="https://icecast-vgtrk.cdnvideo.ru/capitalfmmp3">
+        </audio>
+
+        <div class="player">
+            <button class="play" id="playBtn" aria-label="Слушать прямой эфир"></button>
+            <div class="player-info">
+                <span class="live-badge"><span class="live-dot"></span>Прямой эфир</span>
+                <div class="eq" aria-hidden="true">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+            </div>
+        </div>
+
+        <ul class="socials">
+            <li><a class="vk" href="https://vk.com/capitalfm" target="_blank" rel="noopener" aria-label="VKontakte"><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMjQgMjQnIGZpbGw9J25vbmUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHBhdGggZD0nTTEyLjg3OCAxNy4zMDRjLTUuNDExIDAtOC42OTUtMy43NTUtOC44MjMtOS45OTRoMi43NGMuMDg2IDQuNTgzIDIuMTcxIDYuNTI4IDMuNzcgNi45MjVWNy4zMWgyLjYyN3YzLjk1NGMxLjU0Mi0uMTcgMy4xNTUtMS45NyAzLjY5OC0zLjk1NGgyLjU4NGMtLjQxNCAyLjQ0MS0yLjE3IDQuMjQtMy40MTIgNC45ODMgMS4yNDIuNiAzLjI0IDIuMTcgNC4wMTEgNS4wMWgtMi44NGMtLjYtMS44OTgtMi4wNy0zLjM2OS00LjA0LTMuNTY5djMuNTdoLS4zMTVaJyBmaWxsPScjZWIxYzIzJy8+PC9zdmc+" alt="VK"></a></li>
+            <li><a class="tg" href="https://t.me/capitalfmmoscow" target="_blank" rel="noopener" aria-label="Telegram"><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTE4LjkyIDYuMDg5TDQuNzQ3IDExLjU1NWMtLjk2Ny4zODgtLjk2Mi45MjgtLjE3NiAxLjE2OGwzLjUzNCAxLjEwNCAxLjM1MyA0LjE0NmMuMTY0LjQ1NC4wODMuNjM0LjU2LjYzNC4zNjggMCAuNTMtLjE2OC43MzYtLjM2OC4xMy0uMTI3LjkwMy0uODggMS43NjctMS43MTlsMy42NzcgMi43MTdjLjY3Ni4zNzMgMS4xNjUuMTggMS4zMzMtLjYyOGwyLjQxNC0xMS4zNzRjLjI0Ny0uOTktLjM3OC0xLjQ0LTEuMDI1LTEuMTQ2ek04LjY2IDEzLjU3M2w3Ljk2Ny01LjAyNmMuMzk4LS4yNDIuNzYzLS4xMTIuNDYzLjE1NGwtNi44MjIgNi4xNTUtLjI2NSAyLjgzMy0xLjM0My00LjExNnoiIGZpbGw9IiNmMGYwZjEiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==" alt="Telegram"></a></li>
+            <li><a class="vb" href="https://www.viber.com/capitalfm" target="_blank" rel="noopener" aria-label="Viber"><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PScwIDAgMjQgMjQnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGcgZmlsbD0nI2YwZjBmMScgZmlsbC1ydWxlPSdldmVub2RkJz48cGF0aCBkPSdNMTguNDM0IDE1LjU3NGMtLjQ4NC0uMzkxLTEuMDAyLS43NDMtMS41MTEtMS4xMDItMS4wMTYtLjcxOC0xLjk0NS0uNzczLTIuNzAzLjM4LS40MjYuNjQ4LTEuMDIxLjY3Ny0xLjY0NC4zOTItMS43MTgtLjc4Mi0zLjA0NC0xLjk4OS0zLjgyMS0zLjc0My0uMzQ0LS43NzctLjM0LTEuNDczLjQ2NS0yLjAyMi40MjUtLjI5Ljg1NC0uNjM0LjgyLTEuMjY4LS4wNDUtLjgyOC0yLjA0My0zLjU5My0yLjgzMi0zLjg4NWExLjQyOSAxLjQyOSAwIDAwLS45ODQgMEM0LjM3MyA0Ljk1IDMuNjA2IDYuNDggNC4zNCA4LjI5MmMyLjE5IDUuNDA1IDYuMDQzIDkuMTY3IDExLjM0OSAxMS40NjMuMzAyLjEzLjYzOC4xODMuODA4LjIzIDEuMjA4LjAxMiAyLjYyMy0xLjE1OCAzLjAzMi0yLjMxOC4zOTMtMS4xMTctLjQzOC0xLjU2LTEuMDk2LTIuMDkzek0xMi40ODUgNC44OGMzLjg3OS42IDUuNjY4IDIuNDU0IDYuMTYyIDYuMzguMDQ1LjM2My0uMDkuOTA5LjQyNi45MTkuNTM4LjAxLjQwOC0uNTI4LjQxMy0uODkuMDQ1LTMuNjk5LTMuMTYzLTcuMTI3LTYuODg4LTcuMjUzLS4yODEuMDQtLjg2My0uMTk1LS45LjQzOC0uMDI0LjQyNy40NjYuMzU3Ljc4Ny40MDZ6Jy8+PHBhdGggZD0nTTEzLjI0NCA1Ljk1N2MtLjM3My0uMDQ1LS44NjUtLjIyMi0uOTUzLjI5OS0uMDkuNTQ2LjQ1OC40OS44MTEuNTcgMi4zOTUuNTM4IDMuMjMgMS40MTQgMy42MjQgMy44MDIuMDU3LjM0OS0uMDU3Ljg5LjUzMi44LjQzNi0uMDY2LjI3OC0uNTMuMzE1LS44MDIuMDItMi4yOTMtMS45MzYtNC4zOC00LjMyOS00LjY2OXonLz48cGF0aCBkPSdNMTMuNDY0IDcuODMyYy0uMjQ5LjAwNi0uNDkzLjAzMy0uNTg1LjMtLjEzNy40LjE1Mi40OTYuNDQ2LjU0NC45ODMuMTU4IDEuNS43NCAxLjU5OCAxLjcyNS4wMjcuMjY4LjE5NS40ODQuNDUyLjQ1NC4zNTYtLjA0My4zODktLjM2MS4zNzgtLjY2NC4wMTctMS4xMDYtMS4yMjctMi4zODUtMi4yODktMi4zNTl6Jy8+PC9nPjwvc3ZnPg==" alt="Viber"></a></li>
+        </ul>
+
+    </section>
+
+    <footer class="legal">
+        <span class="age">12+</span>
+        <p>СМИ сетевое издание «Capital FM» зарегистрировано в Федеральной службе по надзору в сфере связи, информационных технологий и массовых коммуникаций. Свидетельство о регистрации средства массовой информации Эл № ФС 77-89187 от 28 февраля 2025 г.</p>
+        <p>Учредитель — АО «Москва Медиа». Главный редактор М.С. Димов. Адрес редакции: 125124, РФ, г. Москва, ул. Правды, д. 24, стр. 2. Почта: <a href="mailto:music@capitalfm.moscow">music@capitalfm.moscow</a>. Тел.: <a href="tel:+74957287336">+7 (495) 728-73-36</a></p>
+        <p><a href="https://www.moscowmedia.net/docs/Политика обработки персональных данных в АО Москва Медиа 2026.pdf">Политика обработки персональных данных</a></p>
+        <p class="copyright">&copy; Capital FM, 2017 – 2026</p>
+    </footer>
+
+</main>
+
+<script>
+    const audio = document.getElementById('capitalfm');
+    const btn = document.getElementById('playBtn');
+    const card = document.querySelector('.card');
+
+    btn.addEventListener('click', () => {
+        if (btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            card.classList.remove('playing');
+            audio.pause();
+        } else {
+            btn.classList.add('active');
+            card.classList.add('playing');
+            audio.play();
+        }
+    });
+
+    audio.addEventListener('pause', () => { btn.classList.remove('active'); card.classList.remove('playing'); });
+    audio.addEventListener('play',  () => { btn.classList.add('active');   card.classList.add('playing');   });
+</script>
+
+</body>
+</html>
