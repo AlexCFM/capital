@@ -367,7 +367,7 @@
   /* ---------- HERO (brand manifest: giant kinetic wordmark first) ---------- */
   .hero{
     position:relative;
-    overflow:hidden; /* the tilted carousel's corners must not spill out */
+    overflow:hidden; /* the drifting carousel must not spill out */
   }
   .hero-manifest{
     max-width:1180px;
@@ -464,7 +464,7 @@
   }
   @keyframes caret-blink{50%{opacity:0;}}
 
-  /* hero visual: promo carousel demoted to a supporting layer — tilted,
+  /* hero visual: promo carousel demoted to a supporting layer — straight,
      rounded liquid-glass slab, slowly drifting on scroll (JS drives the
      translate part) */
   .hero-visual{
@@ -481,8 +481,6 @@
       0 0 0 7px rgba(255,255,255,.32),
       0 0 0 8px rgba(20,18,16,.06),
       0 34px 60px -24px rgba(20,18,16,.45);
-    --hero-tilt:-3deg;
-    transform:rotate(var(--hero-tilt));
     will-change:transform;
   }
   /* 7 slides x 8s each = 56s cycle — keyframe percents
@@ -1120,7 +1118,7 @@
     .hero-sub{grid-template-columns:auto minmax(0,1fr);gap:20px;}
     .hero-cta{width:88px;}
     .hero-slogan{font-size:15px;}
-    .hero-visual{grid-column:1 / -1;margin-top:18px;--hero-tilt:-2deg;}
+    .hero-visual{grid-column:1 / -1;margin-top:18px;}
     .np-card{grid-template-columns:1fr;text-align:center;}
     .np-cover{max-width:180px;margin:0 auto;}
     .np-badge{justify-content:center;}
@@ -2629,11 +2627,11 @@
       if (infl > 0 || Math.abs(bx) > 0.2 || Math.abs(by) > 0.2) active = true;
     }
 
-    // parallax: the tilted carousel drifts up slower than the page scrolls
+    // parallax: the carousel drifts up slower than the page scrolls
     if (visual){
       var ty = -window.scrollY * 0.08;
       py += (ty - py) * 0.15;
-      visual.style.transform = 'rotate(var(--hero-tilt)) translate3d(0,' + py.toFixed(1) + 'px,0)';
+      visual.style.transform = 'translate3d(0,' + py.toFixed(1) + 'px,0)';
       if (Math.abs(ty - py) > 0.2) active = true;
     }
 
