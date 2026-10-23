@@ -128,7 +128,7 @@ CLI flags, or environment variables of the same name:
 | `--user-agent` | `USER_AGENT` | `capital-now-playing/1.0` |
 | `--stall-timeout` | `STALL_TIMEOUT` | `30` |
 | `--copy-codec` | `COPY_CODEC` | off |
-| `--history-size` | `HISTORY_SIZE` | `8` |
+| `--history-size` | `HISTORY_SIZE` | `9` |
 
 `--copy-codec` adds `-c copy` so ffmpeg skips audio decoding. Decoding a
 128 kbps MP3 costs roughly 1% of a core, so this is only worth enabling if CPU

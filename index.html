@@ -669,22 +669,22 @@
     display:flex;align-items:center;justify-content:center;
     opacity:0;transition:opacity .2s ease;
   }
-  /* barely-there glass circle with a white triangle */
+  /* see-through circle: just a thin white ring around a white triangle */
   .hist-play i{
     width:30px;height:30px;border-radius:50%;
-    background:rgba(255,255,255,.18);
-    border:1px solid rgba(255,255,255,.55);
-    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+    background:transparent;
+    border:1.5px solid rgba(255,255,255,.8);
+    filter:drop-shadow(0 0 2px rgba(0,0,0,.3));
     display:flex;align-items:center;justify-content:center;
     transform:scale(.9);transition:transform .2s ease, background .2s ease;
   }
-  .hist-play svg{width:12px;height:12px;fill:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.35));}
+  .hist-play svg{width:12px;height:12px;fill:#fff;}
   .hist-play .icon-play{margin-left:2px;}
   .hist-play .icon-stop{display:none;}
   button.hist-row:hover .hist-play,
   .hist-row.is-playing .hist-play,
   .hist-row.is-loading .hist-play{opacity:1;}
-  button.hist-row:hover .hist-play i{transform:scale(1);background:rgba(255,255,255,.26);}
+  button.hist-row:hover .hist-play i{transform:scale(1);}
   .hist-row.is-playing .hist-play .icon-play{display:none;}
   .hist-row.is-playing .hist-play .icon-stop{display:block;}
   .hist-row.is-loading .hist-play i{animation:hist-pulse 1s ease-in-out infinite;}
@@ -2407,10 +2407,18 @@
       return;
     }
     var now = data.now || { raw: data.raw, artist: data.artist, title: data.title };
+    var history = data.history || [];
     if (!now.raw) return;
-    var text = now.artist ? now.artist + ' — ' + now.title : now.raw;
+    // Ads and idents ("Commercial") have no artist — keep showing the last
+    // track instead, and take it out of the list so it isn't there twice
+    if (!now.artist){
+      if (!history.length) return;
+      now = history[0];
+      history = history.slice(1);
+    }
+    var text = now.artist + ' — ' + now.title;
     updateTrackDisplays(text, now);
-    renderHistory(data.history);
+    renderHistory(history);
   }
 
   // Free, key-less, CORS-open track art lookup — no proxy needed (unlike
