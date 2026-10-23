@@ -715,33 +715,8 @@
   .np-volume{justify-content:center;}
 
   /* ---------- NEW MUSIC (showcase list: numbers + cursor cover preview) ---------- */
-  .tracks-list{display:flex;flex-direction:column;}
-  .track-row{
-    display:grid;
-    grid-template-columns:44px 1fr auto;
-    gap:22px;
-    align-items:center;
-    width:100%;
-    padding:22px 0;
-    border:0;border-bottom:1px solid var(--line);
-    background:transparent;
-    font:inherit;color:inherit;text-align:left;
-    cursor:pointer;
-    appearance:none;-webkit-appearance:none;
-    transition:padding-left .25s ease;
-  }
-  .track-row:hover{padding-left:14px;}
-  .track-row:first-child{padding-top:0;}
-  .track-row:last-child{border-bottom:none;}
-  .track-num{
-    display:flex;align-items:center;
-    font-family:'JetBrains Mono',monospace;
-    font-size:15px;font-weight:600;letter-spacing:.04em;
-    color:var(--ink-soft);
-    transition:color .2s ease;
-  }
-  .track-row:hover .track-num{color:var(--red-deep);}
-  /* playing: the number hands its slot to a mini equalizer */
+  /* rows reuse CAPITAL PLAYLIST's .hist-row markup, numbered instead of timed */
+  /* mini equalizer (now-playing badge) */
   .track-eq{display:none;align-items:flex-end;gap:3px;height:16px;}
   .track-eq i{
     width:3px;background:var(--red);
@@ -752,61 +727,6 @@
   .track-eq i:nth-child(2){height:16px;animation-delay:-0.55s;}
   .track-eq i:nth-child(3){height:16px;animation-delay:-0.8s;}
   @keyframes eq-bounce{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}
-  .track-row.is-playing .tn{display:none;}
-  .track-row.is-playing .track-eq{display:inline-flex;}
-  .track-title{
-    font-weight:700;font-size:19px;font-family:'Orbitron',sans-serif;
-    transition:font-weight .3s ease;
-  }
-  .track-row:hover .track-title{font-weight:900;}
-  .track-action{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;font-weight:700;letter-spacing:.12em;
-    color:var(--red-deep);white-space:nowrap;
-    opacity:0;transition:opacity .2s ease;
-  }
-  .track-action::before{content:"PLAY";}
-  .track-row:hover .track-action,
-  .track-row.is-playing .track-action{opacity:1;}
-  .track-row.is-playing .track-action::before{content:"STOP";}
-  /* large in-row cover for touch devices (no cursor to attach a preview to) */
-  .track-inline-cover{display:none;grid-column:1 / -1;}
-  .track-inline-cover img{
-    width:min(240px,70vw);aspect-ratio:1/1;object-fit:cover;
-    clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
-  }
-  @media (hover:none){
-    .track-action{opacity:1;}
-    .track-row.is-playing .track-inline-cover,
-    .track-row.is-loading .track-inline-cover{display:block;}
-  }
-  /* cover preview panel: sits in its own column to the left of the list
-     (sticky), crossfades to the hovered row's art — never covers the text */
-  .tracks-layout{
-    display:grid;
-    grid-template-columns:264px minmax(0,1fr);
-    gap:56px;
-    align-items:start;
-  }
-  .track-panel{
-    position:sticky;top:28px;
-    aspect-ratio:1/1;
-    filter:drop-shadow(0 20px 40px rgba(20,18,16,.28));
-  }
-  .track-panel img{
-    position:absolute;inset:0;
-    width:100%;height:100%;object-fit:cover;
-    clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
-    opacity:0;transform:scale(.97);
-    transition:opacity .35s ease, transform .45s ease;
-  }
-  .track-panel img.is-top{opacity:1;transform:none;}
-  /* narrow or touch: the panel column folds away (touch rows expand their
-     own inline cover instead) */
-  @media (max-width:1000px), (hover:none){
-    .tracks-layout{display:block;}
-    .track-panel{display:none;}
-  }
 
   /* ---------- SCHEDULE ---------- */
   /* ---------- DAY TABS (CSS-only switcher) ---------- */
@@ -1171,8 +1091,6 @@
     .np-history{margin-top:40px;}
     .hist-row{grid-template-columns:42px 48px minmax(0,1fr);gap:12px;}
     .hist-cover{width:48px;height:48px;}
-    .track-row{grid-template-columns:36px 1fr auto;gap:14px;}
-    .track-title{font-size:16px;}
     .slot{grid-template-columns:1fr;gap:4px;}
     .day-tab-bar{gap:8px;}
     .day-tab-label{padding:9px 14px;font-size:12px;}
@@ -1373,70 +1291,50 @@
       <span class="np-brand-mark">CAPITAL</span>
       <div class="rule-title"><h2>Новая музыка</h2></div>
     </div>
-    <div class="tracks-layout">
-      <div class="track-panel" aria-hidden="true">
-        <img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/ca/8e/a7ca8e7d-8bd5-e5f4-6f4c-7ad8b515491f/196874676929.jpg/600x600bb.jpg" alt="" class="is-top" loading="lazy">
-        <img alt="">
-      </div>
-      <div class="tracks-list">
-      <button class="track-row" aria-label="Слушать превью: Skyla Tylaa, Chlöe & Sofiya Nzau — Makuhia"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/29/81/d8/2981d827-c367-5404-bd65-20dd9a973fe0/mzaf_10610310360647061935.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/ca/8e/a7ca8e7d-8bd5-e5f4-6f4c-7ad8b515491f/196874676929.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">01</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Skyla Tylaa, Chlöe & Sofiya Nzau — Makuhia</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      <button class="track-row" aria-label="Слушать превью: Kimo Sounds — Rise Slow"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/57/8e/48/578e4876-2078-c1fd-d059-545e35825e95/mzaf_12624640908717768465.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/23/27/8a/23278a46-aa21-30f3-9e68-213772c53ea7/825181567094.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">02</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Kimo Sounds — Rise Slow</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      <button class="track-row" aria-label="Слушать превью: Rudimental, Original Koffee & Winny — Send Shots"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f2/fa/b3/f2fab3b0-1246-d1fd-cc79-ec513f3c5103/mzaf_9493844206954412749.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/71/ce/ff/71ceffe5-7e26-846e-ebb4-731ca4a88ffb/823375290452_Cover.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">03</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Rudimental, Original Koffee & Winny — Send Shots</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      <button class="track-row" aria-label="Слушать превью: Anyma, 19:26 & Baset — Prophecy"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bd/eb/fd/bdebfddd-cd35-afdb-2678-915fe0e0bfe5/mzaf_1813184517882378914.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ed/20/8c/ed208c9f-1777-5f09-89da-7f29dd78f82c/823375388555_Cover.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">04</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Anyma, 19:26 & Baset — Prophecy</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      <button class="track-row" aria-label="Слушать превью: Alex Warren — EMERALD EYES"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/54/d8/2d/54d82d90-a233-b830-8536-b90c3e0666f6/mzaf_7350443785994906011.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/84/88/bb8488c1-e2e3-59c1-2ce6-e2f88498c80e/075679560285.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">05</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Alex Warren — EMERALD EYES</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      <button class="track-row" aria-label="Слушать превью: Marshmello & Cameron Whitcomb — Hollow"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/78/6a/99786ae4-7ed9-3a19-76dd-c30a1fffcf8c/mzaf_7327956274992524081.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6a/cd/58/6acd584f-0355-461f-4e93-a5fc4172c902/26UM1IM02861.rgb.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">06</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Marshmello & Cameron Whitcomb — Hollow</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      <button class="track-row" aria-label="Слушать превью: Jaxstyle & Jon — What Are We Gonna Do"
-        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b2/1d/b5/b21db594-ce82-48eb-df2e-c609e8cc6ac3/mzaf_5439828042565055651.plus.aac.p.m4a"
-        data-cover="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e0/a5/e0/e0a5e087-ddaf-0e81-eb38-8e16613e7729/1200214611057.jpg/600x600bb.jpg">
-        <span class="track-num" aria-hidden="true"><span class="tn">07</span><span class="track-eq"><i></i><i></i><i></i></span></span>
-        <span class="track-title" aria-hidden="true">Jaxstyle & Jon — What Are We Gonna Do</span>
-        <span class="track-action" aria-hidden="true"></span>
-        <span class="track-inline-cover" aria-hidden="true"><img alt=""></span>
-      </button>
-      </div>
-    </div>
+    <ol class="np-history-list nm-list">
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Skyla Tylaa, Chlöe & Sofiya Nzau — Makuhia"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/29/81/d8/2981d827-c367-5404-bd65-20dd9a973fe0/mzaf_10610310360647061935.plus.aac.p.m4a">
+        <span class="hist-time">01</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/ca/8e/a7ca8e7d-8bd5-e5f4-6f4c-7ad8b515491f/196874676929.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">Makuhia</span><span class="hist-artist">Skyla Tylaa, Chlöe & Sofiya Nzau</span></span>
+      </button></li>
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Kimo Sounds — Rise Slow"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/57/8e/48/578e4876-2078-c1fd-d059-545e35825e95/mzaf_12624640908717768465.plus.aac.p.m4a">
+        <span class="hist-time">02</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/23/27/8a/23278a46-aa21-30f3-9e68-213772c53ea7/825181567094.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">Rise Slow</span><span class="hist-artist">Kimo Sounds</span></span>
+      </button></li>
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Rudimental, Original Koffee & Winny — Send Shots"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f2/fa/b3/f2fab3b0-1246-d1fd-cc79-ec513f3c5103/mzaf_9493844206954412749.plus.aac.p.m4a">
+        <span class="hist-time">03</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/71/ce/ff/71ceffe5-7e26-846e-ebb4-731ca4a88ffb/823375290452_Cover.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">Send Shots</span><span class="hist-artist">Rudimental, Original Koffee & Winny</span></span>
+      </button></li>
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Anyma, 19:26 & Baset — Prophecy"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bd/eb/fd/bdebfddd-cd35-afdb-2678-915fe0e0bfe5/mzaf_1813184517882378914.plus.aac.p.m4a">
+        <span class="hist-time">04</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ed/20/8c/ed208c9f-1777-5f09-89da-7f29dd78f82c/823375388555_Cover.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">Prophecy</span><span class="hist-artist">Anyma, 19:26 & Baset</span></span>
+      </button></li>
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Alex Warren — EMERALD EYES"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/54/d8/2d/54d82d90-a233-b830-8536-b90c3e0666f6/mzaf_7350443785994906011.plus.aac.p.m4a">
+        <span class="hist-time">05</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/84/88/bb8488c1-e2e3-59c1-2ce6-e2f88498c80e/075679560285.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">EMERALD EYES</span><span class="hist-artist">Alex Warren</span></span>
+      </button></li>
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Marshmello & Cameron Whitcomb — Hollow"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/78/6a/99786ae4-7ed9-3a19-76dd-c30a1fffcf8c/mzaf_7327956274992524081.plus.aac.p.m4a">
+        <span class="hist-time">06</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6a/cd/58/6acd584f-0355-461f-4e93-a5fc4172c902/26UM1IM02861.rgb.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">Hollow</span><span class="hist-artist">Marshmello & Cameron Whitcomb</span></span>
+      </button></li>
+      <li><button class="hist-row" type="button" aria-label="Слушать превью: Jaxstyle & Jon — What Are We Gonna Do"
+        data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b2/1d/b5/b21db594-ce82-48eb-df2e-c609e8cc6ac3/mzaf_5439828042565055651.plus.aac.p.m4a">
+        <span class="hist-time">07</span>
+        <span class="hist-cover"><img src="https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e0/a5/e0/e0a5e087-ddaf-0e81-eb38-8e16613e7729/1200214611057.jpg/160x160bb.jpg" alt="" loading="lazy"><span class="hist-play"><i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i></span></span>
+        <span class="hist-text"><span class="hist-title">What Are We Gonna Do</span><span class="hist-artist">Jaxstyle & Jon</span></span>
+      </button></li>
+    </ol>
   </div>
 </section>
 
@@ -2540,7 +2438,7 @@
   // playing. Clicks are delegated because playlist rows are built later.
   var previewAudio = document.getElementById('preview-audio');
   if (!previewAudio) return;
-  var PREVIEW_ROWS = '.track-row[data-preview], .hist-row[data-preview]';
+  var PREVIEW_ROWS = '.hist-row[data-preview]';
 
   var currentBtn = null;
 
@@ -2573,11 +2471,6 @@
 
       currentBtn = btn;
       btn.classList.add('is-loading');
-      // touch devices show the big cover inside the row — load it on demand
-      var inlineImg = btn.querySelector('.track-inline-cover img');
-      if (inlineImg && !inlineImg.getAttribute('src')){
-        inlineImg.src = btn.getAttribute('data-cover');
-      }
       previewAudio.src = url;
       previewAudio.play().catch(function(){
         btn.classList.remove('is-loading');
@@ -2599,8 +2492,6 @@
   var liveAudio = document.getElementById('live-audio');
   if (liveAudio) liveAudio.addEventListener('playing', stopPreview);
 
-  // Read by the cover-preview panel script below, so it knows which track
-  // (if any) is actually playing once the mouse stops hovering rows.
   window.CapitalPreview = {
     currentButton: function(){ return currentBtn; },
     // after a list re-render the playing row is a fresh element — find it
@@ -2643,43 +2534,6 @@
       box.classList.remove('is-live');
       video.pause();
     }
-  });
-})();
-</script>
-
-<script>
-(function(){
-  // Cover preview panel for the "Новая музыка" list: hovering a row
-  // crossfades the sticky panel on the left to that track's art. Two
-  // stacked imgs alternate so the previous cover fades under the next.
-  var panel = document.querySelector('.track-panel');
-  var list = document.querySelector('.tracks-list');
-  if (!panel || !list) return;
-  var imgs = panel.querySelectorAll('img');
-  var active = 0;
-  var defaultCover = imgs[active].getAttribute('src');
-
-  function showCover(src){
-    if (!src || imgs[active].getAttribute('src') === src) return;
-    var next = 1 - active;
-    imgs[next].src = src;
-    imgs[next].classList.add('is-top');
-    imgs[active].classList.remove('is-top');
-    active = next;
-  }
-
-  list.addEventListener('pointerover', function(e){
-    var row = e.target.closest('.track-row[data-cover]');
-    if (!row) return;
-    showCover(row.getAttribute('data-cover'));
-  });
-
-  // Once the mouse leaves the list entirely, the panel shouldn't keep
-  // showing whatever row it last happened to pass over — it should reflect
-  // what's actually playing (or the default cover if nothing is).
-  list.addEventListener('pointerleave', function(){
-    var playingBtn = window.CapitalPreview && window.CapitalPreview.currentButton && window.CapitalPreview.currentButton();
-    showCover(playingBtn ? playingBtn.getAttribute('data-cover') : defaultCover);
   });
 })();
 </script>
@@ -2848,7 +2702,7 @@
   document.querySelectorAll('.np-card, .day-tab-bar, .subscribe').forEach(function(el){
     revealOnce(el, 0);
   });
-  document.querySelectorAll('.tracks-list .track-row').forEach(function(el, i){
+  document.querySelectorAll('#new-music .hist-row').forEach(function(el, i){
     revealOnce(el, (i % 8) * 0.07);
   });
   document.querySelectorAll('.schedule-list').forEach(function(panel){
