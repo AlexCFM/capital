@@ -24,7 +24,7 @@
 <!-- Orbitron is requested as a variable font (full wght axis) so the hero
      wordmark can animate letter weight continuously; the fixed weights the
      rest of the site uses (700/800/900) are all inside this range. -->
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Unbounded:wght@500..800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     /* "Graphite": cool neutrals, one saturated signal red */
@@ -37,8 +37,11 @@
     --red-deep:#A3001F;
     --night:#0E0F12;
     --night-soft:#1A1C21;
-    --notch-lg:22px;
-    --notch-sm:9px;
+    --red-on-dark:#FF4D61; /* small red text on --night: 4.5:1+ */
+    /* one radius scale for every surface */
+    --r-sm:8px;   /* thumbs, small controls */
+    --r-md:14px;  /* covers, tips */
+    --r-lg:24px;  /* cards, banners */
   }
 
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -66,13 +69,13 @@
   }
 
   .display{
-    font-family:'Orbitron',sans-serif;
+    font-family:'Orbitron','Unbounded',sans-serif;
     font-weight:800;
     letter-spacing:-0.02em;
     text-transform:uppercase;
   }
 
-  h1,h2,h3{font-family:'Orbitron',sans-serif;font-weight:800;letter-spacing:-0.02em;}
+  h1,h2,h3{font-family:'Orbitron','Unbounded',sans-serif;font-weight:800;letter-spacing:-0.02em;}
 
   :focus-visible{
     outline:3px solid var(--red);
@@ -150,7 +153,7 @@
     background:var(--red);color:#fff;
     display:flex;align-items:center;
     padding:0 26px;
-    font-family:'Orbitron',sans-serif;font-weight:900;font-size:25px;
+    font-family:'Orbitron','Unbounded',sans-serif;font-weight:900;font-size:25px;
     letter-spacing:-0.01em;text-transform:uppercase;white-space:nowrap;
     transition:background .15s ease;
   }
@@ -168,7 +171,7 @@
     display:flex;
     align-items:center;
     gap:12px;
-    font-family:'Orbitron',sans-serif;
+    font-family:'Orbitron','Unbounded',sans-serif;
     font-weight:900;
     font-size:28px;
     letter-spacing:-0.02em;
@@ -208,35 +211,32 @@
     color:var(--ink-soft);white-space:nowrap;
     transition:color .15s ease;
   }
-  .nav-phone:hover{color:var(--red-deep);}
+  .nav-phone:hover{color:var(--ink);}
   .social-cluster{display:flex;align-items:center;gap:10px;}
   .social-icon-btn{
     /* WCAG 2.5.5 target size: 44x44 hit area, kept visually tight by
        trimming the surrounding cluster gap rather than growing the icon */
     width:44px;height:44px;flex-shrink:0;
     display:flex;align-items:center;justify-content:center;
-    border:1.5px solid var(--red);
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
-    color:var(--red);
+    border:1px solid rgba(13,14,16,.18);
+    border-radius:50%;
+    color:var(--ink);
     transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
-  .social-icon-btn:hover{background:var(--red);color:#fff;}
+  .social-icon-btn:hover{background:var(--ink);border-color:var(--ink);color:#fff;}
   .social-icon-btn svg{width:18px;height:18px;}
   .social-icon-btn .vk-mono{
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:-.02em;
-    /* small text needs the AA-safe shade; the button's border/icon stay
-       brand red since a 1.5px stroke is judged as non-text UI (3:1) */
-    color:var(--red-deep);
+    color:inherit;
   }
   .social-icon-btn:hover .vk-mono{color:#fff;}
   .social-chat-link{
     display:inline-flex;align-items:center;gap:6px;
     font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;
     letter-spacing:.04em;text-transform:uppercase;
-    color:var(--red-deep);white-space:nowrap;
+    color:var(--ink);white-space:nowrap;
     transition:opacity .15s ease;
   }
-  .social-chat-link svg{color:var(--red);}
   .social-chat-link svg{width:15px;height:15px;flex-shrink:0;}
   .social-chat-link:hover{opacity:.7;}
 
@@ -246,14 +246,14 @@
     display:none;
     width:40px;height:40px;flex-shrink:0;
     background:transparent;padding:0;
-    border:1.5px solid var(--red);
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    border:1px solid rgba(13,14,16,.18);
+    border-radius:50%;
     cursor:pointer;
     align-items:center;justify-content:center;
     flex-direction:column;gap:4px;
   }
   .burger span{
-    display:block;width:18px;height:2px;background:var(--red);
+    display:block;width:18px;height:2px;background:var(--ink);
     transition:transform .2s ease, opacity .2s ease;
   }
   .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg);}
@@ -323,7 +323,7 @@
   }
   .dial-seg i{
     display:block;font-style:normal;
-    font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px;letter-spacing:-0.02em;
+    font-family:'Orbitron','Unbounded',sans-serif;font-weight:700;font-size:11px;letter-spacing:-0.02em;
     text-transform:uppercase;color:rgba(255,255,255,.78);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
@@ -348,7 +348,7 @@
   }
   .dial-now i{
     display:block;font-style:normal;position:relative;z-index:1;
-    font-family:'Orbitron',sans-serif;font-weight:700;font-size:11px;letter-spacing:-0.02em;
+    font-family:'Orbitron','Unbounded',sans-serif;font-weight:700;font-size:11px;letter-spacing:-0.02em;
     text-transform:uppercase;color:#fff;white-space:nowrap;
   }
   /* Live-spectrum canvas layered behind the "now" window's text */
@@ -451,7 +451,7 @@
     font-weight:700;
     letter-spacing:.06em;
     text-transform:uppercase;
-    color:var(--red-deep);
+    color:var(--ink);
     min-height:1.5em; /* the typing animation must not reflow the grid */
     white-space:nowrap; /* keeps the caret glued to the typed line */
   }
@@ -576,12 +576,12 @@
   section{padding:100px 0;}
   .sec-head{
     text-align:center;
-    max-width:560px;
+    max-width:760px;
     margin:0 auto 56px;
   }
   .np-brand-mark{
     display:block;margin-bottom:14px;
-    font-family:'Orbitron',sans-serif;font-weight:900;font-size:20px;
+    font-family:'Orbitron','Unbounded',sans-serif;font-weight:900;font-size:20px;
     letter-spacing:-0.01em;text-transform:uppercase;color:var(--red);
   }
   .sec-head .rule-title{
@@ -593,8 +593,8 @@
     content:"";flex:1;height:1px;background:var(--line);
   }
   .sec-head h2{
-    font-size:clamp(30px,4vw,44px);
-    font-weight:800;
+    font-size:clamp(28px,3.6vw,40px);
+    font-weight:700; /* Unbounded (Cyrillic) runs heavier than Orbitron at the same weight */
     text-transform:uppercase;
     white-space:nowrap;
   }
@@ -610,7 +610,7 @@
     align-items:center;
     background:var(--night);
     color:#fff;
-    clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
+    border-radius:var(--r-lg);
     padding:32px;
     position:relative;
     overflow:hidden;
@@ -625,7 +625,7 @@
   }
   .np-backdrop img.is-visible{opacity:.32;}
   .np-cover{
-    width:100%;aspect-ratio:1/1;clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    width:100%;aspect-ratio:1/1;border-radius:var(--r-md);
     position:relative;
     overflow:hidden;
     background:var(--night);
@@ -646,12 +646,12 @@
     display:inline-flex;align-items:center;gap:8px;
     font-family:'JetBrains Mono',monospace;
     font-size:12px;font-weight:700;letter-spacing:.1em;
-    color:var(--red);text-transform:uppercase;
+    color:var(--red-on-dark);text-transform:uppercase;
     margin-bottom:14px;
   }
   .np-badge .track-eq{display:none;margin-left:4px;}
   .np-card:has(.np-play.is-playing) .np-badge .track-eq{display:inline-flex;}
-  .np-track{font-family:'Orbitron',sans-serif;}
+  .np-track{font-family:'Orbitron','Unbounded',sans-serif;}
   .np-title{display:block;font-size:30px;font-weight:800;line-height:1.15;}
   .np-artist{display:block;margin-top:8px;font-size:17px;font-weight:600;color:rgba(255,255,255,.78);}
   .np-artist:empty{display:none;}
@@ -692,12 +692,12 @@
   .hist-cover{
     position:relative;
     width:56px;height:56px;background:var(--night);overflow:hidden;
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    border-radius:var(--r-sm);
   }
   .hist-cover img{width:100%;height:100%;object-fit:cover;display:block;}
   .hist-text{min-width:0;}
   .hist-title,.hist-artist{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .hist-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:15px;}
+  .hist-title{font-family:'Orbitron','Unbounded',sans-serif;font-weight:700;font-size:15px;}
   .hist-artist{margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-soft);}
   /* play button over the cover: shows on hover, stays while playing */
   .hist-play{
@@ -777,17 +777,17 @@
     font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;
     text-transform:uppercase;
     padding:10px 20px;
-    border:1px solid var(--red);color:var(--red-deep);
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
-    transition:background .15s ease, color .15s ease;
+    border:1px solid rgba(13,14,16,.18);color:var(--ink-soft);
+    border-radius:999px;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
-  .day-tab-label:hover{border-color:var(--red);color:var(--red-deep);}
+  .day-tab-label:hover{border-color:var(--ink);color:var(--ink);}
   .day-panel.schedule-list{display:none;}
   #day-wd:checked ~ .day-tab-bar label[for="day-wd"],
   #day-fri:checked ~ .day-tab-bar label[for="day-fri"],
   #day-sat:checked ~ .day-tab-bar label[for="day-sat"],
   #day-sun:checked ~ .day-tab-bar label[for="day-sun"]{
-    background:var(--red);color:#fff;border-color:var(--red);
+    background:var(--ink);color:#fff;border-color:var(--ink);
   }
   #day-wd:checked ~ #panel-wd,
   #day-fri:checked ~ #panel-fri,
@@ -807,7 +807,7 @@
   .slot:last-child{border-bottom:none;}
   .slot-time{
     font-family:'JetBrains Mono',monospace;
-    font-weight:600;font-size:15px;color:var(--red-deep);
+    font-weight:600;font-size:15px;color:var(--ink-soft);
   }
   .slot-show{
     font-weight:700;font-size:17px;
@@ -815,7 +815,7 @@
     letter-spacing:.02em;text-transform:uppercase;
   }
   .slot.is-now{background:var(--paper-dim);}
-  .slot.is-now .slot-time{color:var(--red-deep);}
+  .slot.is-now .slot-time{color:var(--red);}
   .slot.is-now .slot-show::after{
     content:"• В ЭФИРЕ";
     font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;
@@ -826,7 +826,8 @@
   /* ---------- SUBSCRIBE ---------- */
   .subscribe{
     background:var(--night);
-    clip-path:polygon(0 0, calc(100% - 30px) 0, 100% 30px, 100% 100%, 30px 100%, 0 calc(100% - 30px));
+    border-radius:var(--r-lg);
+    isolation:isolate;
     max-width:1180px;
     margin:0 auto;
     position:relative;
@@ -965,7 +966,7 @@
     max-width:420px;margin:0 auto;
     background:var(--night);color:#fff;
     border:1px solid rgba(255,255,255,.12);
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    border-radius:var(--r-md);
     display:flex;align-items:center;gap:12px;
     padding:14px 40px 14px 14px;
     box-shadow:0 12px 32px rgba(0,0,0,.35);
@@ -1031,7 +1032,7 @@
     background:transparent;
     border:1.5px solid rgba(255,255,255,.28);
     color:rgba(255,255,255,.75);
-    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+    border-radius:50%;
     cursor:pointer;
     transition:border-color .15s ease,color .15s ease;
   }
@@ -1056,18 +1057,18 @@
   }
   .vol-slider::-webkit-slider-thumb{
     -webkit-appearance:none;
-    width:12px;height:16px;margin-top:-6px;
+    width:14px;height:14px;margin-top:-5px;
     background:#fff;
-    clip-path:polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    border-radius:50%;
     cursor:pointer;
     box-shadow:0 1px 4px rgba(0,0,0,.4);
     transition:transform .12s ease;
   }
-  .vol-slider:hover::-webkit-slider-thumb{transform:scaleX(1.3);}
+  .vol-slider:hover::-webkit-slider-thumb{transform:scale(1.2);}
   .vol-slider::-moz-range-thumb{
-    width:12px;height:16px;border:none;
+    width:14px;height:14px;border:none;
     background:#fff;
-    clip-path:polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+    border-radius:50%;
     cursor:pointer;
     box-shadow:0 1px 4px rgba(0,0,0,.4);
   }
@@ -1154,7 +1155,7 @@
     <!-- stacked mini chevrons: mirrors the big chevron block on the bar's
          right edge, two per 92px bar height -->
     <pattern id="capital-tile-pattern" width="52" height="46" patternUnits="userSpaceOnUse">
-      <rect width="52" height="46" fill="#fff"/>
+      <rect width="52" height="46" fill="var(--paper)"/>
       <polygon points="12,8 26,8 40,23 26,38 12,38 26,23" fill="var(--red)"/>
     </pattern>
   </defs>
@@ -1196,7 +1197,7 @@
     </div>
     <div class="bb-chevron">
       <svg viewBox="0 0 300 150" preserveAspectRatio="none">
-        <rect width="300" height="150" fill="#fff"/>
+        <rect width="300" height="150" fill="var(--paper)"/>
         <polygon points="0,0 90,0 150,75 90,150 0,150 60,75" fill="var(--red)"/>
         <polygon points="110,0 170,0 230,75 170,150 110,150 170,75" fill="var(--red)"/>
         <polygon points="220,0 280,0 300,75 280,150 220,150 280,75" fill="var(--red)" opacity="0.55"/>
