@@ -17,8 +17,16 @@ server can never serve a half-written file:
       "artist":     "Artist",
       "title":      "Title",
       "updated_at": "2026-08-26T18:00:00+00:00",
-      "updated_unix": 1787764800
+      "updated_unix": 1787764800,
+      "now":     { ...track... },
+      "history": [ { ...track... }, ... ]   # newest first, current excluded
     }
+
+A track is {raw, artist, title, started_at, started_unix, artwork, itunes_url,
+preview_url}. Artwork and links come from the iTunes Search API, looked up once
+here instead of by every visitor; they are null until the lookup finishes (or
+if iTunes has no match). Titles without an "Artist - " part (station idents,
+ad markers) are shown as "now" but never enter the history.
 
 Serve that file over HTTPS with `Access-Control-Allow-Origin: *` and point the
 site's METADATA_URL at it. See README.md for an nginx snippet.
@@ -41,6 +49,8 @@ import subprocess
 import sys
 import threading
 import time
+import urllib.parse
+import urllib.request
 from datetime import datetime, timezone
 
 # ffmpeg reports ICY metadata in one of two shapes depending on version and
@@ -56,7 +66,10 @@ RE_COLON = re.compile(r"^\s*StreamTitle\s*:\s*(.*?)\s*$")
 # forever on a stream that stopped delivering.
 PROGRESS_ARGS = ["-progress", "pipe:1"]
 
+ITUNES_SEARCH = "https://itunes.apple.com/search?media=music&entity=song&limit=1&term="
+
 _shutdown = threading.Event()
+_lock = threading.Lock()  # guards state["now"] / state["history"] and the file write
 
 
 def log(msg):
@@ -113,16 +126,111 @@ def write_atomic(path, payload):
     os.replace(tmp, path)
 
 
-def publish(path, raw):
+def itunes_search(term, timeout=10):
+    req = urllib.request.Request(
+        ITUNES_SEARCH + urllib.parse.quote(term),
+        headers={"User-Agent": "capital-now-playing/1.0"},
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        results = json.load(r).get("results") or []
+    return results[0] if results else None
+
+
+def lookup_track(artist, title):
+    """
+    Return {artwork, itunes_url, preview_url} for a track, or None.
+
+    Station edit/version tags like "(CFM Edit)" aren't in iTunes' catalog and
+    make the exact search miss, so a miss is retried with parentheticals
+    stripped — same fallback the site used when it searched client-side.
+    """
+    term = f"{artist} {title}"
+    stripped = re.sub(r"\s*\([^)]*\)\s*", " ", term)
+    stripped = re.sub(r"\s+", " ", stripped).strip()
+    for q in dict.fromkeys([term, stripped]):
+        hit = itunes_search(q)
+        if hit:
+            art = hit.get("artworkUrl100")
+            return {
+                "artwork": art.replace("100x100bb", "600x600bb") if art else None,
+                "itunes_url": hit.get("trackViewUrl"),
+                "preview_url": hit.get("previewUrl"),
+            }
+    return None
+
+
+def make_track(raw):
     artist, title = split_artist_title(raw)
     now = datetime.now(timezone.utc)
-    write_atomic(path, {
+    return {
         "raw": raw,
         "artist": artist,
         "title": title,
-        "updated_at": now.isoformat(timespec="seconds"),
-        "updated_unix": int(now.timestamp()),
+        "started_at": now.isoformat(timespec="seconds"),
+        "started_unix": int(now.timestamp()),
+        "artwork": None,
+        "itunes_url": None,
+        "preview_url": None,
+    }
+
+
+def write_state(path, state):
+    """Write the current state; caller holds _lock."""
+    cur = state["now"]
+    write_atomic(path, {
+        # flat fields kept so anything reading the old format keeps working
+        "raw": cur["raw"],
+        "artist": cur["artist"],
+        "title": cur["title"],
+        "updated_at": cur["started_at"],
+        "updated_unix": cur["started_unix"],
+        "now": cur,
+        "history": state["history"],
     })
+
+
+def load_state(path, state):
+    """Pick the history back up after a restart so the list isn't wiped."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return
+    state["history"] = [t for t in data.get("history") or [] if isinstance(t, dict)]
+    now = data.get("now")
+    if isinstance(now, dict) and now.get("raw"):
+        state["now"] = now
+        state["last_title"] = now["raw"]
+
+
+def enrich(path, state, track):
+    """Look the track up on iTunes in the background and republish."""
+    try:
+        info = lookup_track(track["artist"], track["title"])
+    except Exception as e:
+        log(f"itunes lookup failed for {track['raw']!r}: {e!r}")
+        return
+    if not info:
+        log(f"no itunes match for {track['raw']!r}")
+        return
+    with _lock:
+        # the dict may have moved into history by now — updating it in place
+        # covers both cases, as long as it is still part of the state at all
+        track.update(info)
+        if track is state["now"] or any(t is track for t in state["history"]):
+            write_state(path, state)
+
+
+def publish(path, raw, state, history_size):
+    track = make_track(raw)
+    with _lock:
+        prev = state["now"]
+        if prev and prev["artist"]:
+            state["history"] = ([prev] + state["history"])[:history_size]
+        state["now"] = track
+        write_state(path, state)
+    if track["artist"]:
+        threading.Thread(target=enrich, args=(path, state, track), daemon=True).start()
 
 
 def build_ffmpeg_command(args):
@@ -167,7 +275,7 @@ def pump_stderr(proc, state, args):
             # unchanged repeats are normal and must not be republished.
             continue
         state["last_title"] = raw
-        publish(args.output, raw)
+        publish(args.output, raw, state, args.history_size)
         log(f"now playing: {raw}")
 
 
@@ -265,6 +373,12 @@ def main():
         default=os.environ.get("COPY_CODEC", "").lower() in ("1", "true", "yes"),
         help="pass -c copy to skip audio decoding (env: COPY_CODEC)",
     )
+    p.add_argument(
+        "--history-size",
+        type=int,
+        default=int(os.environ.get("HISTORY_SIZE", "7")),
+        help="how many previous tracks to keep (env: HISTORY_SIZE)",
+    )
     args = p.parse_args()
 
     def handle_signal(signum, _frame):
@@ -277,7 +391,10 @@ def main():
     log(f"stream:  {args.url}")
     log(f"output:  {args.output}")
 
-    state = {"last_title": None, "last_progress": time.monotonic()}
+    state = {"last_title": None, "last_progress": time.monotonic(), "now": None, "history": []}
+    load_state(args.output, state)
+    if state["history"]:
+        log(f"restored {len(state['history'])} history entries")
     backoff = 1.0
     while not _shutdown.is_set():
         started = time.monotonic()

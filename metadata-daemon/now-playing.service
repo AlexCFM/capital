@@ -13,6 +13,8 @@ Environment=STREAM_URL=http://icecast.vgtrk.cdnvideo.ru/capitalfmmp3
 Environment=OUTPUT_FILE=/var/www/nowplaying/capital.json
 # Restart ffmpeg if the stream goes quiet for this long without disconnecting.
 Environment=STALL_TIMEOUT=30
+# Previous tracks kept in the JSON for the site's CAPITAL PLAYLIST list.
+Environment=HISTORY_SIZE=7
 
 ExecStart=/opt/nowplaying/now_playing.py
 

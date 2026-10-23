@@ -576,7 +576,18 @@
     color:#fff;
     clip-path:polygon(0 0, calc(100% - var(--notch-lg)) 0, 100% var(--notch-lg), 100% 100%, var(--notch-lg) 100%, 0 calc(100% - var(--notch-lg)));
     padding:32px;
+    position:relative;
+    overflow:hidden;
   }
+  .np-card > *:not(.np-backdrop){position:relative;z-index:1;}
+  /* current track's art, blown up and blurred behind the card */
+  .np-backdrop{position:absolute;inset:0;pointer-events:none;}
+  .np-backdrop img{
+    position:absolute;inset:-40px;width:calc(100% + 80px);height:calc(100% + 80px);
+    object-fit:cover;filter:blur(36px) saturate(1.3);
+    opacity:0;transition:opacity .8s ease;
+  }
+  .np-backdrop img.is-visible{opacity:.32;}
   .np-cover{
     width:100%;aspect-ratio:1/1;clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
     position:relative;
@@ -592,6 +603,9 @@
     background:linear-gradient(200deg, rgba(168,19,26,.55), rgba(10,7,6,.35) 60%);
     mix-blend-mode:multiply;
   }
+  /* real album art is shown as-is; the red wash is only for the studio photo */
+  .np-cover.has-art img{filter:none;}
+  .np-cover.has-art::after{display:none;}
   .np-badge{
     display:inline-flex;align-items:center;gap:8px;
     font-family:'JetBrains Mono',monospace;
@@ -599,8 +613,74 @@
     color:var(--red);text-transform:uppercase;
     margin-bottom:14px;
   }
-  .np-track{font-size:28px;font-weight:800;font-family:'Orbitron',sans-serif;}
-  .np-meta{margin-top:10px;color:rgba(255,255,255,.62);font-weight:500;font-size:15px;}
+  .np-badge .track-eq{display:none;margin-left:4px;}
+  .np-card:has(.np-play.is-playing) .np-badge .track-eq{display:inline-flex;}
+  .np-track{font-family:'Orbitron',sans-serif;}
+  .np-title{display:block;font-size:30px;font-weight:800;line-height:1.15;}
+  .np-artist{display:block;margin-top:8px;font-size:17px;font-weight:600;color:rgba(255,255,255,.78);}
+  .np-artist:empty{display:none;}
+  .np-meta{margin-top:12px;color:rgba(255,255,255,.62);font-weight:500;font-size:15px;}
+  .np-since{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
+  .np-since::after{content:" · ";}
+  .np-apple{
+    display:inline-flex;align-items:center;gap:8px;
+    margin-top:18px;padding:9px 14px;
+    border:1.5px solid rgba(255,255,255,.35);
+    font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;
+    text-transform:uppercase;color:#fff;
+    transition:background .2s ease, border-color .2s ease;
+  }
+  .np-apple:hover{background:var(--red);border-color:var(--red);}
+  .np-apple[hidden]{display:none;}
+
+  /* CAPITAL PLAYLIST: last 7 tracks from the daemon's history, newest first */
+  .np-history{margin-top:56px;}
+  .np-history[hidden]{display:none;}
+  .np-history-title{
+    font-size:20px;font-weight:800;text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .np-history-brand{color:var(--red);}
+  .np-history-list{
+    list-style:none;
+    display:grid;grid-template-columns:1fr 1fr;
+    grid-template-rows:repeat(4,auto);grid-auto-flow:column;
+    column-gap:56px;
+  }
+  .hist-row{
+    display:grid;
+    grid-template-columns:48px 56px minmax(0,1fr) auto;
+    gap:16px;align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    color:inherit;
+    transition:padding-left .25s ease;
+  }
+  a.hist-row:hover{padding-left:10px;}
+  .hist-time{
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+    color:var(--ink-soft);
+  }
+  .hist-cover{
+    width:56px;height:56px;background:var(--night);overflow:hidden;
+    clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
+  }
+  .hist-cover img{width:100%;height:100%;object-fit:cover;display:block;}
+  .hist-text{min-width:0;}
+  .hist-title,.hist-artist{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hist-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:15px;}
+  .hist-artist{margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-soft);}
+  .hist-action{
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.12em;
+    color:var(--red-deep);white-space:nowrap;
+    opacity:0;transition:opacity .2s ease;
+  }
+  a.hist-row:hover .hist-action{opacity:1;}
+  a.hist-row:hover .hist-title{color:var(--red-deep);}
+  @media (hover:none){ .hist-action{opacity:1;} }
+  @media (max-width:1000px){
+    .np-history-list{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row;}
+  }
   .np-debug{
     margin-top:8px;
     font-family:'JetBrains Mono',monospace;
@@ -1072,6 +1152,12 @@
     .np-card{grid-template-columns:1fr;text-align:center;}
     .np-cover{max-width:180px;margin:0 auto;}
     .np-badge{justify-content:center;}
+    .np-title{font-size:22px;}
+    .np-history{margin-top:40px;}
+    .hist-row{grid-template-columns:42px 48px minmax(0,1fr) auto;gap:12px;}
+    .hist-cover{width:48px;height:48px;}
+    .hist-action{font-size:0;letter-spacing:0;}
+    .hist-action::after{content:"↗";font-size:16px;}
     .track-row{grid-template-columns:36px 1fr auto;gap:14px;}
     .track-title{font-size:16px;}
     .slot{grid-template-columns:1fr;gap:4px;}
@@ -1230,11 +1316,13 @@
       <div class="rule-title"><h2>Сейчас в эфире</h2></div>
     </div>
     <div class="np-card">
+      <div class="np-backdrop" aria-hidden="true"><img id="np-backdrop-img" alt=""></div>
       <div class="np-cover"><img id="np-cover-img" src="assets/np-cover-fallback.jpg" alt="Пульт Pioneer CDJ и микшер в студии"></div>
       <div>
-        <span class="np-badge"><span class="live-dot"></span> В эфире</span>
-        <div class="np-track">Overmono — So U Kno</div>
-        <div class="np-meta"><span class="np-show-name">Фитнес Утро</span></div>
+        <span class="np-badge"><span class="live-dot"></span> В эфире <span class="track-eq" aria-hidden="true"><i></i><i></i><i></i></span></span>
+        <div class="np-track"><span class="np-title">So U Kno</span><span class="np-artist">Overmono</span></div>
+        <div class="np-meta"><span class="np-since" hidden></span><span class="np-show-name">Фитнес Утро</span></div>
+        <a class="np-apple" id="np-apple" href="#" target="_blank" rel="noopener" hidden>Apple Music ↗</a>
         <div class="np-debug" id="np-debug"></div>
       </div>
       <div class="np-side">
@@ -1259,6 +1347,10 @@
           <input type="range" class="vol-slider" min="0" max="100" value="80" aria-label="Громкость">
         </div>
       </div>
+    </div>
+    <div class="np-history" id="np-history" hidden>
+      <h3 class="np-history-title"><span class="np-history-brand">CAPITAL</span> PLAYLIST</h3>
+      <ol class="np-history-list" id="np-history-list"></ol>
     </div>
   </div>
 </section>
@@ -2132,11 +2224,12 @@
 })();
 
 (function(){
-  // Now-playing track metadata, relayed through a small Cloudflare Worker
-  // that reads the stream's in-band ICY StreamTitle tag server-side (the
-  // browser can't do this directly — see capital-metadata-worker.js for why).
-  var METADATA_URL = 'https://capital-metadata.samoylenko-aleksanderil.workers.dev/';
-  var POLL_MS = 30000;
+  // Now-playing track + history, published as JSON by metadata-daemon on the
+  // rizzfm VPS (it reads the stream's ICY StreamTitle server-side — the
+  // browser can't — and looks up iTunes art/links once for everyone). A
+  // plain-text response (the old Cloudflare Worker) is still understood.
+  var METADATA_URL = 'https://np.rizzfm.com/capital.json';
+  var POLL_MS = 15000;
   if (!METADATA_URL) return;
 
   var lastTrackText = null;
@@ -2197,18 +2290,116 @@
     });
   }
 
-  function updateTrackDisplays(text){
+  var npTitle = document.querySelector('.np-title');
+  var npArtist = document.querySelector('.np-artist');
+  var npSince = document.querySelector('.np-since');
+  var npApple = document.getElementById('np-apple');
+  var npBackdrop = document.getElementById('np-backdrop-img');
+
+  // CAPITAL is a Moscow station — times are shown in MSK for every visitor
+  function mskTime(unix){
+    return new Date(unix * 1000).toLocaleTimeString('ru-RU', {
+      hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow'
+    });
+  }
+
+  function splitTrack(text){
+    var m = text.match(/^(.+?)\s+[-–—]\s+(.+)$/);
+    return m ? { artist: m[1], title: m[2] } : { artist: '', title: text };
+  }
+
+  // `info` is the daemon's track object; null for the plain-text source,
+  // in which case art is looked up client-side like before
+  function updateTrackDisplays(text, info){
     text = (text || '').trim();
-    if (!text || text === lastTrackText) return;
-    lastTrackText = text;
+    if (!text) return;
+    if (text !== lastTrackText){
+      lastTrackText = text;
+      var parts = info ? { artist: info.artist, title: info.title } : splitTrack(text);
+      if (npTitle) npTitle.textContent = parts.title;
+      if (npArtist) npArtist.textContent = parts.artist;
+      setPlayerTrackText(text);
+      setDebug('');
+      setMediaSessionMeta(text);
+      if (!info) fetchArtwork(text);
+    }
+    if (!info) return;
+    if (npSince){
+      npSince.hidden = !info.started_unix;
+      if (info.started_unix) npSince.textContent = 'с ' + mskTime(info.started_unix);
+    }
+    if (npApple){
+      npApple.hidden = !info.itunes_url;
+      if (info.itunes_url) npApple.href = info.itunes_url;
+    }
+    if (info.artwork && info.artwork !== appliedArtwork){
+      appliedArtwork = info.artwork;
+      applyArtwork(text, info.artwork.replace('600x600bb', '100x100bb'));
+    }
+  }
+  var appliedArtwork = null;
 
-    var npTrack = document.querySelector('.np-track');
-    if (npTrack) npTrack.textContent = text;
-    setPlayerTrackText(text);
+  var historyList = document.getElementById('np-history-list');
+  var historyBox = document.getElementById('np-history');
+  var lastHistoryKey = '';
+  var HISTORY_MAX = 7;
 
-    setDebug('');
-    setMediaSessionMeta(text);
-    fetchArtwork(text);
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  function renderHistory(items){
+    if (!historyList || !historyBox) return;
+    items = (items || []).filter(function(t){ return t && t.raw; }).slice(0, HISTORY_MAX);
+    var key = items.map(function(t){ return t.raw + t.started_unix + (t.artwork || '') + (t.itunes_url || ''); }).join('|');
+    if (key === lastHistoryKey) return;
+    lastHistoryKey = key;
+    historyList.innerHTML = '';
+    items.forEach(function(t){
+      var row = t.itunes_url ? el('a', 'hist-row') : el('div', 'hist-row');
+      if (t.itunes_url){
+        row.href = t.itunes_url;
+        row.target = '_blank';
+        row.rel = 'noopener';
+        row.setAttribute('aria-label', (t.artist ? t.artist + ' — ' : '') + t.title + ', слушать в Apple Music');
+      }
+      row.appendChild(el('span', 'hist-time', t.started_unix ? mskTime(t.started_unix) : ''));
+      var cover = el('span', 'hist-cover');
+      if (t.artwork){
+        var img = el('img');
+        img.src = t.artwork.replace('600x600bb', '160x160bb');
+        img.alt = '';
+        img.loading = 'lazy';
+        cover.appendChild(img);
+      }
+      row.appendChild(cover);
+      var txt = el('span', 'hist-text');
+      txt.appendChild(el('span', 'hist-title', t.title));
+      txt.appendChild(el('span', 'hist-artist', t.artist));
+      row.appendChild(txt);
+      row.appendChild(el('span', 'hist-action', t.itunes_url ? 'APPLE MUSIC ↗' : ''));
+      var li = el('li');
+      li.appendChild(row);
+      historyList.appendChild(li);
+    });
+    historyBox.hidden = !items.length;
+  }
+
+  function handleMetadata(body){
+    var data = null;
+    try { data = JSON.parse(body); } catch (e) { /* plain-text source */ }
+    if (!data || typeof data !== 'object'){
+      updateTrackDisplays(body, null);
+      return;
+    }
+    var now = data.now || { raw: data.raw, artist: data.artist, title: data.title };
+    if (!now.raw) return;
+    var text = now.artist ? now.artist + ' — ' + now.title : now.raw;
+    updateTrackDisplays(text, now);
+    renderHistory(data.history);
   }
 
   // Free, key-less, CORS-open track art lookup — no proxy needed (unlike
@@ -2230,7 +2421,15 @@
       cover.src = art600;
       cover.classList.add('is-visible');
     }
-    if (npCoverImg) npCoverImg.src = art600;
+    if (npCoverImg){
+      npCoverImg.src = art600;
+      npCoverImg.alt = 'Обложка: ' + text;
+      npCoverImg.parentNode.classList.add('has-art');
+    }
+    if (npBackdrop){
+      npBackdrop.src = art600;
+      npBackdrop.classList.add('is-visible');
+    }
     currentArtwork = [
       { src: art100, sizes: '100x100', type: 'image/jpeg' },
       { src: art600, sizes: '600x600', type: 'image/jpeg' }
@@ -2286,7 +2485,7 @@
   function pollMetadata(){
     fetch(METADATA_URL, { cache: 'no-store' })
       .then(function(r){ return r.text(); })
-      .then(updateTrackDisplays)
+      .then(handleMetadata)
       .catch(function(){ /* unreachable — keep last known track name */ });
   }
 

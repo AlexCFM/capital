@@ -24,6 +24,15 @@ stream continuously. At 128 kbps that is **~1.4 GB/day (~41 GB/month)**.
 
 ## Install
 
+On the rizzfm VPS everything (daemon + `np.rizzfm.com` nginx site from
+`nginx-np.conf`) is done by:
+
+```sh
+sudo sh install.sh
+```
+
+Manually:
+
 ```sh
 sudo useradd --system --no-create-home --shell /usr/sbin/nologin nowplaying
 sudo install -d -o nowplaying -g nowplaying /var/www/nowplaying
@@ -56,7 +65,18 @@ web server can never serve a half-written file:
   "artist": "Madonna",
   "title": "Read My Lips (CFM Edit)",
   "updated_at": "2026-08-26T18:00:00+00:00",
-  "updated_unix": 1787764800
+  "updated_unix": 1787764800,
+  "now": {
+    "raw": "Madonna - Read My Lips (CFM Edit)",
+    "artist": "Madonna",
+    "title": "Read My Lips (CFM Edit)",
+    "started_at": "2026-08-26T18:00:00+00:00",
+    "started_unix": 1787764800,
+    "artwork": "https://is1-ssl.mzstatic.com/.../600x600bb.jpg",
+    "itunes_url": "https://music.apple.com/us/album/...",
+    "preview_url": "https://audio-ssl.itunes.apple.com/...m4a"
+  },
+  "history": [ { "...same shape as now, newest first..." } ]
 }
 ```
 
@@ -68,6 +88,14 @@ Notes on the fields:
   and the whole string lands in `title`.
 - An empty `StreamTitle` is ignored rather than published, so the site keeps
   showing the last real track instead of blanking out.
+- `artwork`/`itunes_url`/`preview_url` come from the iTunes Search API (US
+  store — the RU store returns karaoke/instrumental versions for many tracks).
+  They are `null` for a second or two after a change, or for good if there is
+  no match. A miss is retried with parentheticals like `(CFM Edit)` stripped.
+- `history` holds the previous `HISTORY_SIZE` tracks, current excluded. Titles
+  without an artist never enter it. It survives restarts (read back from the
+  output file on start); `started_at` of the first track after a restart is
+  the restart time, not the real track start.
 
 ## Serving it
 
@@ -87,10 +115,6 @@ location = /capital.json {
 
 Then point `METADATA_URL` in the site's `index.html` at that URL.
 
-Note the site currently expects **plain text** (the track title as the whole
-response body), not JSON — see the `pollMetadata()` function. Either adapt that
-function to parse JSON, or serve `raw` as text from a second location.
-
 ## Configuration
 
 CLI flags, or environment variables of the same name:
@@ -103,6 +127,7 @@ CLI flags, or environment variables of the same name:
 | `--user-agent` | `USER_AGENT` | `capital-now-playing/1.0` |
 | `--stall-timeout` | `STALL_TIMEOUT` | `30` |
 | `--copy-codec` | `COPY_CODEC` | off |
+| `--history-size` | `HISTORY_SIZE` | `7` |
 
 `--copy-codec` adds `-c copy` so ffmpeg skips audio decoding. Decoding a
 128 kbps MP3 costs roughly 1% of a core, so this is only worth enabling if CPU
