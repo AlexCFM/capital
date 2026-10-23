@@ -26,7 +26,8 @@ A track is {raw, artist, title, started_at, started_unix, artwork, itunes_url,
 preview_url}. Artwork and links come from the iTunes Search API, looked up once
 here instead of by every visitor; they are null until the lookup finishes (or
 if iTunes has no match). Titles without an "Artist - " part (station idents,
-ad markers) are shown as "now" but never enter the history.
+ad markers) and "SHORTS" rubrics are shown as "now" but never enter the
+history.
 
 Serve that file over HTTPS with `Access-Control-Allow-Origin: *` and point the
 site's METADATA_URL at it. See README.md for an nginx snippet.
@@ -69,6 +70,10 @@ RE_COLON = re.compile(r"^\s*StreamTitle\s*:\s*(.*?)\s*$")
 # without ffmpeg noticing can be detected and restarted instead of hanging
 # forever on a stream that stopped delivering.
 PROGRESS_ARGS = ["-progress", "pipe:1"]
+
+# Station segments ("SHORTS" rubrics) come through as normal titles; they are
+# shown as "now" but kept out of the played-tracks list, which is music only.
+NOT_MUSIC_RE = re.compile(r"\bshorts\b", re.IGNORECASE)
 
 ITUNES_SEARCH = "https://itunes.apple.com/search?media=music&entity=song&limit=1&term="
 
@@ -166,6 +171,10 @@ def lookup_track(artist, title):
     return None
 
 
+def is_music(track):
+    return bool(track["artist"]) and not NOT_MUSIC_RE.search(track["raw"])
+
+
 def make_track(raw):
     artist, title = split_artist_title(raw)
     now = datetime.now(timezone.utc)
@@ -232,7 +241,7 @@ def publish(path, raw, state, history_size):
     track = make_track(raw)
     with _lock:
         prev = state["now"]
-        if prev and prev["artist"]:
+        if prev and is_music(prev):
             state["history"] = ([prev] + state["history"])[:history_size]
         state["now"] = track
         write_state(path, state)

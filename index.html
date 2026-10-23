@@ -620,8 +620,6 @@
   .np-artist{display:block;margin-top:8px;font-size:17px;font-weight:600;color:rgba(255,255,255,.78);}
   .np-artist:empty{display:none;}
   .np-meta{margin-top:12px;color:rgba(255,255,255,.62);font-weight:500;font-size:15px;}
-  .np-since{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
-  .np-since::after{content:" · ";}
 
   /* CAPITAL PLAYLIST: last 8 tracks (two columns of 4) from the daemon's history, newest first */
   .np-history{margin-top:56px;}
@@ -1334,7 +1332,7 @@
       <div>
         <span class="np-badge"><span class="live-dot"></span> В эфире <span class="track-eq" aria-hidden="true"><i></i><i></i><i></i></span></span>
         <div class="np-track"><span class="np-title">So U Kno</span><span class="np-artist">Overmono</span></div>
-        <div class="np-meta"><span class="np-since" hidden></span><span class="np-show-name">Фитнес Утро</span></div>
+        <div class="np-meta"><span class="np-show-name">Фитнес Утро</span></div>
         <div class="np-debug" id="np-debug"></div>
       </div>
       <div class="np-side">
@@ -2304,7 +2302,6 @@
 
   var npTitle = document.querySelector('.np-title');
   var npArtist = document.querySelector('.np-artist');
-  var npSince = document.querySelector('.np-since');
   var npBackdrop = document.getElementById('np-backdrop-img');
 
   // CAPITAL is a Moscow station — times are shown in MSK for every visitor
@@ -2335,10 +2332,6 @@
       if (!info) fetchArtwork(text);
     }
     if (!info) return;
-    if (npSince){
-      npSince.hidden = !info.started_unix;
-      if (info.started_unix) npSince.textContent = 'с ' + mskTime(info.started_unix);
-    }
     if (info.artwork && info.artwork !== appliedArtwork){
       appliedArtwork = info.artwork;
       applyArtwork(text, info.artwork.replace('600x600bb', '100x100bb'));
@@ -2360,7 +2353,10 @@
 
   function renderHistory(items){
     if (!historyList || !historyBox) return;
-    items = (items || []).filter(function(t){ return t && t.raw; }).slice(0, HISTORY_MAX);
+    // music only — "SHORTS" rubrics stay out (the daemon filters them too)
+    items = (items || []).filter(function(t){
+      return t && t.raw && !/\bshorts\b/i.test(t.raw);
+    }).slice(0, HISTORY_MAX);
     var key = items.map(function(t){ return t.raw + t.started_unix + (t.artwork || '') + (t.preview_url || ''); }).join('|');
     if (key === lastHistoryKey) return;
     lastHistoryKey = key;

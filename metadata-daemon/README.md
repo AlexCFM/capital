@@ -93,7 +93,8 @@ Notes on the fields:
   They are `null` for a second or two after a change, or for good if there is
   no match. A miss is retried with parentheticals like `(CFM Edit)` stripped.
 - `history` holds the previous `HISTORY_SIZE` tracks, current excluded. Titles
-  without an artist never enter it. It survives restarts (read back from the
+  without an artist and anything with the word `SHORTS` (station rubrics)
+  never enter it. It survives restarts (read back from the
   output file on start); `started_at` of the first track after a restart is
   the restart time, not the real track start.
 
