@@ -622,16 +622,6 @@
   .np-meta{margin-top:12px;color:rgba(255,255,255,.62);font-weight:500;font-size:15px;}
   .np-since{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
   .np-since::after{content:" · ";}
-  .np-apple{
-    display:inline-flex;align-items:center;gap:8px;
-    margin-top:18px;padding:9px 14px;
-    border:1.5px solid rgba(255,255,255,.35);
-    font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;
-    text-transform:uppercase;color:#fff;
-    transition:background .2s ease, border-color .2s ease;
-  }
-  .np-apple:hover{background:var(--red);border-color:var(--red);}
-  .np-apple[hidden]{display:none;}
 
   /* CAPITAL PLAYLIST: last 7 tracks from the daemon's history, newest first */
   .np-history{margin-top:56px;}
@@ -648,15 +638,19 @@
     column-gap:56px;
   }
   .hist-row{
+    width:100%;
+    background:transparent;border:0;border-bottom:1px solid var(--line);
+    font:inherit;text-align:left;
+    appearance:none;-webkit-appearance:none;
     display:grid;
     grid-template-columns:48px 56px minmax(0,1fr) auto;
     gap:16px;align-items:center;
     padding:12px 0;
-    border-bottom:1px solid var(--line);
     color:inherit;
     transition:padding-left .25s ease;
   }
-  a.hist-row:hover{padding-left:10px;}
+  button.hist-row{cursor:pointer;}
+  button.hist-row:hover{padding-left:10px;}
   .hist-time{
     font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
     color:var(--ink-soft);
@@ -675,8 +669,13 @@
     color:var(--red-deep);white-space:nowrap;
     opacity:0;transition:opacity .2s ease;
   }
-  a.hist-row:hover .hist-action{opacity:1;}
-  a.hist-row:hover .hist-title{color:var(--red-deep);}
+  .hist-action::before{content:"PLAY";}
+  .hist-row.is-playing .hist-action::before{content:"STOP";}
+  button.hist-row:hover .hist-action,
+  .hist-row.is-playing .hist-action{opacity:1;}
+  button.hist-row:hover .hist-title,
+  .hist-row.is-playing .hist-title{color:var(--red-deep);}
+  .hist-row.is-loading{opacity:.6;}
   @media (hover:none){ .hist-action{opacity:1;} }
   @media (max-width:1000px){
     .np-history-list{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row;}
@@ -1156,8 +1155,6 @@
     .np-history{margin-top:40px;}
     .hist-row{grid-template-columns:42px 48px minmax(0,1fr) auto;gap:12px;}
     .hist-cover{width:48px;height:48px;}
-    .hist-action{font-size:0;letter-spacing:0;}
-    .hist-action::after{content:"↗";font-size:16px;}
     .track-row{grid-template-columns:36px 1fr auto;gap:14px;}
     .track-title{font-size:16px;}
     .slot{grid-template-columns:1fr;gap:4px;}
@@ -1322,7 +1319,6 @@
         <span class="np-badge"><span class="live-dot"></span> В эфире <span class="track-eq" aria-hidden="true"><i></i><i></i><i></i></span></span>
         <div class="np-track"><span class="np-title">So U Kno</span><span class="np-artist">Overmono</span></div>
         <div class="np-meta"><span class="np-since" hidden></span><span class="np-show-name">Фитнес Утро</span></div>
-        <a class="np-apple" id="np-apple" href="#" target="_blank" rel="noopener" hidden>Apple Music ↗</a>
         <div class="np-debug" id="np-debug"></div>
       </div>
       <div class="np-side">
@@ -2293,7 +2289,6 @@
   var npTitle = document.querySelector('.np-title');
   var npArtist = document.querySelector('.np-artist');
   var npSince = document.querySelector('.np-since');
-  var npApple = document.getElementById('np-apple');
   var npBackdrop = document.getElementById('np-backdrop-img');
 
   // CAPITAL is a Moscow station — times are shown in MSK for every visitor
@@ -2328,10 +2323,6 @@
       npSince.hidden = !info.started_unix;
       if (info.started_unix) npSince.textContent = 'с ' + mskTime(info.started_unix);
     }
-    if (npApple){
-      npApple.hidden = !info.itunes_url;
-      if (info.itunes_url) npApple.href = info.itunes_url;
-    }
     if (info.artwork && info.artwork !== appliedArtwork){
       appliedArtwork = info.artwork;
       applyArtwork(text, info.artwork.replace('600x600bb', '100x100bb'));
@@ -2354,17 +2345,16 @@
   function renderHistory(items){
     if (!historyList || !historyBox) return;
     items = (items || []).filter(function(t){ return t && t.raw; }).slice(0, HISTORY_MAX);
-    var key = items.map(function(t){ return t.raw + t.started_unix + (t.artwork || '') + (t.itunes_url || ''); }).join('|');
+    var key = items.map(function(t){ return t.raw + t.started_unix + (t.artwork || '') + (t.preview_url || ''); }).join('|');
     if (key === lastHistoryKey) return;
     lastHistoryKey = key;
     historyList.innerHTML = '';
     items.forEach(function(t){
-      var row = t.itunes_url ? el('a', 'hist-row') : el('div', 'hist-row');
-      if (t.itunes_url){
-        row.href = t.itunes_url;
-        row.target = '_blank';
-        row.rel = 'noopener';
-        row.setAttribute('aria-label', (t.artist ? t.artist + ' — ' : '') + t.title + ', слушать в Apple Music');
+      var row = t.preview_url ? el('button', 'hist-row') : el('div', 'hist-row');
+      if (t.preview_url){
+        row.type = 'button';
+        row.setAttribute('data-preview', t.preview_url);
+        row.setAttribute('aria-label', 'Слушать превью: ' + (t.artist ? t.artist + ' — ' : '') + t.title);
       }
       row.appendChild(el('span', 'hist-time', t.started_unix ? mskTime(t.started_unix) : ''));
       var cover = el('span', 'hist-cover');
@@ -2380,12 +2370,14 @@
       txt.appendChild(el('span', 'hist-title', t.title));
       txt.appendChild(el('span', 'hist-artist', t.artist));
       row.appendChild(txt);
-      row.appendChild(el('span', 'hist-action', t.itunes_url ? 'APPLE MUSIC ↗' : ''));
+      if (t.preview_url) row.appendChild(el('span', 'hist-action'));
       var li = el('li');
       li.appendChild(row);
       historyList.appendChild(li);
     });
     historyBox.hidden = !items.length;
+    // the list was rebuilt — let a running preview re-attach to its new row
+    if (window.CapitalPreview) window.CapitalPreview.sync();
   }
 
   function handleMetadata(body){
@@ -2514,13 +2506,14 @@
 
 <script>
 (function(){
-  // "Новая музыка" preview player — 30s clips from iTunes, independent of
-  // the live station stream. Only one thing plays at a time: starting a
-  // preview pauses the live stream (and any other preview), and starting
-  // the live stream stops whatever preview is playing.
+  // Preview player for "Новая музыка" and CAPITAL PLAYLIST — 30s clips
+  // from iTunes, independent of the live station stream. Only one thing
+  // plays at a time: starting a preview pauses the live stream (and any
+  // other preview), and starting the live stream stops whatever preview is
+  // playing. Clicks are delegated because playlist rows are built later.
   var previewAudio = document.getElementById('preview-audio');
-  var trackButtons = document.querySelectorAll('.track-row[data-preview]');
-  if (!previewAudio || !trackButtons.length) return;
+  if (!previewAudio) return;
+  var PREVIEW_ROWS = '.track-row[data-preview], .hist-row[data-preview]';
 
   var currentBtn = null;
 
@@ -2532,8 +2525,10 @@
     }
   }
 
-  trackButtons.forEach(function(btn){
-    btn.addEventListener('click', function(){
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest(PREVIEW_ROWS);
+    if (!btn) return;
+    (function(){
       var url = btn.getAttribute('data-preview');
       if (!url) return;
 
@@ -2561,7 +2556,7 @@
         btn.classList.remove('is-loading');
         if (currentBtn === btn) currentBtn = null;
       });
-    });
+    })();
   });
 
   previewAudio.addEventListener('playing', function(){
@@ -2579,7 +2574,24 @@
 
   // Read by the cover-preview panel script below, so it knows which track
   // (if any) is actually playing once the mouse stops hovering rows.
-  window.CapitalPreview = { currentButton: function(){ return currentBtn; } };
+  window.CapitalPreview = {
+    currentButton: function(){ return currentBtn; },
+    // after a list re-render the playing row is a fresh element — find it
+    sync: function(){
+      if (!currentBtn || document.contains(currentBtn)) return;
+      var state = currentBtn.className.match(/is-(playing|loading)/g) || [];
+      currentBtn = null;
+      var rows = document.querySelectorAll(PREVIEW_ROWS);
+      for (var i = 0; i < rows.length; i++){
+        if (rows[i].getAttribute('data-preview') === previewAudio.getAttribute('src')){
+          currentBtn = rows[i];
+          state.forEach(function(c){ currentBtn.classList.add(c); });
+          return;
+        }
+      }
+      previewAudio.pause(); // its row dropped off the list
+    }
+  };
 })();
 </script>
 

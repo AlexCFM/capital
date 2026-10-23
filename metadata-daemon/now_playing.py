@@ -53,10 +53,14 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-# ffmpeg reports ICY metadata in one of two shapes depending on version and
-# log level. Both are accepted so this keeps working across upgrades:
-#   1) the metadata block it prints for the input:  "    StreamTitle     : Foo"
-#   2) the raw tag straight from the http protocol: "StreamTitle='Foo';"
+# ffmpeg reports ICY metadata in several shapes depending on version and
+# log level. All are accepted so this keeps working across upgrades:
+#   1) the http protocol's verbose log on every change — the only one that
+#      shows up mid-stream:          "[http @ 0x..] Metadata update for StreamTitle: Foo"
+#   2) the metadata block it prints for the input, on connect only:
+#                                    "    StreamTitle     : Foo"
+#   3) the raw tag straight from the http protocol: "StreamTitle='Foo';"
+RE_UPDATE = re.compile(r"Metadata update for StreamTitle:\s*(.*?)\s*$")
 RE_QUOTED = re.compile(r"StreamTitle\s*=\s*'(.*?)'\s*;")
 RE_COLON = re.compile(r"^\s*StreamTitle\s*:\s*(.*?)\s*$")
 
@@ -79,6 +83,9 @@ def log(msg):
 
 def parse_stream_title(line):
     """Return the StreamTitle value in `line`, or None if there isn't one."""
+    m = RE_UPDATE.search(line)
+    if m:
+        return m.group(1).strip()
     m = RE_QUOTED.search(line)
     if m:
         return m.group(1).strip()
