@@ -383,7 +383,7 @@ def main():
     p.add_argument(
         "--history-size",
         type=int,
-        default=int(os.environ.get("HISTORY_SIZE", "7")),
+        default=int(os.environ.get("HISTORY_SIZE", "8")),
         help="how many previous tracks to keep (env: HISTORY_SIZE)",
     )
     args = p.parse_args()

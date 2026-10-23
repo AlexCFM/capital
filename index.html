@@ -623,7 +623,7 @@
   .np-since{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
   .np-since::after{content:" · ";}
 
-  /* CAPITAL PLAYLIST: last 7 tracks from the daemon's history, newest first */
+  /* CAPITAL PLAYLIST: last 8 tracks (two columns of 4) from the daemon's history, newest first */
   .np-history{margin-top:56px;}
   .np-history[hidden]{display:none;}
   .np-history-title{
@@ -2333,7 +2333,7 @@
   var historyList = document.getElementById('np-history-list');
   var historyBox = document.getElementById('np-history');
   var lastHistoryKey = '';
-  var HISTORY_MAX = 7;
+  var HISTORY_MAX = 8;
 
   function el(tag, cls, text){
     var e = document.createElement(tag);
