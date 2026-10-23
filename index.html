@@ -2295,6 +2295,24 @@
       if (!info) fetchArtwork(text);
     }
     if (!info) return;
+    if (info.program){
+      var art = programArt(info.title);
+      if (art !== appliedArtwork){
+        appliedArtwork = art;
+        if (npCoverImg){
+          npCoverImg.src = art;
+          npCoverImg.alt = info.title;
+          // the studio photo keeps its red wash; real posters show as-is
+          npCoverImg.parentNode.classList.toggle('has-art', art.indexOf('fallback') === -1);
+        }
+        if (npBackdrop){ npBackdrop.src = art; npBackdrop.classList.add('is-visible'); }
+        var cover = document.querySelector('.player-cover');
+        if (cover){ cover.src = art; cover.classList.add('is-visible'); }
+        currentArtwork = [{ src: new URL(art, location.href).href, sizes: '600x600', type: 'image/jpeg' }];
+        setMediaSessionMeta(text);
+      }
+      return;
+    }
     if (info.artwork && info.artwork !== appliedArtwork){
       appliedArtwork = info.artwork;
       applyArtwork(text, info.artwork.replace('600x600bb', '100x100bb'));
@@ -2360,6 +2378,14 @@
     if (window.CapitalPreview) window.CapitalPreview.sync();
   }
 
+  var AD_RE = /^(commercial|commercials|advert|advertising|реклама|jingle|джингл)$/i;
+  // Show posters the site already has; any other show gets the studio photo
+  function programArt(name){
+    if (/warm/i.test(name)) return 'assets/carousel/warm.jpg';
+    if (/nights/i.test(name)) return 'assets/carousel/nights.jpg';
+    return 'assets/np-cover-fallback.jpg';
+  }
+
   function handleMetadata(body){
     var data = null;
     try { data = JSON.parse(body); } catch (e) { /* plain-text source */ }
@@ -2370,12 +2396,23 @@
     var now = data.now || { raw: data.raw, artist: data.artist, title: data.title };
     var history = data.history || [];
     if (!now.raw) return;
-    // Ads and idents ("Commercial") have no artist — keep showing the last
-    // track instead, and take it out of the list so it isn't there twice
     if (!now.artist){
-      if (!history.length) return;
-      now = history[0];
-      history = history.slice(1);
+      // Ad breaks ("Commercial"): keep the last track up, and take it out of
+      // the list so it isn't shown twice
+      if (AD_RE.test(now.raw.trim())){
+        if (!history.length) return;
+        now = history[0];
+        history = history.slice(1);
+      } else {
+        // Anything else without an artist is a show title (e.g. the WARM
+        // chart sends its name for the whole two hours) — show the show
+        updateTrackDisplays(now.raw, {
+          artist: '', title: now.raw, started_unix: now.started_unix,
+          artwork: null, program: true
+        });
+        renderHistory(history);
+        return;
+      }
     }
     var text = now.artist + ' — ' + now.title;
     updateTrackDisplays(text, now);
