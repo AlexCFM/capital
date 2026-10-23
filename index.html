@@ -667,16 +667,16 @@
   .hist-action{
     font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.12em;
     color:var(--red-deep);white-space:nowrap;
-    opacity:0;transition:opacity .2s ease;
+    opacity:.55;transition:opacity .2s ease;
   }
-  .hist-action::before{content:"PLAY";}
-  .hist-row.is-playing .hist-action::before{content:"STOP";}
+  /* always visible so it's obvious the row plays a fragment */
+  .hist-action::before{content:"▶ PLAY";}
+  .hist-row.is-playing .hist-action::before{content:"■ STOP";}
   button.hist-row:hover .hist-action,
   .hist-row.is-playing .hist-action{opacity:1;}
   button.hist-row:hover .hist-title,
   .hist-row.is-playing .hist-title{color:var(--red-deep);}
   .hist-row.is-loading{opacity:.6;}
-  @media (hover:none){ .hist-action{opacity:1;} }
   @media (max-width:1000px){
     .np-history-list{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row;}
   }
