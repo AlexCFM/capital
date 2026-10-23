@@ -667,22 +667,24 @@
   .hist-play{
     position:absolute;inset:0;
     display:flex;align-items:center;justify-content:center;
-    background:rgba(20,18,16,.45);
     opacity:0;transition:opacity .2s ease;
   }
+  /* barely-there glass circle with a white triangle */
   .hist-play i{
     width:30px;height:30px;border-radius:50%;
-    background:var(--red);
+    background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.55);
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
     display:flex;align-items:center;justify-content:center;
-    transform:scale(.85);transition:transform .2s ease;
+    transform:scale(.9);transition:transform .2s ease, background .2s ease;
   }
-  .hist-play svg{width:12px;height:12px;fill:#fff;}
+  .hist-play svg{width:12px;height:12px;fill:#fff;filter:drop-shadow(0 0 2px rgba(0,0,0,.35));}
   .hist-play .icon-play{margin-left:2px;}
   .hist-play .icon-stop{display:none;}
   button.hist-row:hover .hist-play,
   .hist-row.is-playing .hist-play,
   .hist-row.is-loading .hist-play{opacity:1;}
-  button.hist-row:hover .hist-play i{transform:scale(1);}
+  button.hist-row:hover .hist-play i{transform:scale(1);background:rgba(255,255,255,.26);}
   .hist-row.is-playing .hist-play .icon-play{display:none;}
   .hist-row.is-playing .hist-play .icon-stop{display:block;}
   .hist-row.is-loading .hist-play i{animation:hist-pulse 1s ease-in-out infinite;}
@@ -690,7 +692,7 @@
   button.hist-row:hover .hist-title,
   .hist-row.is-playing .hist-title{color:var(--red-deep);}
   /* touch screens have no hover — keep the button visible */
-  @media (hover:none){ button.hist-row .hist-play{opacity:1;background:rgba(20,18,16,.25);} }
+  @media (hover:none){ button.hist-row .hist-play{opacity:1;} }
   @media (max-width:1000px){
     .np-history-list{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row;}
   }
