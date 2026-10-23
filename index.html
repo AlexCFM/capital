@@ -85,6 +85,14 @@
     z-index:20;
   }
 
+  .fan-strip{
+    background:var(--ink);color:var(--paper);
+    text-align:center;
+    padding:7px 16px;
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:12px;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+
   /* ---------- BRAND BAR (header as modular strip) ---------- */
   .brand-bar{
     display:flex;
@@ -469,14 +477,14 @@
     transform:rotate(var(--hero-tilt));
     will-change:transform;
   }
-  /* 8 slides x 8s each = 64s cycle (was 7 x 8s = 56s) — keyframe percents
+  /* 7 slides x 8s each = 56s cycle — keyframe percents
      and delays are derived from slide count, recompute both if it changes */
   .hero-visual img{
     position:absolute;inset:0;
     width:100%;height:100%;
     object-fit:cover;
     opacity:0;
-    animation:hero-carousel 64s ease-in-out infinite;
+    animation:hero-carousel 56s ease-in-out infinite;
   }
   .hero-visual img:nth-child(1){animation-delay:0s;}
   .hero-visual img:nth-child(2){animation-delay:-8s;}
@@ -485,12 +493,11 @@
   .hero-visual img:nth-child(5){animation-delay:-32s;}
   .hero-visual img:nth-child(6){animation-delay:-40s;}
   .hero-visual img:nth-child(7){animation-delay:-48s;}
-  .hero-visual img:nth-child(8){animation-delay:-56s;}
   @keyframes hero-carousel{
     0%{opacity:0;}
-    1%{opacity:1;}
-    11.5%{opacity:1;}
-    12.5%{opacity:0;}
+    1.1%{opacity:1;}
+    13.2%{opacity:1;}
+    14.3%{opacity:0;}
     100%{opacity:0;}
   }
   @media (prefers-reduced-motion:reduce){
@@ -798,37 +805,19 @@
   }
   .foot-top{
     display:grid;
-    grid-template-columns:1fr 2fr;
     gap:40px;
     padding-bottom:32px;
   }
-  .foot-partners{
-    display:flex;flex-wrap:wrap;
-    gap:8px 28px;
-    padding-bottom:24px;
-    border-bottom:1px solid var(--line);
-    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
-    color:var(--ink-soft);
-  }
-  .foot-partners a:hover{color:var(--red-deep);}
   .foot-col a{
     display:block;padding:6px 0;font-weight:600;font-size:14.5px;
     font-family:'JetBrains Mono',monospace;
   }
   .foot-col a:hover{color:var(--red-deep);}
   .foot-col .social-icon-btn{display:flex;padding:0;}
-  /* legal/registration text matches the mono voice the rest of the footer
-     (partner links, copyright bar) already uses, instead of falling back
-     to body-text Manrope */
-  .foot-legal p{
-    font-family:'JetBrains Mono',monospace;
-    color:var(--ink-soft);font-size:13px;line-height:1.7;
-    max-width:640px;margin-bottom:12px;
-  }
-  .foot-legal p:last-child{margin-bottom:0;}
   .foot-bottom{
     display:flex;justify-content:space-between;align-items:center;
-    padding-top:26px;font-size:13px;color:var(--ink-soft);font-weight:500;
+    padding-top:26px;border-top:1px solid var(--line);
+    font-size:13px;color:var(--ink-soft);font-weight:500;
     font-family:'JetBrains Mono',monospace;
   }
   .foot-bottom a{color:var(--ink-soft);}
@@ -1119,6 +1108,7 @@
 </svg>
 
 <header>
+  <div class="fan-strip">Проект фанатов CAPITAL</div>
   <div class="brand-bar">
     <div class="bb-pattern"><svg><rect width="100%" height="100%" fill="url(#capital-tile-pattern)"/></svg></div>
     <a class="bb-home" href="./" aria-label="CAPITAL — на главную">
@@ -1208,7 +1198,6 @@
       <img src="assets/carousel/renata.jpg" alt="Это надо видеть с Ренатой Пиотровски — о главных премьерах, новых фильмах и сериалах, каждый день на CAPITAL">
       <img src="assets/carousel/fitness.jpg" alt="Фитнес Утро — включи CAPITAL на пробежке, 7–11 утра">
       <img src="assets/carousel/nights.jpg" alt="CAPITAL Nights — лучшие диджеи и сэты, пятница 20:00, суббота 22:00">
-      <img src="assets/carousel/kanye-west.jpg" alt="Все апдейты по концертам Kanye West — подпишись на Telegram-канал CAPITAL, чтобы не пропустить">
       </a>
     </div>
   </div>
@@ -1505,24 +1494,10 @@
         </div>
         <a href="tel:+79251111053" style="display:block;margin-top:14px;margin-left:54px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--ink-soft);">+7 925 111-10-53</a>
       </div>
-      <div class="foot-col foot-legal">
-        <p>СМИ сетевое издание «Capital FM» зарегистрировано в Федеральной службе по надзору в сфере связи, информационных технологий и массовых коммуникаций. Свидетельство о регистрации средства массовой информации Эл № ФС 77-89187 от 28 февраля 2025 г.</p>
-        <p>Учредитель — АО «Москва Медиа». Главный редактор М.С. Димов.</p>
-        <p>Адрес редакции: 125124, РФ, г. Москва, ул. Правды, д. 24, стр. 2.</p>
-        <p>Почта: music@capitalfm.moscow. Тел.: +7 (495) 728-73-36</p>
-      </div>
-    </div>
-    <div class="foot-partners">
-      <a href="https://www.mosfm.com/" target="_blank" rel="noopener">Москва FM</a>
-      <a href="https://radiomoskvy.ru/" target="_blank" rel="noopener">Радио Москвы</a>
-      <a href="https://www.moscowmedia.net/" target="_blank" rel="noopener">Москва Медиа</a>
-      <a href="https://www.m24.ru/" target="_blank" rel="noopener">Москва 24</a>
-      <a href="https://www.doverie-tv.ru/" target="_blank" rel="noopener">Москва. Доверие</a>
-      <a href="https://www.mskagency.ru/" target="_blank" rel="noopener">Агентство "Москва"</a>
     </div>
     <div class="foot-bottom">
-      <span>&copy; Capital FM, 2017 – 2026</span>
-      <a href="https://disk.yandex.ru/i/uYmyNbgAfi7GPQ" target="_blank" rel="noopener">Политика обработки персональных данных</a>
+      <span>Неофициальный сайт радиостанции Capital Москва</span>
+      <span>Официальная страница находится по адресу <a href="https://capitalfm.moscow/" target="_blank" rel="noopener">capitalfm.moscow</a></span>
     </div>
   </div>
 </footer>
