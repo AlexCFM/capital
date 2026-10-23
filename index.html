@@ -643,7 +643,7 @@
     font:inherit;text-align:left;
     appearance:none;-webkit-appearance:none;
     display:grid;
-    grid-template-columns:48px 56px minmax(0,1fr) auto;
+    grid-template-columns:48px 56px minmax(0,1fr);
     gap:16px;align-items:center;
     padding:12px 0;
     color:inherit;
@@ -656,6 +656,7 @@
     color:var(--ink-soft);
   }
   .hist-cover{
+    position:relative;
     width:56px;height:56px;background:var(--night);overflow:hidden;
     clip-path:polygon(0 0, calc(100% - var(--notch-sm)) 0, 100% var(--notch-sm), 100% 100%, var(--notch-sm) 100%, 0 calc(100% - var(--notch-sm)));
   }
@@ -664,19 +665,34 @@
   .hist-title,.hist-artist{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .hist-title{font-family:'Orbitron',sans-serif;font-weight:700;font-size:15px;}
   .hist-artist{margin-top:3px;font-size:13px;font-weight:500;color:var(--ink-soft);}
-  .hist-action{
-    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.12em;
-    color:var(--red-deep);white-space:nowrap;
-    opacity:.55;transition:opacity .2s ease;
+  /* play button over the cover: shows on hover, stays while playing */
+  .hist-play{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(20,18,16,.45);
+    opacity:0;transition:opacity .2s ease;
   }
-  /* always visible so it's obvious the row plays a fragment */
-  .hist-action::before{content:"▶ PLAY";}
-  .hist-row.is-playing .hist-action::before{content:"■ STOP";}
-  button.hist-row:hover .hist-action,
-  .hist-row.is-playing .hist-action{opacity:1;}
+  .hist-play i{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    transform:scale(.85);transition:transform .2s ease;
+  }
+  .hist-play svg{width:12px;height:12px;fill:#fff;}
+  .hist-play .icon-play{margin-left:2px;}
+  .hist-play .icon-stop{display:none;}
+  button.hist-row:hover .hist-play,
+  .hist-row.is-playing .hist-play,
+  .hist-row.is-loading .hist-play{opacity:1;}
+  button.hist-row:hover .hist-play i{transform:scale(1);}
+  .hist-row.is-playing .hist-play .icon-play{display:none;}
+  .hist-row.is-playing .hist-play .icon-stop{display:block;}
+  .hist-row.is-loading .hist-play i{animation:hist-pulse 1s ease-in-out infinite;}
+  @keyframes hist-pulse{50%{transform:scale(.7);}}
   button.hist-row:hover .hist-title,
   .hist-row.is-playing .hist-title{color:var(--red-deep);}
-  .hist-row.is-loading{opacity:.6;}
+  /* touch screens have no hover — keep the button visible */
+  @media (hover:none){ button.hist-row .hist-play{opacity:1;background:rgba(20,18,16,.25);} }
   @media (max-width:1000px){
     .np-history-list{grid-template-columns:1fr;grid-template-rows:none;grid-auto-flow:row;}
   }
@@ -1153,7 +1169,7 @@
     .np-badge{justify-content:center;}
     .np-title{font-size:22px;}
     .np-history{margin-top:40px;}
-    .hist-row{grid-template-columns:42px 48px minmax(0,1fr) auto;gap:12px;}
+    .hist-row{grid-template-columns:42px 48px minmax(0,1fr);gap:12px;}
     .hist-cover{width:48px;height:48px;}
     .track-row{grid-template-columns:36px 1fr auto;gap:14px;}
     .track-title{font-size:16px;}
@@ -2365,12 +2381,17 @@
         img.loading = 'lazy';
         cover.appendChild(img);
       }
+      if (t.preview_url){
+        var play = el('span', 'hist-play');
+        play.innerHTML = '<i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
+          + '<svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i>';
+        cover.appendChild(play);
+      }
       row.appendChild(cover);
       var txt = el('span', 'hist-text');
       txt.appendChild(el('span', 'hist-title', t.title));
       txt.appendChild(el('span', 'hist-artist', t.artist));
       row.appendChild(txt);
-      if (t.preview_url) row.appendChild(el('span', 'hist-action'));
       var li = el('li');
       li.appendChild(row);
       historyList.appendChild(li);
