@@ -10,7 +10,7 @@
      playback surviving screen lock. Add to Home Screen from Safari's
      share sheet, then always launch from that icon. -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#FF2E2E">
+<meta name="theme-color" content="#E4002B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,15 +27,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#FAFAF7;
-    --paper-dim:#F1ECE4;
-    --ink:#141210;
-    --ink-soft:rgba(20,18,16,0.62);
-    --line:rgba(20,18,16,0.12);
-    --red:#FF2E2E;
-    --red-deep:#A8131A;
-    --night:#15100E;
-    --night-soft:#231B18;
+    /* "Graphite": cool neutrals, one saturated signal red */
+    --paper:#F2F2F3;
+    --paper-dim:#E6E7EA;
+    --ink:#0D0E10;
+    --ink-soft:rgba(13,14,16,0.56);
+    --line:rgba(13,14,16,0.10);
+    --red:#E4002B;
+    --red-deep:#A3001F;
+    --night:#0E0F12;
+    --night-soft:#1A1C21;
     --notch-lg:22px;
     --notch-sm:9px;
   }
@@ -384,14 +385,14 @@
   .live-dot{
     width:9px;height:9px;border-radius:50%;
     background:var(--red);
-    box-shadow:0 0 0 0 rgba(255,46,46,.6);
+    box-shadow:0 0 0 0 rgba(228,0,43,.6);
     animation:pulse-dot 1.8s ease-out infinite;
     flex-shrink:0;
   }
   @keyframes pulse-dot{
-    0%{box-shadow:0 0 0 0 rgba(255,46,46,.55);}
-    70%{box-shadow:0 0 0 10px rgba(255,46,46,0);}
-    100%{box-shadow:0 0 0 0 rgba(255,46,46,0);}
+    0%{box-shadow:0 0 0 0 rgba(228,0,43,.55);}
+    70%{box-shadow:0 0 0 10px rgba(228,0,43,0);}
+    100%{box-shadow:0 0 0 0 rgba(228,0,43,0);}
   }
   /* main CTA: play button with an appearance progress-ring; the magnetic
      cursor-follow transform is driven by JS, so no transform here */
@@ -405,11 +406,11 @@
     width:100%;height:100%;
     display:flex;align-items:center;justify-content:center;
     border:none;cursor:pointer;background:transparent;padding:0;
-    filter:drop-shadow(0 18px 36px rgba(255,46,46,.55));
+    filter:drop-shadow(0 14px 28px rgba(13,14,16,.22));
     transition:filter .2s ease;
     will-change:transform;
   }
-  .hero-cta:hover .hero-play{filter:drop-shadow(0 18px 36px rgba(255,46,46,.75));}
+  .hero-cta:hover .hero-play{filter:drop-shadow(0 16px 32px rgba(228,0,43,.32));}
   .cta-ring{
     position:absolute;inset:-9%;
     width:118%;height:118%;
@@ -479,8 +480,8 @@
     box-shadow:
       0 0 0 1px rgba(255,255,255,.75),
       0 0 0 7px rgba(255,255,255,.32),
-      0 0 0 8px rgba(20,18,16,.06),
-      0 34px 60px -24px rgba(20,18,16,.45);
+      0 0 0 8px rgba(13,14,16,.06),
+      0 34px 60px -24px rgba(13,14,16,.45);
     will-change:transform;
   }
   /* 7 slides x 8s each = 56s cycle — keyframe percents
@@ -524,7 +525,7 @@
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.7),
       inset 0 0 0 1px rgba(255,255,255,.22),
-      inset 0 -80px 90px -60px rgba(10,7,6,0.55);
+      inset 0 -80px 90px -60px rgba(8,9,11,0.55);
   }
   /* slow light sweep across the glass */
   .hero-visual::before{
@@ -635,7 +636,7 @@
   }
   .np-cover::after{
     content:"";position:absolute;inset:0;
-    background:linear-gradient(200deg, rgba(168,19,26,.55), rgba(10,7,6,.35) 60%);
+    background:linear-gradient(200deg, rgba(163,0,31,.55), rgba(8,9,11,.35) 60%);
     mix-blend-mode:multiply;
   }
   /* real album art is shown as-is; the red wash is only for the studio photo */
@@ -904,7 +905,7 @@
     width:64px;height:64px;
     background:transparent;border:none;cursor:pointer;padding:0;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    filter:drop-shadow(0 6px 16px rgba(255,46,46,.6));
+    filter:drop-shadow(0 6px 16px rgba(228,0,43,.6));
     transition:transform .15s ease;
   }
   .player-play:hover{transform:scale(1.06) rotate(-6deg);}
@@ -994,7 +995,7 @@
   .dbg-log{
     position:fixed;top:0;left:0;right:0;z-index:200;
     max-height:46vh;display:flex;flex-direction:column;
-    background:rgba(8,6,5,.94);color:#fff;
+    background:rgba(10,11,13,.94);color:#fff;
     border-bottom:2px solid var(--red);
     font-family:'JetBrains Mono',monospace;
   }
@@ -2967,7 +2968,7 @@
   var playerBar = document.getElementById('player');
   var playerVizEl = document.querySelector('.player-viz');
   var playerViz = playerVizEl
-    ? makeViz(playerVizEl, { color: '#FF2E2E', liveAlpha: 0.95, idleAlpha: 0.5, step: 5, barW: 2 })
+    ? makeViz(playerVizEl, { color: '#E4002B', liveAlpha: 0.95, idleAlpha: 0.5, step: 5, barW: 2 })
     : null;
 
   // One spectrum canvas per dial — the top strip and both section-divider
