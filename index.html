@@ -327,6 +327,13 @@
     text-transform:uppercase;color:rgba(255,255,255,.78);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
+  /* the live show is labelled by the red window — its own label would
+     only peek out from under it */
+  .dial-seg.is-live b,.dial-seg.is-live i{visibility:hidden;}
+  /* 1-hour slots are too narrow for a name: start time only (full name in
+     the tooltip) instead of a clipped "WA…" */
+  .dial-seg.is-narrow{padding-left:10px;padding-right:10px;}
+  .dial-seg.is-narrow i{display:none;}
   /* the fixed, centered "now" window — constant comfortable size,
      independent of the live segment's real duration */
   .dial-now{
@@ -341,6 +348,14 @@
     z-index:2;
     pointer-events:none;
   }
+  /* soft fade either side, so neighbouring labels dissolve into the window
+     instead of being cut mid-word */
+  .dial-now::before,.dial-now::after{
+    content:"";position:absolute;top:0;bottom:0;width:36px;
+    pointer-events:none;
+  }
+  .dial-now::before{right:100%;background:linear-gradient(to left, var(--ink), rgba(13,14,16,0));}
+  .dial-now::after{left:100%;background:linear-gradient(to right, var(--ink), rgba(13,14,16,0));}
   .dial-now b{
     display:block;position:relative;z-index:1;
     font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.03em;
@@ -359,8 +374,8 @@
   }
   .dial-now-mark{
     position:absolute;top:0;bottom:0;
-    width:2px;background:#fff;
-    z-index:2;
+    width:2px;background:rgba(255,255,255,.55);
+    z-index:0; /* behind the label, never through it */
     animation:dial-blink 1.6s ease-in-out infinite;
   }
   @keyframes dial-blink{0%,100%{opacity:1;}50%{opacity:.3;}}
@@ -1679,11 +1694,17 @@
     var PX_PER_HOUR = 64;
     var yesterdayKey = weekdayToKey[(now.weekday + 6) % 7];
     var tomorrowKey = weekdayToKey[(now.weekday + 1) % 7];
+    var NARROW_PX = 120; // below this the name can't fit next to the time
     var rulerHtml = '';
     [[yesterdayKey, 0], [rawKey, 24], [tomorrowKey, 48]].forEach(function(pair){
       DIAL_SCHEDULE[pair[0]].forEach(function(seg){
         var w = Math.round((seg[1] - seg[0]) * PX_PER_HOUR);
-        rulerHtml += '<div class="dial-seg" style="width:' + w + 'px"><b>' + fmtHour(seg[0]) + '–' + fmtHour(seg[1]) + '</b><i>' + seg[2] + '</i></div>';
+        var narrow = w < NARROW_PX;
+        var range = fmtHour(seg[0]) + '–' + fmtHour(seg[1]);
+        rulerHtml += '<div class="dial-seg' + (narrow ? ' is-narrow' : '') + '"'
+          + ' data-from="' + (pair[1] + seg[0]) + '" data-to="' + (pair[1] + seg[1]) + '"'
+          + ' title="' + range + ' ' + seg[2] + '" style="width:' + w + 'px">'
+          + '<b>' + (narrow ? fmtHour(seg[0]) : range) + '</b><i>' + seg[2] + '</i></div>';
       });
     });
     document.querySelectorAll('.dial-ruler').forEach(function(ruler){
@@ -1694,6 +1715,10 @@
     // of how short the live segment's real duration is.
     function paintNowBoxes(seg, decH){
       var pct = Math.max(0, Math.min(100, (decH - seg[0]) / (seg[1] - seg[0]) * 100));
+      var abs = 24 + decH; // today starts at abs hour 24 in the ribbon
+      document.querySelectorAll('.dial-seg').forEach(function(el){
+        el.classList.toggle('is-live', +el.dataset.from <= abs && abs < +el.dataset.to);
+      });
       document.querySelectorAll('.dial-now').forEach(function(box){
         var b = box.querySelector('b'), i = box.querySelector('i'), mark = box.querySelector('.dial-now-mark');
         if (b) b.textContent = fmtHour(seg[0]) + '–' + fmtHour(seg[1]);
