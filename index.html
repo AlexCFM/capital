@@ -840,11 +840,15 @@
 
 
   /* ---------- SUBSCRIBE ---------- */
+  /* CAPITAL TV: headed like every other section, video kept to a size that
+     sits in the page instead of taking it over */
+  .tv-section{padding:72px 0 64px;}
+  .tv-section .sec-head h2{white-space:normal;} /* long line: may wrap on phones */
   .subscribe{
     background:var(--night);
     border-radius:var(--r-lg);
     isolation:isolate;
-    max-width:1180px;
+    max-width:880px;
     margin:0 auto;
     position:relative;
     overflow:hidden;
@@ -1527,7 +1531,13 @@
   </div>
 </div>
 
-<section>
+<section class="tv-section">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="np-brand-mark">CAPITAL</span>
+      <div class="rule-title"><h2>ИЗ МОСКВЫ НА ВЕСЬ МИР!</h2></div>
+    </div>
+  </div>
   <div class="subscribe">
     <img src="assets/capital-tv.jpg" width="1280" height="720" alt="CAPITAL TV — вечеринка на крыше над Москвой на закате">
     <!-- Same scene, animated: fades in over the still only while the live
