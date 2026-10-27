@@ -26,8 +26,8 @@ A track is {raw, artist, title, started_at, started_unix, artwork, itunes_url,
 preview_url}. Artwork and links come from the iTunes Search API, looked up once
 here instead of by every visitor; they are null until the lookup finishes (or
 if iTunes has no match). Titles without an "Artist - " part (station idents,
-ad markers) and "SHORTS" rubrics are shown as "now" but never enter the
-history.
+ad markers), station jingles ("CAPITAL FM - ...") and "SHORTS" rubrics are
+shown as "now" but never enter the history.
 
 Serve that file over HTTPS with `Access-Control-Allow-Origin: *` and point the
 site's METADATA_URL at it. See README.md for an nginx snippet.
@@ -74,6 +74,8 @@ PROGRESS_ARGS = ["-progress", "pipe:1"]
 # Station segments ("SHORTS" rubrics) come through as normal titles; they are
 # shown as "now" but kept out of the played-tracks list, which is music only.
 NOT_MUSIC_RE = re.compile(r"\bshorts\b", re.IGNORECASE)
+# The station's own jingles come through as "CAPITAL FM - <slogan>".
+STATION_RE = re.compile(r"^capital(\s*fm)?(\s*105[.,]3)?$", re.IGNORECASE)
 
 ITUNES_SEARCH = "https://itunes.apple.com/search?media=music&entity=song&limit=1&term="
 
@@ -172,7 +174,9 @@ def lookup_track(artist, title):
 
 
 def is_music(track):
-    return bool(track["artist"]) and not NOT_MUSIC_RE.search(track["raw"])
+    return (bool(track["artist"])
+            and not STATION_RE.match(track["artist"].strip())
+            and not NOT_MUSIC_RE.search(track["raw"]))
 
 
 def make_track(raw):

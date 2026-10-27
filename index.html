@@ -2341,9 +2341,10 @@
 
   function renderHistory(items){
     if (!historyList || !historyBox) return;
-    // music only — "SHORTS" rubrics stay out (the daemon filters them too)
+    // music only — jingles and "SHORTS" rubrics stay out (the daemon filters
+    // them too; this covers anything recorded before a rule existed)
     items = (items || []).filter(function(t){
-      return t && t.raw && !/\bshorts\b/i.test(t.raw);
+      return t && t.raw && isMusic(t);
     }).slice(0, HISTORY_MAX);
     var key = items.map(function(t){ return t.raw + t.started_unix + (t.artwork || '') + (t.preview_url || ''); }).join('|');
     if (key === lastHistoryKey) return;
@@ -2386,6 +2387,11 @@
   }
 
   var AD_RE = /^(commercial|commercials|advert|advertising|реклама|jingle|джингл)$/i;
+  // the station's own jingles come through as "CAPITAL FM - <slogan>"
+  var STATION_RE = /^capital(\s*fm)?(\s*105[.,]3)?$/i;
+  function isMusic(t){
+    return !!t.artist && !STATION_RE.test(t.artist.trim()) && !/\bshorts\b/i.test(t.raw);
+  }
   // Show posters the site already has; any other show gets the studio photo
   function programArt(name){
     if (/warm/i.test(name)) return 'assets/carousel/warm.jpg';
@@ -2403,10 +2409,11 @@
     var now = data.now || { raw: data.raw, artist: data.artist, title: data.title };
     var history = data.history || [];
     if (!now.raw) return;
-    if (!now.artist){
-      // Ad breaks ("Commercial"): keep the last track up, and take it out of
-      // the list so it isn't shown twice
-      if (AD_RE.test(now.raw.trim())){
+    if (!now.artist || STATION_RE.test(now.artist.trim())){
+      // Ad breaks ("Commercial") and station jingles: keep the last track up,
+      // and take it out of the list so it isn't shown twice
+      if (now.artist || AD_RE.test(now.raw.trim())){
+        history = history.filter(isMusic);
         if (!history.length) return;
         now = history[0];
         history = history.slice(1);
