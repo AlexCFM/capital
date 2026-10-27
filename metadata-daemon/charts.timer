@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh the CAPITAL site charts daily
+
+[Timer]
+# Apple refreshes its most-played feeds overnight; 06:00 MSK picks up the new day.
+OnCalendar=*-*-* 03:00:00 UTC
+# also shortly after boot, and catch up if the machine was off at 03:00
+OnBootSec=2min
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

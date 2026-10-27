@@ -1,0 +1,22 @@
+[Unit]
+Description=CAPITAL site: Apple Music top-10 charts JSON
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nowplaying
+Group=nowplaying
+Environment=CHARTS_FILE=/var/www/nowplaying/charts.json
+ExecStart=/opt/nowplaying/charts.py
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/nowplaying
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6
+MemoryMax=128M

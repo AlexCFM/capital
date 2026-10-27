@@ -617,7 +617,6 @@
 
   /* ---------- NOW PLAYING ---------- */
   .now-playing{background:var(--paper-dim);padding-top:56px;}
-  #schedule{background:var(--paper-dim);}
   .np-card{
     display:grid;
     grid-template-columns:220px 1fr auto;
@@ -780,64 +779,43 @@
   .track-eq i:nth-child(3){height:16px;animation-delay:-0.8s;}
   @keyframes eq-bounce{0%,100%{transform:scaleY(0.3);}50%{transform:scaleY(1);}}
 
-  /* ---------- SCHEDULE ---------- */
-  /* ---------- DAY TABS (CSS-only switcher) ---------- */
-  .day-tab-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
-  .day-tab-bar{
-    display:flex;gap:10px;flex-wrap:wrap;
-    justify-content:center;
-    margin-bottom:44px;
+  /* ---------- WORLD CHARTS (Apple Music top-10, three countries) ---------- */
+  .charts{background:var(--paper-dim);}
+  .charts[hidden]{display:none;}
+  .chart-list{list-style:none;}
+  .charts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px;}
+  .chart-name{
+    font-family:'Orbitron','Unbounded',sans-serif;font-weight:700;font-size:15px;
+    text-transform:uppercase;letter-spacing:.02em;
+    padding-bottom:12px;border-bottom:1px solid var(--ink);
   }
-  .day-tab-label{
-    display:inline-block;cursor:pointer;
-    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.04em;
-    text-transform:uppercase;
-    padding:10px 20px;
-    border:1px solid rgba(13,14,16,.18);color:var(--ink-soft);
-    border-radius:999px;
-    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  /* playlist rows, scaled for a third of the width */
+  .chart-col .hist-row{grid-template-columns:24px 48px minmax(0,1fr);gap:12px;padding:10px 0;}
+  .chart-col .hist-cover{width:48px;height:48px;}
+  .chart-col .hist-play i{width:26px;height:26px;}
+  .chart-col .hist-play svg{width:10px;height:10px;}
+  .chart-col .hist-title{font-size:14px;}
+  .chart-col .hist-artist{font-size:12px;}
+  .chart-source{
+    margin-top:28px;text-align:center;
+    font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-soft);
   }
-  .day-tab-label:hover{border-color:var(--ink);color:var(--ink);}
-  .day-panel.schedule-list{display:none;}
-  #day-wd:checked ~ .day-tab-bar label[for="day-wd"],
-  #day-fri:checked ~ .day-tab-bar label[for="day-fri"],
-  #day-sat:checked ~ .day-tab-bar label[for="day-sat"],
-  #day-sun:checked ~ .day-tab-bar label[for="day-sun"]{
-    background:var(--ink);color:#fff;border-color:var(--ink);
+  /* phones: one chart at a time, switched between the same three countries */
+  .chart-tabs{display:none;}
+  @media (max-width:1000px){
+    .chart-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+    .chart-tab{
+      font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+      letter-spacing:.04em;text-transform:uppercase;
+      padding:9px 16px;border-radius:999px;cursor:pointer;
+      background:transparent;color:var(--ink-soft);border:1px solid rgba(13,14,16,.18);
+    }
+    .chart-tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink);}
+    .charts-grid{grid-template-columns:1fr;}
+    .chart-col{display:none;}
+    .chart-col.is-active{display:block;}
+    .chart-name{display:none;}
   }
-  #day-wd:checked ~ #panel-wd,
-  #day-fri:checked ~ #panel-fri,
-  #day-sat:checked ~ #panel-sat,
-  #day-sun:checked ~ #panel-sun{display:flex;}
-
-  .schedule-list{display:flex;flex-direction:column;}
-  .slot{
-    display:grid;
-    grid-template-columns:180px 1fr;
-    gap:24px;
-    align-items:center;
-    padding:20px 0;
-    border-bottom:1px solid var(--line);
-  }
-  .slot:first-child{padding-top:0;}
-  .slot:last-child{border-bottom:none;}
-  .slot-time{
-    font-family:'JetBrains Mono',monospace;
-    font-weight:600;font-size:15px;color:var(--ink-soft);
-  }
-  .slot-show{
-    font-weight:700;font-size:17px;
-    font-family:'JetBrains Mono',monospace;
-    letter-spacing:.02em;text-transform:uppercase;
-  }
-  .slot.is-now{background:var(--paper-dim);}
-  .slot.is-now .slot-time{color:var(--red);}
-  .slot.is-now .slot-show::after{
-    content:"• В ЭФИРЕ";
-    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.04em;
-    color:var(--red-deep);margin-left:12px;vertical-align:middle;
-  }
-
 
   /* ---------- SUBSCRIBE ---------- */
   /* CAPITAL TV: headed like every other section, video kept to a size that
@@ -1149,9 +1127,6 @@
     .np-history{margin-top:40px;}
     .hist-row{grid-template-columns:42px 48px minmax(0,1fr);gap:12px;}
     .hist-cover{width:48px;height:48px;}
-    .slot{grid-template-columns:1fr;gap:4px;}
-    .day-tab-bar{gap:8px;}
-    .day-tab-label{padding:9px 14px;font-size:12px;}
     .foot-top{grid-template-columns:1fr;}
     .foot-bottom{flex-direction:column;gap:10px;align-items:flex-start;}
     .subscribe{margin:0 20px;}
@@ -1194,7 +1169,7 @@
       <nav class="nav-links">
         <a href="#now-playing">PLAYLIST</a>
         <a href="#new-music">Новая музыка</a>
-        <a href="#schedule">LineUP</a>
+        <a href="#charts">Чарты</a>
         <a href="#contacts">Контакты</a>
       </nav>
       <div class="nav-cta">
@@ -1228,7 +1203,7 @@
   <nav class="mobile-menu" id="mobile-menu">
     <a href="#now-playing">PLAYLIST</a>
     <a href="#new-music">Новая музыка</a>
-    <a href="#schedule">LineUP</a>
+    <a href="#charts">Чарты</a>
     <a href="#contacts">Контакты</a>
     <a href="https://t.me/+Nf6spK23r_ZhZTUy" target="_blank" rel="noopener">Чат слушателей</a>
     <a href="tel:+79251111053" class="mm-phone">+7 925 111-10-53</a>
@@ -1402,116 +1377,15 @@
   </div>
 </section>
 
-<section id="schedule">
+<section id="charts" class="charts" hidden>
   <div class="wrap">
     <div class="sec-head">
       <span class="np-brand-mark">CAPITAL</span>
-      <div class="rule-title"><h2>LineUP</h2></div>
+      <div class="rule-title"><h2>Мировые чарты</h2></div>
     </div>
-
-    <input type="radio" name="day" id="day-wd" class="day-tab-input" checked>
-    <input type="radio" name="day" id="day-fri" class="day-tab-input">
-    <input type="radio" name="day" id="day-sat" class="day-tab-input">
-    <input type="radio" name="day" id="day-sun" class="day-tab-input">
-
-    <div class="day-tab-bar">
-      <label for="day-wd" class="day-tab-label">Пн–Чт</label>
-      <label for="day-fri" class="day-tab-label">Пт</label>
-      <label for="day-sat" class="day-tab-label">Сб</label>
-      <label for="day-sun" class="day-tab-label">Вс</label>
-    </div>
-
-    <div class="day-panel schedule-list" id="panel-wd">
-      <div class="slot">
-        <div class="slot-time">00:00–07:00</div>
-        <div class="slot-show">Ночной Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">07:00–11:00</div>
-        <div class="slot-show">Фитнес Утро</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">11:00–16:00</div>
-        <div class="slot-show">Рабочий Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">16:00–20:00</div>
-        <div class="slot-show">Прайм Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">20:00–00:00</div>
-        <div class="slot-show">Вечерний Драйв</div>
-      </div>
-    </div>
-
-    <div class="day-panel schedule-list" id="panel-fri">
-      <div class="slot">
-        <div class="slot-time">00:00–07:00</div>
-        <div class="slot-show">Ночной Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">07:00–11:00</div>
-        <div class="slot-show">Фитнес Утро</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">11:00–16:00</div>
-        <div class="slot-show">Рабочий Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">16:00–19:00</div>
-        <div class="slot-show">Пятница Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">19:00–20:00</div>
-        <div class="slot-show">Warm Dance Chart Top 20</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">20:00–00:00</div>
-        <div class="slot-show">CAPITAL NIGHTS</div>
-      </div>
-    </div>
-
-    <div class="day-panel schedule-list" id="panel-sat">
-      <div class="slot">
-        <div class="slot-time">00:00–07:00</div>
-        <div class="slot-show">Ночной Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">07:00–11:00</div>
-        <div class="slot-show">Фитнес Утро / Lazy Утро</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">11:00–21:00</div>
-        <div class="slot-show">Выходной Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">21:00–22:00</div>
-        <div class="slot-show">Warm Dance Chart Top 20</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">22:00–02:00</div>
-        <div class="slot-show">CAPITAL NIGHTS</div>
-      </div>
-    </div>
-
-    <div class="day-panel schedule-list" id="panel-sun">
-      <div class="slot">
-        <div class="slot-time">02:00–07:00</div>
-        <div class="slot-show">Ночной Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">07:00–11:00</div>
-        <div class="slot-show">Фитнес Утро / Lazy Утро</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">11:00–18:00</div>
-        <div class="slot-show">Выходной Драйв</div>
-      </div>
-      <div class="slot">
-        <div class="slot-time">18:00–00:00</div>
-        <div class="slot-show">Вечерний Драйв</div>
-      </div>
-    </div>
+    <div class="chart-tabs" role="tablist" aria-label="Страна"></div>
+    <div class="charts-grid"></div>
+    <p class="chart-source">Топ-10 Apple Music, обновляется каждый день</p>
   </div>
 </section>
 
@@ -1793,24 +1667,8 @@
       window.addEventListener('resize', positionRulersStatic);
     }
 
-    // Pre-select today's tab
-    var tabInput = document.getElementById('day-' + tabKey);
-    if (tabInput) tabInput.checked = true;
-
-    // Highlight the live row in that tab's schedule list
-    var activeShowName = null;
-    var panel = document.getElementById('panel-' + tabKey);
-    if (panel) {
-      var rows = panel.querySelectorAll('.slot');
-      rows.forEach(function(row, i){
-        if (i === tabActiveIdx) {
-          row.classList.add('is-now');
-          var showEl = row.querySelector('.slot-show');
-          if (showEl) activeShowName = showEl.textContent;
-        }
-      });
-    }
-    if (!activeShowName) activeShowName = dialSlots[dialActiveIdx][2];
+    var tabSlot = PANEL_SCHEDULE[tabKey] && PANEL_SCHEDULE[tabKey][tabActiveIdx];
+    var activeShowName = tabSlot ? tabSlot[2] : dialSlots[dialActiveIdx][2];
 
     // Sync "Сейчас в эфире" and the fixed player bar
     var npShow = document.querySelector('.np-show-name');
@@ -2823,16 +2681,11 @@
     revealTargets.push(el);
   }
 
-  document.querySelectorAll('.np-card, .day-tab-bar, .subscribe').forEach(function(el){
+  document.querySelectorAll('.np-card, .subscribe').forEach(function(el){
     revealOnce(el, 0);
   });
   document.querySelectorAll('#new-music .hist-row').forEach(function(el, i){
     revealOnce(el, (i % 8) * 0.07);
-  });
-  document.querySelectorAll('.schedule-list').forEach(function(panel){
-    panel.querySelectorAll('.slot').forEach(function(el, i){
-      revealOnce(el, i * 0.06);
-    });
   });
 })();
 </script>
@@ -3235,6 +3088,97 @@ if ('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(function(){});
   });
 }
+</script>
+
+<script>
+(function(){
+  // "Мировые чарты": Apple Music top-10 for three countries, written once a
+  // day by metadata-daemon/charts.py. Rows reuse the playlist markup, so the
+  // shared preview player (delegated on .hist-row[data-preview]) plays them.
+  var CHARTS_URL = 'https://np.rizzfm.com/charts.json';
+  var section = document.getElementById('charts');
+  if (!section) return;
+  var grid = section.querySelector('.charts-grid');
+  var tabs = section.querySelector('.chart-tabs');
+  var PLAY = '<i><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'
+    + '<svg class="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg></i>';
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text) e.textContent = text;
+    return e;
+  }
+
+  function row(t){
+    var r = el(t.preview_url ? 'button' : 'div', 'hist-row');
+    if (t.preview_url){
+      r.type = 'button';
+      r.setAttribute('data-preview', t.preview_url);
+      r.setAttribute('aria-label', 'Слушать превью: ' + t.artist + ' — ' + t.title);
+    }
+    r.appendChild(el('span', 'hist-time', (t.rank < 10 ? '0' : '') + t.rank));
+    var cover = el('span', 'hist-cover');
+    if (t.artwork){
+      var img = el('img');
+      img.src = t.artwork.replace('600x600bb', '120x120bb');
+      img.alt = '';
+      img.loading = 'lazy';
+      cover.appendChild(img);
+    }
+    if (t.preview_url){
+      var play = el('span', 'hist-play');
+      play.innerHTML = PLAY;
+      cover.appendChild(play);
+    }
+    r.appendChild(cover);
+    var txt = el('span', 'hist-text');
+    txt.appendChild(el('span', 'hist-title', t.title));
+    txt.appendChild(el('span', 'hist-artist', t.artist));
+    r.appendChild(txt);
+    var li = el('li');
+    li.appendChild(r);
+    return li;
+  }
+
+  function select(i){
+    var cols = grid.querySelectorAll('.chart-col');
+    var btns = tabs.querySelectorAll('.chart-tab');
+    for (var k = 0; k < cols.length; k++){
+      cols[k].classList.toggle('is-active', k === i);
+      btns[k].setAttribute('aria-selected', k === i ? 'true' : 'false');
+    }
+  }
+
+  function render(data){
+    var charts = (data && data.charts) || [];
+    if (!charts.length) return;
+    charts.forEach(function(c, i){
+      var col = el('div', 'chart-col');
+      col.id = 'chart-' + c.cc;
+      col.setAttribute('role', 'tabpanel');
+      col.appendChild(el('h3', 'chart-name', c.name));
+      var list = el('ol', 'chart-list');
+      (c.tracks || []).forEach(function(t){ list.appendChild(row(t)); });
+      col.appendChild(list);
+      grid.appendChild(col);
+
+      var tab = el('button', 'chart-tab', c.name);
+      tab.type = 'button';
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-controls', col.id);
+      tab.addEventListener('click', function(){ select(i); });
+      tabs.appendChild(tab);
+    });
+    select(0);
+    section.hidden = false;
+  }
+
+  fetch(CHARTS_URL)
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(render)
+    .catch(function(){ /* no charts today — the block simply stays hidden */ });
+})();
 </script>
 
 <!-- Cloudflare Web Analytics: cookieless visit counts, visible only in the
