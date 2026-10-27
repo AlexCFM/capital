@@ -158,7 +158,7 @@ restart and stall-detection paths offline.
 Apple Music top-10 for the countries in `COUNTRIES` (charts.py, column order
 on the site), written to `/var/www/nowplaying/charts.json` and served at
 `https://np.rizzfm.com/charts.json`. Previews are looked up by catalogue id
-in the same storefront, so the clip is always the charted track. Runs daily at
-03:00 UTC via `charts.timer` (installed by `install.sh`); a country that fails
+in the same storefront, so the clip is always the charted track. Runs Mondays and
+Fridays at 03:00 UTC (06:00 MSK) via `charts.timer` (installed by `install.sh`); a country that fails
 to fetch keeps its previous list. To change countries, edit `COUNTRIES` and
 re-run `sudo sh install.sh`.

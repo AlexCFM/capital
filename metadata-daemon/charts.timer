@@ -1,11 +1,10 @@
 [Unit]
-Description=Refresh the CAPITAL site charts daily
+Description=Refresh the CAPITAL site charts (Mon and Fri)
 
 [Timer]
-# Apple refreshes its most-played feeds overnight; 06:00 MSK picks up the new day.
-OnCalendar=*-*-* 03:00:00 UTC
-# also shortly after boot, and catch up if the machine was off at 03:00
-OnBootSec=2min
+# Monday and Friday, 06:00 MSK
+OnCalendar=Mon,Fri *-*-* 03:00:00 UTC
+# catch up if the machine was off at that time
 Persistent=true
 RandomizedDelaySec=10min
 

@@ -3,7 +3,7 @@
 charts.py — writes the Apple Music top-10 for a few countries as one JSON file
 for the site's "Мировые чарты" block.
 
-Run once a day (charts.timer). For each country it reads Apple's public
+Run on Mondays and Fridays (charts.timer). For each country it reads Apple's public
 most-played feed, then looks the ten tracks up by their catalogue id in the
 same storefront, so the preview clip is exactly the charted track — no fuzzy
 search. If a country fails to fetch, its previous list is kept, so a hiccup at

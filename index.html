@@ -1385,7 +1385,7 @@
     </div>
     <div class="chart-tabs" role="tablist" aria-label="Страна"></div>
     <div class="charts-grid"></div>
-    <p class="chart-source">Топ-10 Apple Music, обновляется каждый день</p>
+    <p class="chart-source">Топ-10 Apple Music, обновляется по понедельникам и пятницам</p>
   </div>
 </section>
 
@@ -3092,8 +3092,8 @@ if ('serviceWorker' in navigator){
 
 <script>
 (function(){
-  // "Мировые чарты": Apple Music top-10 for three countries, written once a
-  // day by metadata-daemon/charts.py. Rows reuse the playlist markup, so the
+  // "Мировые чарты": Apple Music top-10 for three countries, written on
+  // Mondays and Fridays by metadata-daemon/charts.py. Rows reuse the playlist markup, so the
   // shared preview player (delegated on .hist-row[data-preview]) plays them.
   var CHARTS_URL = 'https://np.rizzfm.com/charts.json';
   var section = document.getElementById('charts');
