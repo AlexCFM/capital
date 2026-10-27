@@ -854,10 +854,17 @@
     background:var(--paper);
     padding:48px 0 30px;
   }
+  /* one centred column under the CAPITAL TV video: logo, socials, phone */
   .foot-top{
     display:grid;
-    gap:40px;
+    justify-items:center;
     padding-bottom:32px;
+  }
+  .foot-col{display:flex;flex-direction:column;align-items:center;}
+  .foot-col .social-cluster{margin-top:18px;}
+  .foot-col .foot-phone{
+    margin-top:10px;
+    font-size:13px;color:var(--ink-soft);
   }
   .foot-col a{
     display:block;padding:6px 0;font-weight:600;font-size:14.5px;
@@ -866,7 +873,7 @@
   .foot-col a:hover{color:var(--red-deep);}
   .foot-col .social-icon-btn{display:flex;padding:0;}
   .foot-bottom{
-    display:flex;justify-content:space-between;align-items:center;
+    display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;
     padding-top:26px;border-top:1px solid var(--line);
     font-size:13px;color:var(--ink-soft);font-weight:500;
     font-family:'JetBrains Mono',monospace;
@@ -1127,8 +1134,6 @@
     .np-history{margin-top:40px;}
     .hist-row{grid-template-columns:42px 48px minmax(0,1fr);gap:12px;}
     .hist-cover{width:48px;height:48px;}
-    .foot-top{grid-template-columns:1fr;}
-    .foot-bottom{flex-direction:column;gap:10px;align-items:flex-start;}
     .subscribe{margin:0 20px;}
     .player-inner{padding:0 20px;}
     .player-freq{display:none;}
@@ -1427,7 +1432,7 @@
     <div class="foot-top">
       <div class="foot-col">
         <div class="logo"><span class="logo-mark mark-crop"><img src="assets/brand-reel.jpg" alt=""></span>CAPITAL</div>
-        <div class="social-cluster" style="margin-top:18px;margin-left:54px;">
+        <div class="social-cluster">
           <a href="https://t.me/capitalfmmoscow" class="social-icon-btn" target="_blank" rel="noopener" aria-label="Телеграм-канал CAPITAL">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
           </a>
@@ -1438,7 +1443,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 012 2v9a2 2 0 01-2 2H9l-5 4v-4H4a2 2 0 01-2-2V6a2 2 0 012-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
           </a>
         </div>
-        <a href="tel:+79251111053" style="display:block;margin-top:14px;margin-left:54px;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;color:var(--ink-soft);">+7 925 111-10-53</a>
+        <a href="tel:+79251111053" class="foot-phone">+7 925 111-10-53</a>
       </div>
     </div>
     <div class="foot-bottom">
