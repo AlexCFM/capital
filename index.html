@@ -850,8 +850,9 @@
     overflow:hidden;
   }
   .subscribe img{width:100%;height:auto;display:block;}
-  /* The video matches the photo's 2.67:1 framing, so it can sit right on top
-     of it — the photo stays as the base layer and doubles as the poster,
+  /* The still is the loop's first frame (16:9, CAPITAL TV bug baked into
+     both), so the video sits right on top of it — the still stays as the
+     base layer and doubles as the poster,
      which means no layout shift and no gap while the video loads. */
   .subscribe-video{
     position:absolute;inset:0;
@@ -1528,11 +1529,11 @@
 
 <section>
   <div class="subscribe">
-    <img src="assets/rooftop.jpg" alt="CAPITAL — вечеринка на крыше на закате">
-    <!-- Same rooftop scene, animated: fades in over the photo only while the
-         live stream is actually playing. preload="none" keeps it off the wire
-         for everyone who never presses play. -->
-    <video class="subscribe-video" src="assets/rooftop-live.mp4"
+    <img src="assets/capital-tv.jpg" width="1280" height="720" alt="CAPITAL TV — вечеринка на крыше над Москвой на закате">
+    <!-- Same scene, animated: fades in over the still only while the live
+         stream is actually playing. preload="none" keeps it off the wire for
+         everyone who never presses play. -->
+    <video class="subscribe-video" src="assets/capital-tv-loop.mp4"
       muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
   </div>
 </section>
@@ -1870,7 +1871,7 @@
     : [];
 
   // Anything that needs to react to the stream starting/stopping (the
-  // rooftop video, for one) subscribes here rather than listening to the
+  // CAPITAL TV banner video, for one) subscribes here rather than listening to the
   // audio element directly: this fires only on real state changes, so the
   // internal pause/play churn of a reconnect doesn't leak out as flicker.
   var playingListeners = [];
