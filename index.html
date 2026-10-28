@@ -822,6 +822,7 @@
      sits in the page instead of taking it over */
   .tv-section{padding:72px 0 64px;}
   .tv-section .sec-head h2{white-space:normal;} /* long line: may wrap on phones */
+  .hw-word{display:inline-block;white-space:nowrap;}
   .subscribe{
     background:var(--night);
     border-radius:var(--r-lg);
@@ -2655,17 +2656,31 @@
       var text = h2.textContent;
       h2.textContent = '';
       var idx = 0;
-      for (var i = 0; i < text.length; i++){
-        if (text[i] === ' '){
-          h2.appendChild(document.createTextNode(' '));
-          continue;
+      // letters are grouped per word so a long title wraps between words,
+      // never mid-word ("НА В / ЕСЬ"); short words (prepositions like "НА",
+      // "ИЗ") stay glued to the next word instead of hanging at a line end
+      var words = [];
+      text.split(' ').forEach(function(word){
+        var last = words[words.length - 1];
+        if (last !== undefined && last.length <= 2 && last.indexOf('\u00a0') === -1){
+          words[words.length - 1] = last + '\u00a0' + word;
+        } else {
+          words.push(word);
         }
-        var s = document.createElement('span');
-        s.className = 'hw';
-        s.textContent = text[i];
-        s.style.setProperty('--d', (idx++ * 0.035).toFixed(3) + 's');
-        h2.appendChild(s);
-      }
+      });
+      words.forEach(function(word, w){
+        if (w) h2.appendChild(document.createTextNode(' '));
+        var group = document.createElement('span');
+        group.className = 'hw-word';
+        for (var i = 0; i < word.length; i++){
+          var s = document.createElement('span');
+          s.className = 'hw';
+          s.textContent = word[i];
+          s.style.setProperty('--d', (idx++ * 0.035).toFixed(3) + 's');
+          group.appendChild(s);
+        }
+        h2.appendChild(group);
+      });
     });
     head.classList.add('rv-head');
     io.observe(head);
