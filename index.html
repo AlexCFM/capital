@@ -1412,7 +1412,7 @@
   </div>
 </div>
 
-<section class="tv-section">
+<section class="tv-section" id="capital-tv">
   <div class="wrap">
     <div class="sec-head">
       <span class="np-brand-mark">CAPITAL</span>
@@ -1865,20 +1865,26 @@
     });
   }
 
-  // The "Сейчас в эфире" card is its own full player (cover, title, play
-  // button) — showing the fixed bottom bar at the same time is redundant,
-  // so it slides itself out of the way while that section is in view.
-  var nowPlayingSection = document.getElementById('now-playing');
-  if (playerBar && playerToggle && nowPlayingSection){
+  // The bar slides itself out of the way over sections it would only get in
+  // the way of: the "Сейчас в эфире" card (its own full player — the bar
+  // would just repeat it) and the CAPITAL TV video (the bar would cover it).
+  // (watching the card and the video themselves — the sections around them
+  // are taller than a screen, so they'd rarely reach the threshold)
+  var tuckSections = ['#now-playing .np-card', '#capital-tv .subscribe'].map(function(sel){
+    return document.querySelector(sel);
+  }).filter(Boolean);
+  if (playerBar && playerToggle && tuckSections.length){
     var setCollapsed = function(collapsed){
       playerBar.classList.toggle('is-collapsed', collapsed);
       playerToggle.setAttribute('aria-expanded', String(!collapsed));
       playerToggle.setAttribute('aria-label', collapsed ? 'Развернуть плеер' : 'Свернуть плеер');
     };
-    var nowPlayingObserver = new IntersectionObserver(function(entries){
-      setCollapsed(entries[0].isIntersecting);
+    var inView = {};
+    var tuckObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ inView[tuckSections.indexOf(e.target)] = e.isIntersecting; });
+      setCollapsed(Object.keys(inView).some(function(k){ return inView[k]; }));
     }, { threshold: 0.45 });
-    nowPlayingObserver.observe(nowPlayingSection);
+    tuckSections.forEach(function(el){ tuckObserver.observe(el); });
   }
 
   // Media Session API: registers the stream with the OS as real media
